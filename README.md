@@ -24,45 +24,50 @@ to other equivalent points within the atom-centered basis functions framework.
     cmake .. && make -j4
     ```
 
-This will leads to executable `abf_rotation.exe`, and test executables in `build/tests`.
+This will leads to executable `abf_trans.exe`, and test executables in `build/tests`.
 Run `make test` to do some basic unit tests.
 
 ## Usage
 
 ### Inputs
 
-Three files are required as inputs to use this project
+Two files are required as inputs to use this project
 
-- `lattic.txt` for parsing the information of the lattice.
+- `cell.txt` for parsing the information of the cell.
     ```
     a_11 a_12 a_13
     a_21 a_22 a_23
     a_31 a_32 a_33
     n_atoms
-    x_a1 y_a1 z_a1 type_a1
-    x_a2 y_a2 z_a2 type_a2
+    x1_a1 x2_a1 x3_a1 type_a1
+    x1_a2 x2_a2 x3_a2 type_a2
     ...
-    x_an y_an z_an type_an
+    x1_an x2_an x3_an type_an
     ```
+    where `xN` are the fractional coordinate of atoms and `type` (integer) is the identifier of the atom type.
 - `basis_id.txt` to identify the information of basis functions.
   Each line of the file represents a set of basis functions for one atom specie, with the following format
    ```
-   type_a t n l
+   type_a k n l
    ```
-  where `type_a` is the type of atom, `t` the type of the basis,
+  where `type_a` is the type of atom, `k` the kind of the basis,
   `n` the principle quantum number and `l` the angular momentum quantum number.
-- `matrix.txt` for the input matrix elements on one particular k/R point.
-  The sparse matrix-market format is adapted here.
-  The indices of matrix is ordered as indicated by `basis_id.txt`, with azimuth quantum number from `-l` to `l`.
 
 To run the program
+```shell
+abf_trans.exe cell.txt basis_id.txt mode x1 x2 x3 [mtxfile]
+```
+where mode should be either `R`/`K`, and `xN` are the components along direct/reciprocal lattice vectors.
+`mtxfile` is the name of matrix data file in sparse matrix-market format, but it is optional.
+
+Another way to run the program is
 
 ```shell
-abf_trans.exe lattice.txt basis_id.txt matrix.txt mode x1 x2 x3
+abf_trans.exe cell.txt basis_id.txt matrices.txt
 ```
-
-mode should be either `R`/`K`, and `xN` are the components along direct/reciprocal lattice vectors.
-
+where each line in `matrices.txt` contain the `mode x1 x2 x3 mtxfile` information.
+Note that in this mode, `mtxfile` is required.
+   
 ## References
 
 ```bibtex

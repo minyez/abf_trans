@@ -6,7 +6,6 @@ target_sources(test_sph PRIVATE ../src/sph.cpp)
 
 target_link_libraries(test_linalg "${LAPACK_LIBRARIES}")
 
-target_sources(test_matrix PRIVATE ../src/matrix.cpp)
 target_link_libraries(test_matrix "${LAPACK_LIBRARIES}")
 
 add_test(

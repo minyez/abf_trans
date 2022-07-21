@@ -16,9 +16,12 @@ set_target_properties(abf_trans_exe
 
 # the source files to use
 list(APPEND _sources
+  abf.cpp
+  cell.cpp
   constants.cpp
-  matrix.cpp
+  io.cpp
   rotate.cpp
+  spglib_utils.cpp
   sph.cpp)
 # set include directories, required when external C/C++ codes are used in the project
 target_include_directories(abf_trans_exe
