@@ -1,4 +1,5 @@
 #include "abf.h"
+#include <set>
 
 std::map<int, std::vector<abf_id>> map_type_abfs;
 
@@ -40,6 +41,14 @@ int get_number_of_total_abfs(const std::map<int, std::vector<abf_id>> &map_type_
 ABF::ABF(const std::vector<int> &atom_types_in, const std::map<int, std::vector<abf_id>> &map_type_abfs_in)
         : atom_types(atom_types_in), map_type_abfs(map_type_abfs_in)
 {
+    /* // check duplicates */
+    /* for (const auto &at_abfs: map_type_abfs_in) */
+    /* { */
+    /*     const auto & abfs = at_abfs.second; */
+    /*     std::set<abf_id> set_abfs(abfs.cbegin(), abfs.cend()); */
+    /*     if (abfs.size() != set_abfs.size()) */
+    /*         throw std::invalid_argument("found duplicates in map_type_abfs input, please check"); */
+    /* } */
     auto nabfs = get_number_of_abfs();
     n_tot_abfs = 0;
     for (const auto &nabf: nabfs)
@@ -58,12 +67,13 @@ void ABF::get_abf_arlm(int abf_index, int &iat, int &irf, int &l, int &m) const
         if (abf_index > start_index_atom[i]) continue;
         iat = i - 1;
         int residual = abf_index - start_index_atom[iat];
-        for (const auto &abf: map_type_abfs.at(atom_types[iat]))
+        for (int i = 0; i < map_type_abfs.at(atom_types[iat]).size(); i++)
         {
+            auto abf = map_type_abfs.at(atom_types[iat])[i];
             residual -= abf.size();
             if (residual < 0)
             {
-                irf = abf.irf;
+                irf = i;
                 l = abf.l;
                 m = - residual - abf.size() - l;
                 break;

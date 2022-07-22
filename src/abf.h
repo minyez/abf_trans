@@ -3,12 +3,21 @@
 #include <vector>
 #include "base.h"
 
+// ABF object for generalization
 struct abf_id
 {
-    int irf;
+private:
+    int uid; // unique number for identity comparison
+public:
     int l;
-    abf_id(int irf_in, int l_in): irf(irf_in), l(l_in) {};
+    abf_id(int l_in): l(l_in) { uid = l; }
     int size() const { return get_msize(l); }
+    bool operator==(const abf_id &a2) const { return uid == a2.uid; }
+    bool operator<(const abf_id &a2) const { return uid < a2.uid; }
+    bool operator<=(const abf_id &a2) const { return uid <= a2.uid; }
+    bool operator>(const abf_id &a2) const { return uid > a2.uid; }
+    bool operator>=(const abf_id &a2) const { return uid >= a2.uid; }
+    bool operator!=(const abf_id &a2) const { return !(*this == a2); }
 };
 
 std::vector<int> get_number_of_abfs(const std::map<int, std::vector<abf_id>> &map_type_abfs,

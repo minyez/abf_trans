@@ -46,11 +46,13 @@ Two files are required as inputs to use this project
     ```
     where `xN` are the fractional coordinate of atoms and `type` (integer) is the identifier of the atom type.
 - `basis_id.txt` to identify the information of basis functions.
-  Each line of the file represents a set of basis functions for one atom specie, with the following format
+  Each line of the file represents a set of basis functions for one atom species with the same radial function
+  The format is
    ```
-   type_a irf l
+   type_a l_rf
    ```
-  where `type_a` is the type of atom, `irf` the index of radial function and `l` the angular momentum quantum number.
+  where `type_a` is the type of atom and `l_rf` the angular momentum quantum number of the radial function.
+  There can be lines that are identical to each other, but the radial functions are different by definition.
 
 To run the program
 ```shell

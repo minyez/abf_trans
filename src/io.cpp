@@ -58,11 +58,11 @@ void read_abf_ids(const string &abffile, const set<int> &inequiv_types_verify, m
     fin.open(abffile);
     if(fin)
     {
-        string t, irf, l;
+        string t, l;
         while(!fin.eof())
         {
-            fin >> t >> irf >> l;
-            abf_id aid(std::stoi(irf), std::stoi(l));
+            fin >> t >> l;
+            abf_id aid(std::stoi(l));
             map_t_abf[std::stoi(t)].push_back(aid);
         }
     }
