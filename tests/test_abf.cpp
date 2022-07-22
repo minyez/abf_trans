@@ -4,6 +4,18 @@
 
 using namespace std;
 
+void check_search_basis_index(const ABF &basis, int id, int iat, int irf, int l, int m)
+{
+    int temp_iat, temp_irf, temp_l, temp_m;
+    basis.get_abf_arlm(id, temp_iat, temp_irf, temp_l, temp_m);
+
+    int temp_id = basis.get_abf_index(temp_iat, temp_irf, temp_m);
+    printf("id %d = iat %d irf %d l %d m %d, reverted to id = %d\n", id, temp_iat, temp_irf, temp_l, temp_m, temp_id);
+
+    assert(iat == temp_iat && irf == temp_irf && l == temp_l && m == temp_m );
+    assert(temp_id == id);
+}
+
 void test_abf_prim_diamond_tier1()
 {
     std::vector<int> atypes;
@@ -17,7 +29,15 @@ void test_abf_prim_diamond_tier1()
     map_type_abfs[6].push_back({2});
     ABF basis(atypes, map_type_abfs);
     cout << "Total number of wfc. basis functions: " << basis.get_number_of_total_abfs() << endl;
+    /* for (int i = 0; i < atypes.size(); i++) */
+    /* { */
+    /*     cout << basis.start_index_atom[i] << " " << basis.end_index_atom[i] << endl; */
+    /* } */
     assert(basis.get_number_of_total_abfs() == 28);
+
+    check_search_basis_index(basis, 13, 0, 5, 2, 2);
+    check_search_basis_index(basis, 14, 1, 0, 0, 0);
+    check_search_basis_index(basis, 23, 1, 5, 2, -2);
 
     map_type_abfs.clear();
 }
@@ -55,6 +75,10 @@ void test_basbas_prim_diamond_tier1()
     ABF basis(atypes, map_type_abfs);
     cout << "Total number of product basis functions: " << basis.get_number_of_total_abfs() << endl;
     assert(basis.get_number_of_total_abfs() == 172);
+    check_search_basis_index(basis, 85, 0, 23, 4, 4);
+    check_search_basis_index(basis, 100, 1, 10, 1, -1);
+    check_search_basis_index(basis, 122, 1, 16, 2, -2);
+    check_search_basis_index(basis, 155, 1, 21, 3, 3);
 
     map_type_abfs.clear();
 }

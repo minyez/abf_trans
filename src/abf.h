@@ -29,8 +29,9 @@ int get_number_of_total_abfs(const std::map<int, std::vector<abf_id>> &map_type_
 class ABF
 {
 private:
-    std::vector<int> start_index_atom;
     int n_tot_abfs;
+    std::vector<int> start_index_atom;
+    std::vector<int> end_index_atom;
 public:
     std::map<int, std::vector<abf_id>> map_type_abfs;
     std::vector<int> atom_types;
@@ -39,7 +40,7 @@ public:
     std::vector<int> get_number_of_abfs() const { return ::get_number_of_abfs(map_type_abfs, atom_types); }
     int get_number_of_total_abfs() const { return n_tot_abfs; }
     void get_abf_arlm(int abf_index, int &iat, int &irf, int &l, int &m) const;
-    /* int get_abf_index(int iat, int irf, int l, int m) const; */
+    int get_abf_index(int iat, int irf, int m) const;
 };
 
 extern std::map<int, std::vector<abf_id>> map_type_abfs;

@@ -55,6 +55,7 @@ ABF::ABF(const std::vector<int> &atom_types_in, const std::map<int, std::vector<
     {
         start_index_atom.push_back(n_tot_abfs);
         n_tot_abfs += nabf;
+        end_index_atom.push_back(n_tot_abfs - 1);
     }
 }
 
@@ -62,23 +63,35 @@ void ABF::get_abf_arlm(int abf_index, int &iat, int &irf, int &l, int &m) const
 {
     if (abf_index >= n_tot_abfs)
         throw std::invalid_argument("requested index >= nbasis");
-    for (int i = 1; i < atom_types.size(); i++)
+    for (int i = 0; i < atom_types.size(); i++)
+        if (abf_index >= start_index_atom[i] && abf_index <= end_index_atom[i])
+            iat = i;
+    int residual = abf_index - start_index_atom[iat];
+    for (int i = 0; i < map_type_abfs.at(atom_types[iat]).size(); i++)
     {
-        if (abf_index > start_index_atom[i]) continue;
-        iat = i - 1;
-        int residual = abf_index - start_index_atom[iat];
-        for (int i = 0; i < map_type_abfs.at(atom_types[iat]).size(); i++)
+        auto abf = map_type_abfs.at(atom_types[iat])[i];
+        residual -= abf.size();
+        if (residual < 0)
         {
-            auto abf = map_type_abfs.at(atom_types[iat])[i];
-            residual -= abf.size();
-            if (residual < 0)
-            {
-                irf = i;
-                l = abf.l;
-                m = - residual - abf.size() - l;
-                break;
-            }
+            irf = i;
+            l = abf.l;
+            m = residual + abf.size() - l;
+            break;
         }
-        break;
     }
+}
+
+int ABF::get_abf_index(int iat, int irf, int m) const
+{
+    if (!(iat < atom_types.size()))
+        throw std::invalid_argument("atom index out of bound");
+    int iabf = start_index_atom[iat];
+    auto abfs = map_type_abfs.at(atom_types[iat]);
+    if (!(irf < abfs.size()))
+        throw std::invalid_argument("radfunc index out of bound");
+    int l = abfs[irf].l;
+    for (int i = 0; i < irf; i++)
+        iabf += abfs[i].size();
+    iabf += l + m;
+    return iabf;
 }
