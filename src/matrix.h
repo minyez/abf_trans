@@ -19,6 +19,20 @@ public:
             c = new T [nr*nc];
         zero_out();
     }
+    matrix(const int &nrows, const int &ncols, const T *valarr): nr(nrows), nc(ncols), c(nullptr)
+    {
+        if (nr&&nc)
+            c = new T [nr*nc];
+        zero_out();
+        // int nval = *(&valarr+1) - valarr;
+        // std::cout << nval << std::endl;
+        // nval /= sizeof(T);
+        // std::cout << nval << std::endl;
+        // for (int i = 0; i < std::min(nval, nr*nc); i++)
+        //     c[i] = valarr[i];
+        for (int i = 0; i < size(); i++)
+            c[i] = valarr[i];
+    }
     matrix(const matrix &m): nr(m.nr), nc(m.nc), c(nullptr)
     {
         if( nr && nc )
@@ -34,7 +48,15 @@ public:
         m.c = nullptr;
     }
 
-    ~matrix() { nc = nr = 0; delete [] c; }
+    ~matrix()
+    {
+        nc = nr = 0;
+        if (c)
+        {
+            delete [] c;
+            c = nullptr;
+        }
+    }
 
     int size() const { return nc*nr; }
     void zero_out() { for (int i = 0; i < size(); i++) c[i] = 0; }
@@ -50,6 +72,18 @@ public:
         return *this;
     }
 
+    matrix<T> & operator=(matrix<T> &&m)
+    {
+        if (this == &m) return *this;
+        nr = m.nr;
+        nc = m.nc;
+        if(c) delete [] c;
+        c = m.c;
+        m.nr = m.nc = 0;
+        m.c = nullptr;
+        return *this;
+    }
+
     void operator+=(const matrix<T> &m)
     {
         assert(size() == m.size());
@@ -61,7 +95,7 @@ public:
     {
         assert(nc == v.size());
         for (int i = 0; i < nr; i++)
-            for (int ic = 1; ic < nc; ic++)
+            for (int ic = 0; ic < nc; ic++)
                 c[i*nc+ic] += v[ic];
     }
 
@@ -175,14 +209,16 @@ matrix<T> operator+(const matrix<T> &m1, const matrix<T> &m2)
     assert(m1.nr == m2.nr);
     matrix<T> sum = m1;
     sum += m2;
+    return sum;
 }
 
 template <typename T>
 matrix<T> operator+(const matrix<T> &m, const std::vector<T> &v)
 {
     assert(m.nc == v.size());
-    matrix<T> mnew = m;
-    m += v;
+    matrix<T> mnew(m);
+    mnew += v;
+    return mnew;
 }
 
 template <typename T>
@@ -204,8 +240,9 @@ matrix<T> operator-(const matrix<T> &m1, const matrix<T> &m2)
 {
     assert(m1.nc == m2.nc);
     assert(m1.nr == m2.nr);
-    matrix<T> sum = m1;
-    sum -= m2;
+    matrix<T> mnew = m1;
+    mnew -= m2;
+    return mnew;
 }
 
 template <typename T>
@@ -213,15 +250,16 @@ matrix<T> operator-(const matrix<T> &m, const std::vector<T> &v)
 {
     assert(m.nc == v.size());
     matrix<T> mnew = m;
-    m -= v;
+    mnew -= v;
+    return mnew;
 }
 
 template <typename T>
 matrix<T> operator-(const matrix<T> &m, const T &cnum)
 {
-    matrix<T> sum = m;
-    sum -= cnum;
-    return sum;
+    matrix<T> mnew = m;
+    mnew -= cnum;
+    return mnew;
 }
 
 

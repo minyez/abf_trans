@@ -94,7 +94,7 @@ SpglibDataset* wrapper_spg_get_dataset(const matrix<double> &latt_in,
     return dataset;
 }
 
-void SpgDS_c::show()
+void SpgDS_c::show() const
 {
     printf("International: %s (%d)\n", international_symbol.c_str(), spacegroup_number);
     printf("  Hall symbol: %s\n", hall_symbol.c_str());

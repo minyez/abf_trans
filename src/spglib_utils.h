@@ -45,8 +45,9 @@ public:
 
     SpgDS_c(const matrix<double> &latt_in, const matrix<double> &posi_frac_in,
             const vector<int> &types_in, const double symprec = 1.0e-5);
+    ~SpgDS_c() {};
 
-    void show();
+    void show() const;
 };
 
 SpglibDataset* wrapper_spg_get_dataset(const matrix<double> &latt,
