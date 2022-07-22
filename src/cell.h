@@ -14,4 +14,6 @@ extern vector<int> types;
 extern set<int> inequiv_types;
 extern map<int, vector<int>> map_type_iatoms;
 
+matrix<double> get_recip_latt(matrix<double> latt);
+
 void generate_map_type_iatom(const vector<int> &atypes, set<int> &inequiv_types, map<int, vector<int>> &amap);

@@ -6,4 +6,5 @@
 
 //! Version of this project
 extern const char *_version;
+extern const double PI;
 

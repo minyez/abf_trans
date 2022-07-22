@@ -44,6 +44,7 @@ int main (int argc, char *argv[])
     /* basis input*/
     std::cout << std::endl << "Reading atomic basis information from " << argv[2] << std::endl;
     read_abf_ids(argv[2], inequiv_types, map_type_abfs);
+    ABF basis(types, map_type_abfs);
 
 
     return 0;
