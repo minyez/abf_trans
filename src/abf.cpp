@@ -49,7 +49,7 @@ ABF::ABF(const std::vector<int> &atom_types_in, const std::map<int, std::vector<
     }
 }
 
-void ABF::get_abf_knlm(int abf_index, int &iat, int &kind, int &n, int &l, int &m) const
+void ABF::get_abf_arlm(int abf_index, int &iat, int &irf, int &l, int &m) const
 {
     if (abf_index >= n_tot_abfs)
         throw std::invalid_argument("requested index >= nbasis");
@@ -63,8 +63,7 @@ void ABF::get_abf_knlm(int abf_index, int &iat, int &kind, int &n, int &l, int &
             residual -= abf.size();
             if (residual < 0)
             {
-                kind = abf.kind;
-                n = abf.n;
+                irf = abf.irf;
                 l = abf.l;
                 m = - residual - abf.size() - l;
                 break;

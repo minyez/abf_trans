@@ -5,10 +5,9 @@
 
 struct abf_id
 {
-    int kind;
-    int n;
+    int irf;
     int l;
-    abf_id(int kind_in, int n_in, int l_in): kind(kind_in), n(n_in), l(l_in) {};
+    abf_id(int irf_in, int l_in): irf(irf_in), l(l_in) {};
     int size() const { return get_msize(l); }
 };
 
@@ -30,8 +29,8 @@ public:
     ~ABF() {};
     std::vector<int> get_number_of_abfs() const { return ::get_number_of_abfs(map_type_abfs, atom_types); }
     int get_number_of_total_abfs() const { return n_tot_abfs; }
-    void get_abf_knlm(int abf_index, int &iat, int &kind, int &n, int &l, int &m) const;
-    /* int get_abf_index(int iat, int kind, int n, int l, int m) const; */
+    void get_abf_arlm(int abf_index, int &iat, int &irf, int &l, int &m) const;
+    /* int get_abf_index(int iat, int irf, int l, int m) const; */
 };
 
 extern std::map<int, std::vector<abf_id>> map_type_abfs;

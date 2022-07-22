@@ -48,10 +48,9 @@ Two files are required as inputs to use this project
 - `basis_id.txt` to identify the information of basis functions.
   Each line of the file represents a set of basis functions for one atom specie, with the following format
    ```
-   type_a k n l
+   type_a irf l
    ```
-  where `type_a` is the type of atom, `k` the kind of the basis,
-  `n` the principle quantum number and `l` the angular momentum quantum number.
+  where `type_a` is the type of atom, `irf` the index of radial function and `l` the angular momentum quantum number.
 
 To run the program
 ```shell
