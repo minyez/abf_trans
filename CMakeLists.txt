@@ -20,6 +20,7 @@ set(CMAKE_CXX_FLAGS "-g -O2" CACHE STRING "" FORCE)
 
 # External libraries
 set(SPGLIB_PATH "$ENV{SPGLIB_HOME}")
+set(SPGLIB_LIBRARIES "-L${SPGLIB_PATH}/lib64 -lsymspg")
 set(LAPACK_PATH "$ENV{LAPACK_HOME}")
 set(LAPACK_LIBRARIES "-L${LAPACK_PATH} -llapack -lblas")
 
@@ -30,7 +31,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
   string(APPEND LAPACK_LIBRARIES " -lgfortran")
 endif()
 
-set(LIBS "-L${SPGLIB_PATH}/lib64 -lsymspg ${LAPACK_LIBRARIES}")
+set(LIBS "${SPGLIB_LIBRARIES} ${LAPACK_LIBRARIES}")
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 11)

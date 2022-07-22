@@ -3,12 +3,14 @@
 #include <cstring>
 #include <vector>
 #include <iostream>
+#include <cmath>
 #include "linalg.h"
 
 template <typename T>
 class matrix
 {
 public:
+    constexpr static const double EQUAL_THRES = 1e-10;
     int nr;
     int nc;
     T *c;
@@ -19,17 +21,12 @@ public:
             c = new T [nr*nc];
         zero_out();
     }
-    matrix(const int &nrows, const int &ncols, const T *valarr): nr(nrows), nc(ncols), c(nullptr)
+    matrix(const int &nrows, const int &ncols, const T * const valarr): nr(nrows), nc(ncols), c(nullptr)
     {
         if (nr&&nc)
             c = new T [nr*nc];
         zero_out();
-        // int nval = *(&valarr+1) - valarr;
-        // std::cout << nval << std::endl;
-        // nval /= sizeof(T);
-        // std::cout << nval << std::endl;
-        // for (int i = 0; i < std::min(nval, nr*nc); i++)
-        //     c[i] = valarr[i];
+        // do not manually check out of bound
         for (int i = 0; i < size(); i++)
             c[i] = valarr[i];
     }
@@ -82,6 +79,15 @@ public:
         m.nr = m.nc = 0;
         m.c = nullptr;
         return *this;
+    }
+
+    bool operator==(const matrix<T> &m) const
+    {
+        if (size() == 0 || m.size() == 0) return false;
+        if (nc != m.nc && nr != m.nr) return false;
+        for (int i = 0; i < size(); i++)
+            if (fabs(c[i] - m.c[i]) > matrix<T>::EQUAL_THRES) return false;
+        return true;
     }
 
     void operator+=(const matrix<T> &m)
@@ -318,4 +324,51 @@ void inverse(const matrix<T> &m, matrix<T> &m_inv)
     linalg::getrf(m_inv.nr, m_inv.nc, m_inv.c, m_inv.nc, ipiv, info);
     linalg::getri(m_inv.nr, m_inv.c, m_inv.nc, ipiv, work, lwork, info);
     m_inv.reshape(m_inv.nc, m_inv.nr);
+}
+
+template <typename T>
+matrix<T> transpose(const matrix<T> &m, bool conjugate = false)
+{
+    matrix<T> mnew(m);
+    mnew.transpose(conjugate);
+    return mnew;
+}
+
+template <typename T>
+std::ostream & operator<<(std::ostream & os, const matrix<T> &m)
+{
+    for (int i = 0; i < m.nr; i++)
+    {
+        for (int j = 0; j < m.nc; j++)
+            os << m(i, j) << " ";
+        os << std::endl;
+    }
+    return os;
+}
+
+template <typename T>
+matrix<complex<T>> to_complex(const matrix<T> &m)
+{
+    matrix<complex<T>> cm(m.nr, m.nc);
+    for (int i = 0; i < m.size(); i++)
+        cm.c[i] = m.c[i];
+    return cm;
+}
+
+template <typename T>
+matrix<T> get_real(const matrix<complex<T>> &cm)
+{
+    matrix<T> m(cm.nr, cm.nc);
+    for (int i = 0; i < cm.size(); i++)
+        m.c[i] = cm.c[i].real();
+    return m;
+}
+
+template <typename T>
+matrix<T> get_imag(const matrix<complex<T>> &cm)
+{
+    matrix<T> m(cm.nr, cm.nc);
+    for (int i = 0; i < cm.size(); i++)
+        m.c[i] = cm.c[i].imag();
+    return m;
 }

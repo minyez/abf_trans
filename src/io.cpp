@@ -62,7 +62,6 @@ void read_abf_ids(const string &abffile, const set<int> &inequiv_types_verify, m
         while(!fin.eof())
         {
             fin >> t >> k >> n >> l;
-            if (!fin) throw std::logic_error("fail to correctly parse basis line");
             abf_id aid(std::stoi(k), std::stoi(n), std::stoi(l));
             map_t_abf[std::stoi(t)].push_back(aid);
         }

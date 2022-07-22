@@ -39,7 +39,7 @@ int main (int argc, char *argv[])
     /* Compute and display symmetry information */
     std::cout << "Compute symmetry related information by Spglib" << std::endl;
     SpgDS_c spgdataset(latt, posi_frac, types, 1.0e-5);
-    /* spgdataset.show(); */
+    spgdataset.show();
 
     /* basis input*/
     std::cout << std::endl << "Reading atomic basis information from " << argv[2] << std::endl;

@@ -14,6 +14,7 @@ SpgDS_c::SpgDS_c(const matrix<double> &latt_in, const matrix<double> &posi_frac_
     choice = dataset->choice;
     n_operations = dataset->n_operations;
     n_atoms = dataset->n_atoms;
+    n_std_atoms = dataset->n_std_atoms;
 
     std_rotation_matrix.resize(3, 3);
     transformation_matrix.resize(3, 3);
@@ -21,8 +22,8 @@ SpgDS_c::SpgDS_c(const matrix<double> &latt_in, const matrix<double> &posi_frac_
     {
         for (int j = 0; j < 3; j++)
         {
-            transformation_matrix(i, j) = dataset->transformation_matrix[i][j];
-            std_rotation_matrix(i, j) = dataset->std_rotation_matrix[i][j];
+            transformation_matrix(j, i) = dataset->transformation_matrix[i][j];
+            std_rotation_matrix(j, i) = dataset->std_rotation_matrix[i][j];
         }
         origin_shift.push_back(dataset->origin_shift[i]);
     }
@@ -99,7 +100,11 @@ void SpgDS_c::show() const
     printf("International: %s (%d)\n", international_symbol.c_str(), spacegroup_number);
     printf("  Hall symbol: %s\n", hall_symbol.c_str());
     printf("  Point group: %s\n", pointgroup_symbol.c_str());
-    printf("\n");
+    printf("Transformation matrix:\n");
+    for (int i = 0; i < 3; i++) {
+      printf("  %12.6f %12.6f %12.6f\n", transformation_matrix(i, 0), transformation_matrix(i, 1), transformation_matrix(i, 2));
+    }
+    printf("Origin shift: [%f %f %f]^T\n", origin_shift[0],origin_shift[1],origin_shift[2]);
     printf("Symmetry operations (%d):\n", n_operations);
     for (int i = 0; i < n_operations; i++)
     {
@@ -115,7 +120,6 @@ void SpgDS_c::show() const
       printf("  %d ->%d (type %d)\n", i, equivalent_atoms[i], types[i]);
     }
 }
-
 
 // routine adapted from https://github.com/spglib/spglib/blob/develop/example/example.c#L880
 void show_spg_dataset(const SpglibDataset *dataset)

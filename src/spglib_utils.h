@@ -46,6 +46,9 @@ public:
     SpgDS_c(const matrix<double> &latt_in, const matrix<double> &posi_frac_in,
             const vector<int> &types_in, const double symprec = 1.0e-5);
     ~SpgDS_c() {};
+    // std_lattice is already the ideal one
+    matrix<double> get_ideal_lattice() { return std_lattice; }
+    const matrix<double> &get_ideal_lattice() const { return std_lattice; }
 
     void show() const;
 };
