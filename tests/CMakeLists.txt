@@ -14,6 +14,10 @@ target_link_libraries(test_spglib_utils "${SPGLIB_LIBRARIES} ${LAPACK_LIBRARIES}
 add_executable(test_abf ./test_abf.cpp)
 target_sources(test_abf PRIVATE ../src/abf.cpp)
 
+add_executable(test_rotate test_rotate.cpp)
+target_sources(test_rotate PRIVATE ../src/rotate.cpp ../src/constants.cpp)
+target_link_libraries(test_rotate "${LAPACK_LIBRARIES}")
+
 add_test(
   NAME test_sph
   COMMAND $<TARGET_FILE:test_sph>
@@ -37,4 +41,9 @@ add_test(
 add_test(
   NAME test_abf
   COMMAND $<TARGET_FILE:test_abf>
+  )
+
+add_test(
+  NAME test_rotate
+  COMMAND $<TARGET_FILE:test_rotate>
   )

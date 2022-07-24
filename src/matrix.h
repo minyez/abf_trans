@@ -9,22 +9,30 @@
 template <typename T>
 class matrix
 {
+private:
+    int mrank;
 public:
     constexpr static const double EQUAL_THRES = 1e-10;
     int nr;
     int nc;
     T *c;
-    matrix() : nr(0), nc(0), c(nullptr) {}
+    matrix() : nr(0), nc(0), c(nullptr) { mrank = 0; }
     matrix(const int &nrows, const int &ncols): nr(nrows), nc(ncols), c(nullptr)
     {
         if (nr&&nc)
+        {
             c = new T [nr*nc];
+            mrank = std::min(nr, nc);
+        }
         zero_out();
     }
     matrix(const int &nrows, const int &ncols, const T * const valarr): nr(nrows), nc(ncols), c(nullptr)
     {
         if (nr&&nc)
+        {
+            mrank = std::min(nr, nc);
             c = new T [nr*nc];
+        }
         zero_out();
         // do not manually check out of bound
         for (int i = 0; i < size(); i++)
@@ -35,19 +43,21 @@ public:
         if( nr && nc )
         {
             c = new T[nr*nc];
+            mrank = std::min(nr, nc);
             memcpy(c, m.c, nr*nc*sizeof(T));
         }
     }
     matrix(matrix &&m) : nr(m.nr), nc(m.nc)
     {
         c = m.c;
+        mrank = m.mrank;
         m.nr = m.nc = 0;
         m.c = nullptr;
     }
 
     ~matrix()
     {
-        nc = nr = 0;
+        nc = nr = mrank = 0;
         if (c)
         {
             delete [] c;
@@ -57,6 +67,12 @@ public:
 
     int size() const { return nc*nr; }
     void zero_out() { for (int i = 0; i < size(); i++) c[i] = 0; }
+
+    void set_diag(const T &v)
+    {
+        for (int i = 0; i < mrank; i++)
+            c[i*nc+i] = v;
+    }
 
     T &operator()(const int ir, const int ic) { return c[ir*nc+ic]; }
     const T &operator()(const int ir, const int ic) const { return c[ir*nc+ic]; }
@@ -147,6 +163,7 @@ public:
         assert ( size() == nrows_new * ncols_new);
         nr = nrows_new;
         nc = ncols_new;
+        mrank = std::min(nr, nc);
     }
 
     void resize(const int &nrows_new, const int &ncols_new)
@@ -172,6 +189,7 @@ public:
         }
         nr = nrows_new;
         nc = ncols_new;
+        mrank = std::min(nr, nc);
         zero_out();
     }
     void conj() {};
@@ -186,6 +204,8 @@ public:
         nc = nr;
         if (conjugate) conj();
     }
+
+    T det() const { return get_determinant(*this); }
 };
 
 template <> inline void matrix<complex<float>>::conj()
@@ -371,4 +391,23 @@ matrix<T> get_imag(const matrix<complex<T>> &cm)
     for (int i = 0; i < cm.size(); i++)
         m.c[i] = cm.c[i].imag();
     return m;
+}
+
+template <typename T>
+T get_determinant(matrix<T> m)
+{
+    int lwork = m.nr;
+    int info = 0;
+    int mrank = std::min(m.nr, m.nc);
+    T work[lwork];
+    int ipiv[mrank];
+    // debug
+    linalg::getrf(m.nr, m.nc, m.c, m.nc, ipiv, info);
+    T det = 1;
+    for (int i = 0; i < mrank; i++)
+    {
+        /* std::cout << i << " " << ipiv[i] << " " << m.c[i*m.nc+i] << " "; */
+        det *= (2*int(ipiv[i] == (i+1))-1) * m.c[i*m.nc+i];
+    }
+    return det;
 }

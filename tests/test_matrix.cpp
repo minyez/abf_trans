@@ -39,7 +39,7 @@ void test_add_subtract()
            fequal(bplusv(2, 0), 6.0) && fequal(bplusv(2, 1), 5.0));
 }
 
-void test_inverse()
+void test_inverse_det()
 {
     using namespace std;
     matrix<double> a(2, 2);
@@ -49,16 +49,27 @@ void test_inverse()
     auto b = inverse(a);
     cout << b.size() << endl;
     cout << "inverse of a: " << endl;
-    cout << "  " << b(0, 0) << " " << b(0, 1) << endl;
-    cout << "  " << b(1, 0) << " " << b(1, 1) << endl;
+    cout << b;
     assert(fequal(b(0, 0), 2.0) && fequal(b(0, 1), -4.0) &&
            fequal(b(1, 0), 0.0) && fequal(b(1, 1), 1.0));
+    cout << "Determinant = " << b.det() << endl;
+    assert(b.det() == 2);
+    b += 1;
+    cout << "add 1 to a^-1: " << endl;
+    cout << b;
+    cout << "Determinant = " << b.det() << endl;
+    assert(b.det() == 9);
+    b -= 4;
+    cout << "then subtract 4" << endl;
+    cout << b;
+    cout << "Determinant = " << b.det() << endl;
+    assert(b.det() == -19);
 }
 
 int main(int argc, char *argv[])
 {
     test_add_subtract();
-    test_inverse();
+    test_inverse_det();
 
     return 0;
 }

@@ -1,13 +1,18 @@
 #pragma once
 #include <array>
 #include "base.h"
+#include "matrix.h"
 
-double * get_rotation_matrix_xyz(double rotmat_spg[3][3]);
+matrix<double> get_sym_matrix_xyz(const matrix<double> &rotmat_spg,
+                                  const matrix<double> &lattice);
 
-std::array<double, 3> get_Euler_from_rotation_matrix(double rotmat[3][3]);
+matrix<double> sym_matrix_xyz_from_Euler(double alpha, double beta, double gamma, bool add_inversion);
 
-void get_Wigner_small_d_matrix_from_Euler(unsigned l, double beta, double* dmat);
+std::array<double, 3> get_Euler_from_sym_matrix_xyz(const matrix<double> &rotmat_xyz,
+                                                    bool &is_proper);
 
-void get_Wigner_D_matrix_from_Euler(cplxdb* Dmat, unsigned l, std::array<double, 3> euler_angle);
+matrix<double> get_Wigner_small_d_matrix_from_Euler(unsigned l, double beta);
 
-void get_RSH_Delta_matrix_from_Euler(cplxdb* Delta, unsigned l, std::array<double, 3> euler_angle);
+matrix<cplxdb> get_Wigner_D_matrix_from_Euler(unsigned l, const std::array<double, 3> &euler_angle);
+
+matrix<cplxdb> get_RSH_Delta_matrix_from_Euler(unsigned l, const std::array<double, 3> &euler_angle, bool is_proper);
