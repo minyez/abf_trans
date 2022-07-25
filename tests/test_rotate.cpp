@@ -70,15 +70,16 @@ void test_generate_symmat_nonzero_sinbeta()
 void test_Wigner_smalld()
 {
     double betas[] = { 0.2, 1.0, PI/3, PI/2, 2*PI/3, 3*PI/4, 5*PI/6 };
-    // verify l = 1, the result in p67 of RoseME57
-    // FIXME: the convention looks different, need check
+    // verify l = 1, the result in p67 and p72 of RoseME57
+    // Note that the indices therein are 1, 0, -1, while -1, 0, 1 are used here,
+    // following FHI-aims
     for (auto beta: betas)
     {
         matrix<double> smalld1(3, 3);
         double cosb = std::cos(beta);
         double sinb = std::sin(beta);
         smalld1(0, 0) = 0.5*(1+cosb);
-        smalld1(0, 1) = - sinb / std::sqrt(2);
+        smalld1(0, 1) = sinb / std::sqrt(2);
         smalld1(0, 2) = 0.5*(1-cosb);
         smalld1(1, 0) = - smalld1(0, 1);
         smalld1(1, 1) = cosb;
@@ -88,9 +89,14 @@ void test_Wigner_smalld()
         smalld1(2, 2) = smalld1(0, 0);
         cout << "Check d(l=1) for beta: " << beta << endl;
         auto smalld1_to_verify = get_Wigner_small_d_matrix_from_Euler_beta(1, beta);
-        cout << smalld1 << smalld1_to_verify;
+        /* cout << smalld1 << smalld1_to_verify; */
         assert(smalld1 == smalld1_to_verify);
     }
+}
+
+void test_Wigner_D()
+{
+
 }
 
 int main (int argc, char *argv[])
@@ -99,5 +105,6 @@ int main (int argc, char *argv[])
     test_inversion();
     test_generate_symmat_nonzero_sinbeta();
     test_Wigner_smalld();
+    test_Wigner_D();
     return 0;
 }

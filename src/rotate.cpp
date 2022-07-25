@@ -108,7 +108,7 @@ matrix<double> get_Wigner_small_d_matrix_from_Euler_beta(const unsigned int &l, 
                 dmat(mp+il, m+il) += std::pow(-1, i) * std::pow(coshb, 2*il+m-mp-2*i) * std::pow(sinhb, mp-m+2*i)
                     / (factorial(i) * factorial(il-mp-i) * factorial(il+m-i) * factorial(i-m+mp));
             }
-            dmat(mp+il, m+il) *= std::sqrt(factorial(il+m)*factorial(il-m)*factorial(il+mp)*factorial(il-mp));
+            dmat(mp+il, m+il) *= std::pow(-1, mp-m) * std::sqrt(factorial(il+m)*factorial(il-m)*factorial(il+mp)*factorial(il-mp));
         }
     return dmat;
 }
