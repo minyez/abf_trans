@@ -1,5 +1,5 @@
 #include <cmath>
-#include "sph.hpp"
+#include "sph.h"
 
 void get_C_matrix(cplxdb *cmat, unsigned l)
 {

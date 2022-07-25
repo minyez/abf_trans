@@ -18,6 +18,8 @@ add_executable(test_rotate test_rotate.cpp)
 target_sources(test_rotate PRIVATE ../src/rotate.cpp ../src/constants.cpp)
 target_link_libraries(test_rotate "${LAPACK_LIBRARIES}")
 
+add_executable(test_mathtools ./test_mathtools.cpp)
+
 add_test(
   NAME test_sph
   COMMAND $<TARGET_FILE:test_sph>
@@ -46,4 +48,9 @@ add_test(
 add_test(
   NAME test_rotate
   COMMAND $<TARGET_FILE:test_rotate>
+  )
+
+add_test(
+  NAME test_mathtools
+  COMMAND $<TARGET_FILE:test_mathtools>
   )

@@ -1,4 +1,6 @@
 #include <complex>
+#include <cassert>
+
 template <typename T>
 inline bool fequal(const T &a, const T &b, double thres = 1e-14)
 {

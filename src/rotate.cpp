@@ -1,5 +1,6 @@
 #include "rotate.h"
 #include "constants.h"
+#include "mathtools.h"
 #include <iostream>
 
 matrix<double> get_sym_matrix_xyz(const matrix<double> &rotmat_spg,
@@ -85,4 +86,45 @@ std::array<double, 3> get_Euler_from_sym_matrix_xyz(const matrix<double> &rotmat
             alpha = 2*PI - alpha;
     }
     return std::array<double, 3>{alpha, beta, gamma};
+}
+
+matrix<double> get_Wigner_small_d_matrix_from_Euler_beta(const unsigned int &l, const double &beta)
+{
+    int msize = get_msize(l);
+    int il = int(l);
+    double coshb = std::cos(beta/2);
+    double sinhb = std::sin(beta/2);
+    matrix<double> dmat(msize, msize);
+    // TODO: use relations of djm'm to reduce the calculations
+    for (int mp = -il; mp <= il; mp++)
+        for (int m = -il; m <= il; m++)
+        {
+            int maxi = std::min(il - mp, il + m);
+            int mini = std::max(0, m - mp);
+            /* printf("%d %d %d %d\n", mp, m, mini, maxi); */
+            for (int i = mini; i <= maxi; i++)
+            {
+                /* printf("%d %d %d\n", mp, m, i); */
+                dmat(mp+il, m+il) += std::pow(-1, i) * std::pow(coshb, 2*il+m-mp-2*i) * std::pow(sinhb, mp-m+2*i)
+                    / (factorial(i) * factorial(il-mp-i) * factorial(il+m-i) * factorial(i-m+mp));
+            }
+            dmat(mp+il, m+il) *= std::sqrt(factorial(il+m)*factorial(il-m)*factorial(il+mp)*factorial(il-mp));
+        }
+    return dmat;
+}
+
+matrix<cplxdb> get_Wigner_D_matrix_from_Euler(unsigned int l, const std::array<double, 3> &euler_angle)
+{
+    int msize = get_msize(l);
+    int il = int(l);
+    matrix<double> smalld = get_Wigner_small_d_matrix_from_Euler_beta(l, euler_angle[1]);
+    matrix<cplxdb> alpha(msize, msize), gamma(msize, msize);
+    for (int m = -il; m <= il; m++)
+    {
+        double angle = m * euler_angle[0];
+        alpha(m+il, m+il) = cplxdb{std::cos(angle), -std::sin(angle)};
+        angle = m * euler_angle[2];
+        gamma(m+il, m+il) = cplxdb{std::cos(angle), -std::sin(angle)};
+    }
+    return alpha * to_complex(smalld) * gamma;
 }

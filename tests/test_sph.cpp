@@ -1,7 +1,6 @@
 #include <iostream>
 #include <cassert>
-#include "../src/base.h"
-#include "../src/sph.hpp"
+#include "../src/sph.h"
 #include "testutils.h"
 
 void test_C_matrix_l1()
