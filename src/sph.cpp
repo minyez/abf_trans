@@ -1,14 +1,31 @@
 #include <cmath>
 #include "sph.h"
 
-void get_C_matrix(cplxdb *cmat, unsigned l)
+matrix<cplxdb> get_C_matrix(unsigned l)
 {
     auto msize = get_msize(l);
-    const int il = l;
-    for (int m = -l; m <= il; m++)
-        for (int mp = -l; mp <= il; mp++)
+    const int il = int(l);
+    matrix<cplxdb> cmat(msize, msize);
+    for (int m = -il; m <= il; m++)
+        for (int mp = -il; mp <= il; mp++)
         {
-            cmat[(l+m)*msize+l+mp] = get_C_matrix_element(l, m, mp);
+            cmat(m+il, mp+il) = get_C_matrix_element(m, mp);
             /* std::cout << m << " " << mp << " " << get_C_matrix_element(l, m, mp) << std::endl; */
         }
+    return cmat;
 }
+
+matrix<cplxdb> get_C_matrix_aims(unsigned l)
+{
+    auto msize = get_msize(l);
+    const int il = int(l);
+    matrix<cplxdb> cmat(msize, msize);
+    for (int m = -il; m <= il; m++)
+        for (int mp = -il; mp <= il; mp++)
+        {
+            cmat(m+il, mp+il) = get_C_matrix_element_aims(m, mp);
+            /* std::cout << m << " " << mp << " " << get_C_matrix_element(l, m, mp) << std::endl; */
+        }
+    return cmat;
+}
+

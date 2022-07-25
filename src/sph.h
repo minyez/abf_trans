@@ -1,7 +1,8 @@
 #pragma once
 #include "base.h"
+#include "matrix.h"
 
-inline cplxdb get_C_matrix_element(unsigned l, int m, int mp)
+inline cplxdb get_C_matrix_element(int m, int mp)
 {
     if (abs(m) == abs(mp))
     {
@@ -19,4 +20,12 @@ inline cplxdb get_C_matrix_element(unsigned l, int m, int mp)
     return 0;
 }
 
-void get_C_matrix(cplxdb *cmat, unsigned l);
+inline cplxdb get_C_matrix_element_aims(int m, int mp)
+{
+    // TODO: not implemented
+    return 0;
+}
+
+matrix<cplxdb> get_C_matrix(unsigned l);
+
+matrix<cplxdb> get_C_matrix_aims(unsigned l);

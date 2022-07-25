@@ -2,6 +2,7 @@
 #include "constants.h"
 #include "mathtools.h"
 #include <iostream>
+#include "sph.h"
 
 matrix<double> get_sym_matrix_xyz(const matrix<double> &rotmat_spg,
                                        const matrix<double> &lattice)
@@ -113,7 +114,7 @@ matrix<double> get_Wigner_small_d_matrix_from_Euler_beta(const unsigned int &l, 
     return dmat;
 }
 
-matrix<cplxdb> get_Wigner_D_matrix_from_Euler(unsigned int l, const std::array<double, 3> &euler_angle)
+matrix<cplxdb> get_Wigner_D_matrix_from_Euler(unsigned int l, const std::array<double, 3> &euler_angle, bool is_proper)
 {
     int msize = get_msize(l);
     int il = int(l);
@@ -126,5 +127,32 @@ matrix<cplxdb> get_Wigner_D_matrix_from_Euler(unsigned int l, const std::array<d
         angle = m * euler_angle[2];
         gamma(m+il, m+il) = cplxdb{std::cos(angle), -std::sin(angle)};
     }
+    if (!is_proper)
+        smalld *= std::pow(-1, il);
     return alpha * to_complex(smalld) * gamma;
+}
+
+matrix<cplxdb> get_RSH_Delta_matrix_from_Euler(unsigned l, const std::array<double, 3> &euler_angle, bool is_proper)
+{
+    auto Dmat= get_Wigner_D_matrix_from_Euler(l, euler_angle, is_proper);
+    int msize = get_msize(l);
+    int il = int(l);
+    matrix<cplxdb> Delta(msize, msize);
+
+    for (int m = -il; m <= il; m++)
+        for (int mp = -il; mp <= il; mp++)
+        {
+            if (m == 0 && mp == 0)
+                Delta(m+il, mp+il) = Dmat(m+il, mp+il);
+            else if (m == 0)
+                Delta(m+il, mp+il) = Dmat(il, mp+il) * get_C_matrix_element(mp, mp) + Dmat(il, -mp+il) * get_C_matrix_element(mp, -mp);
+            else if (mp == 0)
+                Delta(m+il, mp+il) = Dmat(m+il, il) * std::conj(get_C_matrix_element(m, m)) + Dmat(-m+il, il) * std::conj(get_C_matrix_element(m, -m));
+            else
+            {
+                Delta(m+il, mp+il) = std::conj(get_C_matrix_element(m, m)) * (Dmat(m+il, mp+il) * get_C_matrix_element(mp, mp) + Dmat(m+il, -mp+il) * get_C_matrix_element(mp, -mp)) +
+                                     std::conj(get_C_matrix_element(m, -m)) * (Dmat(-m+il, mp+il) * get_C_matrix_element(mp, mp) + Dmat(-m+il, -mp+il) * get_C_matrix_element(mp, -mp));
+            }
+        }
+    return Delta;
 }

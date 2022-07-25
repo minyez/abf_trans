@@ -8,26 +8,18 @@ void test_C_matrix_l1()
     const int l = 1;
     const unsigned msize = 2*l + 1;
 
-    cplxdb *cmat = new cplxdb [msize*msize];
-    get_C_matrix(cmat, l);
-
-    cplxdb *cmat_ref = new cplxdb [msize*msize];
+    auto cmat = get_C_matrix(l);
+    matrix<cplxdb> cmat_ref(msize, msize);
 
     // initialize
-    for (int i = 0; i != msize*msize; i++)
-        cmat_ref[i] = 0;
-    cmat_ref[0] = cmat_ref[2] = cplxdb(0, 1);
-    cmat_ref[4] = cplxdb(std::sqrt(2), 0);
-    cmat_ref[6] = cplxdb(1, 0);
-    cmat_ref[8] = cplxdb(-1, 0);
+    cmat_ref(0, 0) = cmat_ref(0, 2) = cplxdb{0, 1};
+    cmat_ref(1, 1) = cplxdb{std::sqrt(2), 0};
+    cmat_ref(2, 0) = cplxdb{1, 0};
+    cmat_ref(2, 2) = cplxdb{-1, 0};
 
-    for (int i = 0; i != msize*msize; i++)
-        cmat_ref[i] /= std::sqrt(2);
+    cmat_ref /= std::sqrt(2);
 
-    assert(is_mat_A_equal_B(msize, msize, cmat, cmat_ref, false, true));
-
-    delete [] cmat;
-    delete [] cmat_ref;
+    assert(is_mat_A_equal_B(msize, msize, cmat.c, cmat_ref.c, false, true));
 }
 
 

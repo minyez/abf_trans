@@ -13,6 +13,6 @@ std::array<double, 3> get_Euler_from_sym_matrix_xyz(const matrix<double> &rotmat
 
 matrix<double> get_Wigner_small_d_matrix_from_Euler_beta(const unsigned int &l, const double &beta);
 
-matrix<cplxdb> get_Wigner_D_matrix_from_Euler(unsigned l, const std::array<double, 3> &euler_angle);
+matrix<cplxdb> get_Wigner_D_matrix_from_Euler(unsigned l, const std::array<double, 3> &euler_angle, bool is_proper);
 
 matrix<cplxdb> get_RSH_Delta_matrix_from_Euler(unsigned l, const std::array<double, 3> &euler_angle, bool is_proper);

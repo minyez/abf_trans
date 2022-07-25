@@ -69,7 +69,7 @@ void test_generate_symmat_nonzero_sinbeta()
 
 void test_Wigner_smalld()
 {
-    double betas[] = { 0.2, 1.0, PI/3, PI/2, 2*PI/3, 3*PI/4, 5*PI/6 };
+    double betas[] = {0, 0.2, 1.0, PI/3, PI/2, 2*PI/3, 3*PI/4, 5*PI/6 };
     // verify l = 1, the result in p67 and p72 of RoseME57
     // Note that the indices therein are 1, 0, -1, while -1, 0, 1 are used here,
     // following FHI-aims
@@ -99,6 +99,42 @@ void test_Wigner_D()
 
 }
 
+void test_RSH_Delta()
+{
+    // verify l = 1, Eq 53 of BlancoMA97
+    double alphas[] = { 0, PI/4, 5*PI/4, 3*PI/2 };
+    double betas[] = { 0, 0.2, 1.0, PI/3, PI/2, 2*PI/3, 3*PI/4, 5*PI/6 };
+    double gammas[] = { 0, PI/4, 5*PI/4, 3*PI/2 };
+    for (auto alpha: alphas)
+        for (auto beta: betas)
+            for (auto gamma: gammas)
+            {
+                printf("testing RSH Delta for alpha, beta, gamma = %f %f %f\n", alpha, beta, gamma);
+                std::array<double, 3> euler{alpha, beta, gamma};
+                auto Delta = get_RSH_Delta_matrix_from_Euler(1, euler, true);
+                matrix<cplxdb> Delta_ref(3, 3);
+                const double ca = std::cos(alpha);
+                const double cb = std::cos(beta);
+                const double cg = std::cos(gamma);
+                const double sa = std::sin(alpha);
+                const double sb = std::sin(beta);
+                const double sg = std::sin(gamma);
+                Delta_ref(0, 0) = ca*cg - sa*sg*cb;
+                Delta_ref(0, 1) = sa*sb;
+                Delta_ref(0, 2) = ca*sg + sa*cg*cb;
+                Delta_ref(1, 0) = sg*sb;
+                Delta_ref(1, 1) = cb;
+                Delta_ref(1, 2) = -cg*sb;
+                Delta_ref(2, 0) = -ca*sg*cb - sa*cg;
+                Delta_ref(2, 1) = ca*sb;
+                Delta_ref(2, 2) = ca*cg*cb - sa*sg;
+                /* cout << Delta << Delta_ref; */
+                assert(Delta == Delta_ref);
+                Delta = get_RSH_Delta_matrix_from_Euler(1, euler, false);
+                assert(Delta == (Delta_ref * cplxdb{-1, 0}));
+            }
+}
+
 int main (int argc, char *argv[])
 {
     test_identity();
@@ -106,5 +142,6 @@ int main (int argc, char *argv[])
     test_generate_symmat_nonzero_sinbeta();
     test_Wigner_smalld();
     test_Wigner_D();
+    test_RSH_Delta();
     return 0;
 }
