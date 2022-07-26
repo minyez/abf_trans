@@ -98,6 +98,14 @@ void test_inverse_det()
     cout << b;
     cout << "Determinant = " << b.det() << endl;
     assert(b.det() == -19);
+
+    a.resize(3, 3);
+    a(0, 0) = a(0, 1) = a(1, 1) = a(2, 2) = 1;
+    matrix<double> aref(3, 3);
+    aref(0, 0) = aref(1, 1) = aref(2, 2) = 1;
+    aref(0, 1) = -1;
+    cout << inverse(a) << aref;
+    assert(inverse(a) == aref);
 }
 
 int main(int argc, char *argv[])

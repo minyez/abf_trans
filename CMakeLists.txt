@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.4)
 
 # Get the version from the source code file
-file(READ src/constants.cpp _version_stamp)
+file(READ src/constants.h _version_stamp)
 
 # Generate the version string,
 # First match the string from the beginning,
@@ -9,7 +9,7 @@ string(REGEX MATCH ".*_version = \"[a-zA-Z0-9.-_]+" _version ${_version_stamp})
 # Then replace the head part with the empty string
 string(REGEX REPLACE ".*_version = \"" "" _version ${_version})
 
-project(cmake_cpp_example VERSION ${_version} LANGUAGES NONE)
+project(abf_trans VERSION ${_version} LANGUAGES NONE)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 # # Intel C++

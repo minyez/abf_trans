@@ -3,8 +3,10 @@
  @brief The file contains public constants used across the project.
  */
 #pragma once
+#include <cmath>
 
 //! Version of this project
-extern const char *_version;
-extern const double PI;
+constexpr const char *_version = "0.1.0";
+/* constexpr const double PI = std::atan(1.0) * 4.0; */
+constexpr const double PI = M_PI;
 

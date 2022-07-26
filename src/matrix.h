@@ -28,6 +28,19 @@ public:
         }
         zero_out();
     }
+    matrix(const std::vector<vec<T>> &nested_vec): nr(nested_vec.size()), c(nullptr)
+    {
+        if (nested_vec.size() != 0)
+            nc = nested_vec[0].size();
+        if (nr&&nc)
+        {
+            c = new T [nr*nc];
+            mrank = std::min(nr, nc);
+            for (int ir = 0; ir < nr; ir++)
+                for (int ic = 0; ic < std::min(nc, nested_vec[ir].size()); ic++)
+                    c[ir*nc+ic] = nested_vec[ir][ic];
+        }
+    }
     matrix(const int &nrows, const int &ncols, const T * const valarr): nr(nrows), nc(ncols), c(nullptr)
     {
         if (nr&&nc)
@@ -102,6 +115,29 @@ public:
         c = m.c;
         m.nr = m.nc = 0;
         m.c = nullptr;
+        return *this;
+    }
+
+    matrix<T> & operator=(const std::vector<vec<T>> &nested_vec)
+    {
+        int nr_new = nested_vec.size();
+        int nc_new = 0;
+        if (nr_new != 0)
+            nc_new = nested_vec[0].size();
+        resize(nr_new, nc_new);
+        if (nr&&nc)
+        {
+            for (int ir = 0; ir < nr; ir++)
+                for (int ic = 0; ic < std::min(nc, nested_vec[ir].size()); ic++)
+                    c[ir*nc+ic] = nested_vec[ir][ic];
+        }
+        return *this;
+    }
+
+    matrix<T> & operator=(const T &cnum)
+    {
+        for (int i = 0; i < size(); i++)
+            c[i] = cnum;
         return *this;
     }
 
@@ -230,7 +266,11 @@ public:
     {
         for (int i = 0; i < nr; i++)
             for (int j = i + 1; j < nc; j++)
+            {
+                T temp = c[i*nr + j];
                 c[i*nr + j] = c[j*nc+i];
+                c[j*nc+i] = temp;
+            }
         int temp = nc;
         nr = temp;
         nc = nr;

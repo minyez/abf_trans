@@ -15,17 +15,21 @@ add_executable(test_abf ./test_abf.cpp)
 target_sources(test_abf PRIVATE ../src/abf.cpp)
 
 add_executable(test_rotate test_rotate.cpp)
-target_sources(test_rotate PRIVATE ../src/rotate.cpp ../src/constants.cpp)
+target_sources(test_rotate PRIVATE ../src/rotate.cpp)
 target_link_libraries(test_rotate "${LAPACK_LIBRARIES}")
 
 add_executable(test_mathtools ./test_mathtools.cpp)
 
 add_executable(test_kmesh test_kmesh.cpp)
-target_sources(test_kmesh PRIVATE ../src/kmesh.cpp)
-target_link_libraries(test_kmesh "${LAPACK_LIBRARIES}")
+target_sources(test_kmesh PRIVATE ../src/kmesh.cpp ../src/spglib_utils.cpp)
+target_link_libraries(test_kmesh "${SPGLIB_LIBRARIES} ${LAPACK_LIBRARIES}")
 
 add_executable(test_vec test_vec.cpp)
 target_link_libraries(test_vec "${LAPACK_LIBRARIES}")
+
+add_executable(test_cell test_cell.cpp)
+target_sources(test_cell PRIVATE ../src/cell.cpp)
+target_link_libraries(test_cell "${LAPACK_LIBRARIES}")
 
 add_test(
   NAME test_sph
@@ -70,5 +74,10 @@ add_test(
 add_test(
   NAME test_vec
   COMMAND $<TARGET_FILE:test_vec>
+  )
+
+add_test(
+  NAME test_cell
+  COMMAND $<TARGET_FILE:test_cell>
   )
 

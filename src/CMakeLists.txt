@@ -18,7 +18,7 @@ set_target_properties(abf_trans_exe
 list(APPEND _sources
   abf.cpp
   cell.cpp
-  constants.cpp
+  # constants.cpp
   io.cpp
   rotate.cpp
   spglib_utils.cpp

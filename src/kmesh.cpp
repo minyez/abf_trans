@@ -33,10 +33,26 @@ matrix<double> get_kgrids(std::array<int, 3> nks)
         kgrids_unsorted[i] -= shift;
 
     sort(kgrids_unsorted.begin(), kgrids_unsorted.end());
-    matrix<double> kgrids(nkpts, 3);
-    for (int ikpt = 0; ikpt < nkpts; ikpt++)
-        for (int i = 0; i < 3; i++)
-            kgrids(ikpt, i) = kgrids_unsorted[ikpt][i];
 
-    return kgrids;
+    return matrix<double>(kgrids_unsorted);
+}
+
+KGrids::KGrids(int nkx, int nky, int nkz): nks({nkx, nky, nkz})
+{
+    kpts = get_kgrids(nks);
+}
+
+KGrids::KGrids(std::array<int, 3> nks_in): nks(nks_in)
+{
+    kpts = get_kgrids(nks);
+}
+
+void KGrids::generate_irk_map(const SpgDS_c &dataset)
+{
+    vector<vec<double>> irkpts_vec;
+    irkpts = irkpts_vec;
+    for (int ik = 0; ik < kpts.nr; ik++)
+    {
+        const auto & kpt = kpts.get_row(ik);
+    }
 }

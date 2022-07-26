@@ -1,5 +1,6 @@
 #pragma once
 #include "matrix.h"
+#include "vec.h"
 #include <vector>
 #include <map>
 #include <set>
@@ -14,6 +15,10 @@ extern vector<int> types;
 extern set<int> inequiv_types;
 extern map<int, vector<int>> map_type_iatoms;
 
-matrix<double> get_recip_latt(matrix<double> latt);
+matrix<double> get_recip_latt(const matrix<double> &latt);
 
 void generate_map_type_iatom(const vector<int> &atypes, set<int> &inequiv_types, map<int, vector<int>> &amap);
+
+matrix<double> move_to_center_cell(matrix<double> &posi, const double lowlim = 0.0);
+
+vec<double> move_to_center_cell(vec<double> &posi, const double lowlim = 0.0);
