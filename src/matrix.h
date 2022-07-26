@@ -343,7 +343,7 @@ vec<T> operator*(const matrix<T> &m, const vec<T> &v)
 {
     assert(m.nc == v.n);
     vec<T> mv(m.nr);
-    /* linalg::gemv('N', ); */
+    linalg::gemv('N', m.nr, m.nc, 1.0, m.c, m.nc, v.c, 1, 0.0, mv.c, 1);
     return mv;
 }
 
@@ -353,6 +353,7 @@ vec<T> operator*(const vec<T> &v, const matrix<T> &m)
     assert(m.nr == v.n);
     vec<T> mv(m.nc);
     /* linalg::gemv('N', ); */
+    linalg::gemv('T', m.nr, m.nc, 1.0, m.c, m.nc, v.c, 1, 0.0, mv.c, 1);
     return mv;
 }
 

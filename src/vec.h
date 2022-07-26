@@ -45,8 +45,8 @@ public:
 
     void zero_out() { for (int i = 0; i < size(); i++) c[i] = 0; }
 
-    T &operator()(const int i) { return c[i]; }
-    const T &operator()(const int i) const { return c[i]; }
+    T &operator[](const int i) { return c[i]; }
+    const T &operator[](const int i) const { return c[i]; }
 
     vec<T> & operator=(const vec<T> &v)
     {
@@ -223,7 +223,7 @@ template <typename T>
 std::ostream & operator<<(std::ostream & os, const vec<T> &v)
 {
     for (int i = 0; i < v.n; i++)
-        os << v(i) << " ";
+        os << v[i] << " ";
     os << std::endl;
     return os;
 }

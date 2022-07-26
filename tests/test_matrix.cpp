@@ -39,6 +39,40 @@ void test_add_subtract()
            fequal(bplusv(2, 0), 6.0) && fequal(bplusv(2, 1), 5.0));
 }
 
+void test_mm_mv()
+{
+    using namespace std;
+    double arr_a[] = {1, -1, 2, 0};
+    matrix<double> a(2, 2, arr_a);
+    vec<double> v(2);
+    v[0] = 1;
+    v[1] = -1;
+    vec<double> ref(2);
+
+    ref[0] = ref[1] = 2;
+    assert(a * v == ref);
+
+    ref[0] = ref[1] = -1;
+    assert(v * a == ref);
+
+    cplxdb arr_ca[] = {{-1.0, 0.0}, {0.0, 1.0}, {0.0, 2.0}, {2.0, 0.0}};
+    matrix<cplxdb> ca(2, 2, arr_ca);
+    cplxdb arr_cv[] = {{1.0, 0.0}, {0.0, 1.0}};
+    vec<cplxdb> cv(2, arr_cv);
+
+    vec<cplxdb> cref(2);
+    cref[0] = cplxdb{-2.0, 0.0};
+    cref[1] = cplxdb{0.0, 4.0};
+    cout << "Computing complex matrix x complex vec" << endl;
+    cout << ca * cv;
+    assert(ca * cv == cref);
+    cref[0] = cplxdb{-3.0, 0.0};
+    cref[1] = cplxdb{0.0, 3.0};
+    cout << "Computing complex vec x complex matrix" << endl;
+    cout << cv * ca;
+    assert(cv * ca == cref);
+}
+
 void test_inverse_det()
 {
     using namespace std;
@@ -69,6 +103,7 @@ void test_inverse_det()
 int main(int argc, char *argv[])
 {
     test_add_subtract();
+    test_mm_mv();
     test_inverse_det();
 
     return 0;

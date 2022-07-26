@@ -17,9 +17,9 @@ matrix<double> get_kgrids(std::array<int, 3> nks)
             {
                 double kz = double(ikz) / nks[2];
                 kgrids_unsorted[ikpt].resize(3);
-                kgrids_unsorted[ikpt](0) = kx;
-                kgrids_unsorted[ikpt](1) = ky;
-                kgrids_unsorted[ikpt](2) = kz;
+                kgrids_unsorted[ikpt][0] = kx;
+                kgrids_unsorted[ikpt][1] = ky;
+                kgrids_unsorted[ikpt][2] = kz;
                 ikpt++;
             }
         }
@@ -27,7 +27,7 @@ matrix<double> get_kgrids(std::array<int, 3> nks)
     vec<double> shift(3);
     for (int i = 0; i < 3; i++)
     {
-        shift(0) = ( nks[i]%2 ? nks[i] / 2 : (nks[i] - 1) / 2 ) / double(nks[i]);
+        shift[0] = ( nks[i]%2 ? nks[i] / 2 : (nks[i] - 1) / 2 ) / double(nks[i]);
     }
     for (int i = 0; i < nkpts; i++)
         kgrids_unsorted[i] -= shift;
@@ -36,7 +36,7 @@ matrix<double> get_kgrids(std::array<int, 3> nks)
     matrix<double> kgrids(nkpts, 3);
     for (int ikpt = 0; ikpt < nkpts; ikpt++)
         for (int i = 0; i < 3; i++)
-            kgrids(ikpt, i) = kgrids_unsorted[ikpt](i);
+            kgrids(ikpt, i) = kgrids_unsorted[ikpt][i];
 
     return kgrids;
 }

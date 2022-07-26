@@ -16,9 +16,9 @@ namespace linalg
             case 'n':
                 return 't';
             case 'C':
-                throw std::invalid_argument("does not support C, require manually handling");
+                throw std::invalid_argument("does not support C, require manual handling");
             case 'c':
-                throw std::invalid_argument("does not support C, require manually handling");
+                throw std::invalid_argument("does not support C, require manual handling");
             default:
                 throw std::invalid_argument("invalid trans character");
         }
@@ -173,6 +173,38 @@ namespace linalg
         zgemm_(&transb, &transa, &n, &m, &k, &alpha, b, &ldb, a, &lda, &beta, c, &ldc);
     }
 
+    inline void gemv(const char &transa, const int &m, const int &n,
+                     const float &alpha, const float *a, const int &lda,
+                     const float *x, const int &incx, const float &beta, float *y, const int &incy)
+    {
+        char transa_f = revert_trans(transa);
+        sgemv_(&transa_f, &n, &m, &alpha, a, &lda, x, &incx, &beta, y, &incy);
+    }
+    
+    inline void gemv(const char &transa, const int &m, const int &n,
+                     const double &alpha, const double *a, const int &lda,
+                     const double *x, const int &incx, const double &beta, double *y, const int &incy)
+    {
+        char transa_f = revert_trans(transa);
+        dgemv_(&transa_f, &n, &m, &alpha, a, &lda, x, &incx, &beta, y, &incy);
+    }
+    
+    inline void gemv(const char &transa, const int &m, const int &n,
+                     const complex<float> &alpha, const complex<float> *a, const int &lda,
+                     const complex<float> *x, const int &incx, const complex<float> &beta, complex<float> *y, const int &incy)
+    {
+        char transa_f = revert_trans(transa);
+        cgemv_(&transa_f, &n, &m, &alpha, a, &lda, x, &incx, &beta, y, &incy);
+    }
+    
+    inline void gemv(const char &transa, const int &m, const int &n,
+                     const complex<double> &alpha, const complex<double> *a, const int &lda,
+                     const complex<double> *x, const int &incx, const complex<double> &beta, complex<double> *y, const int &incy)
+    {
+        char transa_f = revert_trans(transa);
+        zgemv_(&transa_f, &n, &m, &alpha, a, &lda, x, &incx, &beta, y, &incy);
+    }
+    
     inline void getrf(const int &m, const int &n, float *A, const int &lda, int *ipiv, int &info)
     {
         float *a_fort = transpose(A, n, lda);
