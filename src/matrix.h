@@ -4,7 +4,9 @@
 #include <vector>
 #include <iostream>
 #include <cmath>
+#include "base.h"
 #include "linalg.h"
+#include "vec.h"
 
 template <typename T>
 class matrix
@@ -12,7 +14,7 @@ class matrix
 private:
     int mrank;
 public:
-    constexpr static const double EQUAL_THRES = 1e-10;
+    constexpr static const double EQUAL_THRES = DOUBLE_EQUAL_THRES;
     int nr;
     int nc;
     T *c;
@@ -68,6 +70,12 @@ public:
     int size() const { return nc*nr; }
     void zero_out() { for (int i = 0; i < size(); i++) c[i] = 0; }
 
+    vec<T> get_row(int ir) const
+    {
+        if (ir < 0 || ir >= nr) throw std::invalid_argument("out-of-bound row index");
+        return vec<T>(nc, c+ir*nc);
+    }
+
     void set_diag(const T &v)
     {
         for (int i = 0; i < mrank; i++)
@@ -113,6 +121,14 @@ public:
             c[i] += m.c[i];
     }
 
+    void add_col(const std::vector<T> &v)
+    {
+        assert(nr == v.size());
+        for (int ir = 0; ir < nr; ir++)
+            for (int ic = 0; ic < nc; ic++)
+                c[ir*nc+ic] += v[ir];
+    }
+
     void operator+=(const std::vector<T> &v)
     {
         assert(nc == v.size());
@@ -121,12 +137,28 @@ public:
                 c[i*nc+ic] += v[ic];
     }
 
+    void operator+=(const vec<T> &v)
+    {
+        assert(nc == v.size());
+        for (int i = 0; i < nr; i++)
+            for (int ic = 1; ic < nc; ic++)
+                c[i*nc+ic] += v.c[ic];
+    }
+
     void operator-=(const std::vector<T> &v)
     {
         assert(nc == v.size());
         for (int i = 0; i < nr; i++)
             for (int ic = 1; ic < nc; ic++)
                 c[i*nc+ic] -= v[ic];
+    }
+
+    void operator-=(const vec<T> &v)
+    {
+        assert(nc == v.size());
+        for (int i = 0; i < nr; i++)
+            for (int ic = 1; ic < nc; ic++)
+                c[i*nc+ic] -= v.c[ic];
     }
 
     void operator+=(const T &cnum)
@@ -264,8 +296,7 @@ matrix<T> operator+(const T &cnum, const matrix<T> &m)
 template <typename T>
 matrix<T> operator-(const matrix<T> &m1, const matrix<T> &m2)
 {
-    assert(m1.nc == m2.nc);
-    assert(m1.nr == m2.nr);
+    assert(m1.nc == m2.nc && m1.nr == m2.nr);
     matrix<T> mnew = m1;
     mnew -= m2;
     return mnew;
@@ -305,6 +336,24 @@ matrix<T> operator*(const matrix<T> &m1, const matrix<T> &m2)
                  1.0, m1.c, m1.nc, m2.c, m2.nc, 0.0, prod.c, prod.nc);
 
     return prod;
+}
+
+template <typename T>
+vec<T> operator*(const matrix<T> &m, const vec<T> &v)
+{
+    assert(m.nc == v.n);
+    vec<T> mv(m.nr);
+    /* linalg::gemv('N', ); */
+    return mv;
+}
+
+template <typename T>
+vec<T> operator*(const vec<T> &v, const matrix<T> &m)
+{
+    assert(m.nr == v.n);
+    vec<T> mv(m.nc);
+    /* linalg::gemv('N', ); */
+    return mv;
 }
 
 template <typename T>

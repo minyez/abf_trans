@@ -4,13 +4,15 @@ exe="../../build/abf_trans.exe"
 
 [[ ! -x $exe ]] && echo "Executable not built in ../../build/" && exit 1
 
+# the first atom should direct mapped to (0,0,1/2) in the standard cell by transformation matrix
+# but there is still a non-zero origin shift. Not quite clear about the mechanism
 cat > cell.txt << EOF
 0.000000000     1.783560000     1.783560000
 1.783560000     0.000000000     1.783560000
 1.783560000     1.783560000     0.000000000
 2
-0.000000000     0.000000000     0.000000000   6
-0.250000000     0.250000000     0.250000000   6
+0.500000000     0.500000000    -0.500000000   6
+0.750000000     0.750000000    -0.250000000   6
 EOF
 
 # the basis set corresponding to a tier1 aims setup, i.e.

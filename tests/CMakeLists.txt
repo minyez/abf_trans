@@ -20,6 +20,13 @@ target_link_libraries(test_rotate "${LAPACK_LIBRARIES}")
 
 add_executable(test_mathtools ./test_mathtools.cpp)
 
+add_executable(test_kmesh test_kmesh.cpp)
+target_sources(test_kmesh PRIVATE ../src/kmesh.cpp)
+target_link_libraries(test_kmesh "${LAPACK_LIBRARIES}")
+
+add_executable(test_vec test_vec.cpp)
+target_link_libraries(test_vec "${LAPACK_LIBRARIES}")
+
 add_test(
   NAME test_sph
   COMMAND $<TARGET_FILE:test_sph>
@@ -54,3 +61,14 @@ add_test(
   NAME test_mathtools
   COMMAND $<TARGET_FILE:test_mathtools>
   )
+
+add_test(
+  NAME test_kmesh
+  COMMAND $<TARGET_FILE:test_kmesh>
+  )
+
+add_test(
+  NAME test_vec
+  COMMAND $<TARGET_FILE:test_vec>
+  )
+

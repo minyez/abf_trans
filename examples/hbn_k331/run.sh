@@ -4,7 +4,7 @@ exe="../../build/abf_trans.exe"
 
 [[ ! -x $exe ]] && echo "Executable not built in ../../build/" && exit 1
 
-cat >> cell.txt << EOF
+cat > cell.txt << EOF
  2.510000    0.000000    0.000000
 -1.255000    2.173724    0.000000
  0.000000    0.000000    6.690000
@@ -15,7 +15,7 @@ cat >> cell.txt << EOF
 0.666666667     0.333333333     0.750000000  5
 EOF
 
-cat >> basis_id.txt << EOF
+cat > basis_id.txt << EOF
 5 0
 5 0
 5 1
