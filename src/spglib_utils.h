@@ -28,7 +28,7 @@ public:
     vector<double> origin_shift;
     int n_operations;
     vector<matrix<int>> rotations;
-    vector<vector<double>> translations;
+    vector<vec<double>> translations;
     int n_atoms;
     vector<int> wyckoffs;
     vector<string> site_symmetry_symbols;

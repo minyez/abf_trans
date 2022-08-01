@@ -33,9 +33,10 @@ SpgDS_c::SpgDS_c(const matrix<double> &latt_in, const matrix<double> &posi_frac_
     for (int iop = 0; iop < n_operations; iop++)
     {
         rotations[iop].resize(3, 3);
+        translations[iop].resize(3);
         for (int i = 0; i < 3; i++)
         {
-            translations[iop].push_back(dataset->translations[iop][i]);
+            translations[iop][i] = dataset->translations[iop][i];
             for (int j = 0; j < 3; j++)
                 rotations[iop](i, j) = dataset->rotations[iop][i][j];
         }

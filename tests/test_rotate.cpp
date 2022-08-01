@@ -16,6 +16,8 @@ void test_identity()
     printf("alpha, beta, gamma = %f %f %f\n", euler[0], euler[1], euler[2]);
     assert(fequal(euler[0], 0.0) && fequal(euler[1], 0.0) && fequal(euler[2], 0.0));
     assert(is_proper);
+
+    cout << get_RSH_Delta_matrix_from_Euler(1, euler, true);
 }
 
 void test_inversion()

@@ -23,7 +23,9 @@ list(APPEND _sources
   kmesh.cpp
   rotate.cpp
   spglib_utils.cpp
-  sph.cpp)
+  sph.cpp
+  trans.cpp
+)
 # set include directories, required when external C/C++ codes are used in the project
 target_include_directories(abf_trans_exe
   PUBLIC

@@ -1,5 +1,6 @@
 #pragma once
 #include "base.h"
+#include "linalg.h"
 #include <cstring>
 #include <complex>
 #include <cassert>
@@ -104,10 +105,7 @@ public:
 
     bool operator==(const vec<T> &v) const
     {
-        if (size() == 0 || v.size() == 0) return false;
-        for (int i = 0; i < size(); i++)
-            if (fabs(c[i] - v.c[i]) > vec<T>::EQUAL_THRES) return false;
-        return true;
+        return vec_equal(*this, v, vec<T>::EQUAL_THRES);
     }
 
     void operator+=(const T &cnum)
@@ -255,4 +253,28 @@ template <typename T>
 T norm2(vec<std::complex<T>> v)
 {
     return norm(v.c, v.n, 2);
+}
+
+template <typename T>
+bool vec_equal(const vec<T> &v1, const vec<T> &v2, double thres)
+{
+    // NOTE: size is not necessarily equal
+    if (v1.size() == 0 || v2.size() == 0)
+        return false;
+    int size = std::min(v1.size(), v2.size());
+    for (int i = 0; i < size; i++)
+        if (fabs(v1.c[i] - v2.c[i]) > thres) return false;
+    return true;
+}
+
+template <typename T>
+T dot(const vec<T> &v1, const vec<T> &v2)
+{
+    assert(v1.size() == v2.size());
+    T dotv = 0.0;
+    if (v1.size() > 100)
+        return linalg::dot(v1.size(), v1.c, 1, v2.c, 1);
+    for (int i = 0; i < v1.size(); i++)
+        dotv += v1.c[i] * v2.c[i];
+    return dotv;
 }

@@ -89,6 +89,12 @@ std::array<double, 3> get_Euler_from_sym_matrix_xyz(const matrix<double> &rotmat
     return std::array<double, 3>{alpha, beta, gamma};
 }
 
+std::array<double, 3> get_Euler_from_sym_matrix_spg(const matrix<double> &rotmat_spg, const matrix<double> &lattice, bool &is_proper)
+{
+    auto rotmat_xyz = get_sym_matrix_xyz(rotmat_spg, lattice);
+    return get_Euler_from_sym_matrix_xyz(rotmat_xyz, is_proper);
+}
+
 matrix<double> get_Wigner_small_d_matrix_from_Euler_beta(const unsigned int &l, const double &beta)
 {
     int msize = get_msize(l);
