@@ -501,3 +501,16 @@ T get_determinant(matrix<T> m)
     }
     return det;
 }
+
+template <typename T>
+matrix<double> to_double(const matrix<T> &mat)
+{
+    matrix<double> dmat(mat.nr, mat.nc);
+    if (dmat.size())
+    {
+        for (int ir = 0; ir < mat.nr; ir++)
+            for (int ic = 0; ic < mat.nc; ic++)
+                dmat(ir, ic) = mat(ir, ic);
+    }
+    return dmat;
+}

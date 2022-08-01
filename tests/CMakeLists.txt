@@ -21,7 +21,7 @@ target_link_libraries(test_rotate "${LAPACK_LIBRARIES}")
 add_executable(test_mathtools ./test_mathtools.cpp)
 
 add_executable(test_kmesh test_kmesh.cpp)
-target_sources(test_kmesh PRIVATE ../src/kmesh.cpp ../src/spglib_utils.cpp)
+target_sources(test_kmesh PRIVATE ../src/kmesh.cpp ../src/cell.cpp ../src/spglib_utils.cpp)
 target_link_libraries(test_kmesh "${SPGLIB_LIBRARIES} ${LAPACK_LIBRARIES}")
 
 add_executable(test_vec test_vec.cpp)

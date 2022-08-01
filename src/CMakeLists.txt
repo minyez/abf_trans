@@ -20,6 +20,7 @@ list(APPEND _sources
   cell.cpp
   # constants.cpp
   io.cpp
+  kmesh.cpp
   rotate.cpp
   spglib_utils.cpp
   sph.cpp)

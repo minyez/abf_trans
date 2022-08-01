@@ -25,20 +25,19 @@ void generate_map_type_iatom(const vector<int> &atypes, set<int> &inequiv_types,
         amap[atypes[i]].push_back(i);
 }
 
-matrix<double> move_to_center_cell(matrix<double> &posi, const double lowlim)
+matrix<double> move_to_center(matrix<double> &posi, const double lowlim)
 {
-    matrix<double> R = posi;
-    R.zero_out();
+    matrix<double> R(posi.nr, posi.nc);
     const double uplim = lowlim + 1.0;
     for (int ia = 0; ia < R.nr; ia++)
         for (int ic = 0; ic < R.nc; ic++)
         {
-            while (posi(ia, ic) < lowlim)
+            while (posi(ia, ic) <= lowlim)
             {
                 posi(ia, ic) += 1.0;
                 R(ia, ic) -= 1.0;
             }
-            while (posi(ia, ic) >= uplim)
+            while (posi(ia, ic) > uplim)
             {
                 posi(ia, ic) -= 1.0;
                 R(ia, ic) += 1.0;
@@ -47,19 +46,18 @@ matrix<double> move_to_center_cell(matrix<double> &posi, const double lowlim)
     return R;
 }
 
-vec<double> move_to_center_cell(vec<double> &posi, const double lowlim)
+vec<double> move_to_center(vec<double> &posi, const double lowlim)
 {
-    vec<double> R = posi;
+    vec<double> R(posi.n);
     const double uplim = lowlim + 1.0;
-    R.zero_out();
     for (int ic = 0; ic < R.n; ic++)
     {
-        while (posi[ic] < lowlim)
+        while (posi[ic] <= lowlim)
         {
             posi[ic] += 1.0;
             R[ic] -= 1.0;
         }
-        while (posi[ic] >= uplim)
+        while (posi[ic] > uplim)
         {
             posi[ic] -= 1.0;
             R[ic] += 1.0;

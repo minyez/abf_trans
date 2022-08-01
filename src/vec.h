@@ -223,9 +223,10 @@ vec<T> operator-(const T &cnum, const vec<T> &v)
 template <typename T>
 std::ostream & operator<<(std::ostream & os, const vec<T> &v)
 {
-    for (int i = 0; i < v.n; i++)
+    for (int i = 0; i < v.n - 1; i++)
         os << v[i] << " ";
-    os << std::endl;
+    if (v.n > 0)
+        os << v[v.n-1];
     return os;
 }
 
