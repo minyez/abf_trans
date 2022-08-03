@@ -74,3 +74,59 @@ void read_abf_ids(const string &abffile, const set<int> &inequiv_types_verify, m
             throw std::logic_error("missing atomic basis function information of atom type " + std::to_string(it));
     }
 }
+
+matrix<cplxdb> read_mtx_cplxdb(const string &mtxfile)
+{
+    std::ifstream fin;
+    fin.open(mtxfile);
+    int nr, nc, nnz;
+    matrix<cplxdb> cmat;
+    if (fin)
+    {
+        string s1, s2, s3, s4;
+        // skip two headlines
+        getline(fin, s1);
+        getline(fin, s1);
+        fin >> s1 >> s2 >> s3;
+        nr = std::stoi(s1);
+        nc = std::stoi(s2);
+        nnz = std::stoi(s3);
+        cmat.resize(nr, nc);
+        for (int i = 0; i < nnz; i++)
+        {
+            if (fin.eof())
+                throw std::logic_error("EOF is reached unexpectedly in reading complex MTX");
+            fin >> s1 >> s2 >> s3 >> s4;
+            cmat(std::stoi(s1) - 1, std::stoi(s2) - 1) = cplxdb(std::stod(s3), std::stod(s4));
+        }
+    }
+    return cmat;
+}
+
+matrix<double> read_mtx_double(const string &mtxfile)
+{
+    std::ifstream fin;
+    fin.open(mtxfile);
+    int nr, nc, nnz;
+    matrix<double> mat;
+    if (fin)
+    {
+        string s1, s2, s3;
+        // skip two headlines
+        getline(fin, s1);
+        getline(fin, s1);
+        fin >> s1 >> s2 >> s3;
+        nr = std::stoi(s1);
+        nc = std::stoi(s2);
+        nnz = std::stoi(s3);
+        mat.resize(nr, nc);
+        for (int i = 0; i < nnz; i++)
+        {
+            if (fin.eof())
+                throw std::logic_error("EOF is reached unexpectedly in reading complex MTX");
+            fin >> s1 >> s2 >> s3;
+            mat(std::stoi(s1) - 1, std::stoi(s2) - 1) = std::stod(s3);
+        }
+    }
+    return mat;
+}

@@ -19,7 +19,7 @@ matrix<cplxdb> compute_W_matrix(const matrix<double> &lattice,
     for (int iMu = 0; iMu < atom_types.size(); iMu++)
     {
         const auto s_Mu = positions.get_row(iMu);
-        auto sprime_Mu = inverse(rotmat_spg) * (s_Mu + transi_spg);
+        auto sprime_Mu = inverse(rotmat_spg) * (s_Mu - transi_spg);
         std::cout << "S'_Mu = " << sprime_Mu << std::endl; // debug
         const auto OVMu = move_to_center(sprime_Mu, 0.0);
         std::cout << "Shift back, S'_Mu = " << sprime_Mu << " , OV_Mu = " << OVMu << std::endl; // debug
@@ -31,7 +31,7 @@ matrix<cplxdb> compute_W_matrix(const matrix<double> &lattice,
         vector<int> ls_compute;
         for (const auto &abf: abfs_iMu)
             ls_compute.push_back(abf.l);
-        
+
         for (int iMup = 0; iMup < atom_types.size(); iMup++)
         {
             const auto s_Mup = positions.get_row(iMup);
