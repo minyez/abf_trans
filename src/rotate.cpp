@@ -135,7 +135,7 @@ matrix<cplxdb> get_Wigner_D_matrix_from_Euler(unsigned int l, const std::array<d
         gamma(m+il, m+il) = cplxdb{std::cos(angle), -std::sin(angle)};
     }
     if (!is_proper)
-        smalld *= std::pow(-1, il);
+        smalld *= std::pow(-1., il);
     return alpha * to_complex(smalld) * gamma;
 }
 
@@ -161,5 +161,9 @@ matrix<cplxdb> get_RSH_Delta_matrix_from_Euler(unsigned l, const std::array<doub
                                      std::conj(get_C_matrix_element(m, -m)) * (Dmat(-m+il, mp+il) * get_C_matrix_element(mp, mp) + Dmat(-m+il, -mp+il) * get_C_matrix_element(mp, -mp));
             }
         }
+    // NOTE: filter out small values, mainly due to the last condition above.
+    for (int i = 0; i < Delta.size(); i++)
+        if (fabs(Delta.c[i]) < 1.e-14)
+            Delta.c[i] = 0.0;
     return Delta;
 }
