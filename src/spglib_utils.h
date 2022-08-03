@@ -51,6 +51,7 @@ public:
     const matrix<double> &get_ideal_lattice() const { return std_lattice; }
 
     void show() const;
+    void show_cell() const;
 };
 
 SpglibDataset* wrapper_spg_get_dataset(const matrix<double> &latt,

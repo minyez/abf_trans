@@ -118,7 +118,19 @@ void SpgDS_c::show() const
     }
     printf("Equivalent atoms:\n");
     for (int i = 0; i < n_atoms; i++) {
-      printf("  %d ->%d (type %d)\n", i, equivalent_atoms[i], types[i]);
+      printf("  %d -> %d (type %d)\n", i, equivalent_atoms[i], types[i]);
+    }
+}
+
+void SpgDS_c::show_cell() const
+{
+    printf("Lattice parameter:\n");
+    for (int i = 0; i < 3; i++) {
+        printf("%f %f %f\n", lattice(i, 0), lattice(i, 1), lattice(i, 2));
+    }
+    printf("Atomic positions:\n");
+    for (int i = 0; i < n_atoms; i++) {
+        printf("%d: %f %f %f\n", types[i], positions(i, 0), positions(i, 1), positions(i, 2));
     }
 }
 

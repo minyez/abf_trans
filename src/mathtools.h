@@ -26,3 +26,30 @@ inline double double_factorial(int n)
     }
     return 1;
 }
+
+inline double shift_to_unit(double &v, double lowlim, bool keep_lowlim)
+{
+    double shift = 0.;
+    const double uplim = lowlim + 1.0;
+    while (v < lowlim)
+    {
+        v += 1.0;
+        shift -= 1.0;
+    }
+    while (v > uplim)
+    {
+        v -= 1.0;
+        shift += 1.0;
+    }
+    if (keep_lowlim && v == uplim)
+    {
+        v -= 1.0;
+        shift += 1.0;
+    }
+    if (!keep_lowlim && v == lowlim)
+    {
+        v += 1.0;
+        shift -= 1.0;
+    }
+    return shift;
+}

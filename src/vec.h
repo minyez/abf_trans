@@ -14,8 +14,8 @@ public:
     T* c;
     constexpr static const double EQUAL_THRES = DOUBLE_EQUAL_THRES;
 
-    vec(): n(0), c(nullptr) {};
-    vec(const int &n_in): n(n_in) { if (n_in > 0) c = new T [n]; }
+    vec(): n(0), c(nullptr) { zero_out(); }
+    vec(const int &n_in): n(n_in) { if (n_in > 0) c = new T [n]; zero_out(); }
     vec(const int &n_in, const T * const valarr): n(n_in), c(nullptr)
     {
         if (n>0)

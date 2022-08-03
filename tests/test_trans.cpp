@@ -10,17 +10,21 @@ void test_prim_diamond_spd()
     posi(1, 0) = posi(1, 1) = posi(1, 2) = 0.25;
     vector<int> atom_types{6, 6};
     SpgDS_c dataset(latt, posi, atom_types);
+    dataset.show_cell();
+    dataset.show();
 
     map_type_abfs[6].push_back({0});
     map_type_abfs[6].push_back({1});
     map_type_abfs[6].push_back({2});
 
     vec<double> kprime(3);
-    const int i_symop = 0;
+    // FIXME: cannot map to a correct Mu'
+    const int i_symop = 1;
     kprime[0] = 0.5;
     cout << "k': "<< kprime << endl;
     cout << "rotation mat: "<< endl << dataset.rotations[i_symop];
-    cout << "transition v:" << dataset.translations[i_symop] << endl;
+    cout << "inverse: " << endl << inverse(to_double(dataset.rotations[i_symop]));
+    cout << "transition v: " << dataset.translations[i_symop] << endl;
     auto Wmat = compute_W_matrix(latt, posi, atom_types, kprime,
                                  to_double(dataset.rotations[i_symop]),
                                  dataset.translations[i_symop], map_type_abfs);

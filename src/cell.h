@@ -19,6 +19,6 @@ matrix<double> get_recip_latt(const matrix<double> &latt);
 
 void generate_map_type_iatom(const vector<int> &atypes, set<int> &inequiv_types, map<int, vector<int>> &amap);
 
-matrix<double> move_to_center(matrix<double> &posi, const double lowlim = 0.0);
+matrix<double> move_to_center(matrix<double> &posi, const double lowlim = 0.0, bool keep_lowlim = true);
 
-vec<double> move_to_center(vec<double> &posi, const double lowlim = 0.0);
+vec<double> move_to_center(vec<double> &posi, const double lowlim = 0.0, bool keep_lowlim = true);

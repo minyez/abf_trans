@@ -95,7 +95,7 @@ void KGrids::generate_irk_map(const SpgDS_c &dataset)
             {
                 auto tranmat = AAT * to_double(dataset.rotations[is]) * invAAT;
                 auto vk = tranmat * kpt;
-                move_to_center(vk, -0.5);
+                move_to_center(vk, -0.5, false);
                 // TODO: there might be precision problem
                 const auto ite_vk = std::find(irkpts_vec.cbegin(), irkpts_vec.cend(), vk);
                 if (ite_vk != irkpts_vec.cend())

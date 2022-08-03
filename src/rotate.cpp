@@ -80,6 +80,7 @@ std::array<double, 3> get_Euler_from_sym_matrix_xyz(const matrix<double> &rotmat
     else
     {
         // always set gamma as 0 for this case.
+        gamma = 0.;
         // symmat(1,1) = cos(a+g) if cosb > 0 i.e. symmat(2,2) > 0
         //             = cos(a-g) if cosb < 0
         alpha = std::acos(prop_rot(1, 1));
