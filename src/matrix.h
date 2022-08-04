@@ -1,8 +1,7 @@
 #pragma once
 #include <cassert>
-#include <cstring>
 #include <vector>
-#include <iostream>
+// #include <iostream>
 #include <cmath>
 #include "base.h"
 #include "linalg.h"

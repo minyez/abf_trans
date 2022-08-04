@@ -11,6 +11,8 @@ using std::vector;
 using std::map;
 using std::set;
 
+double decode_fraction(const string& frac_str);
+
 void read_cell(const string &cellfile, matrix<double> &out_latt,
                matrix<double> &out_posi_frac, vector<int> &out_types);
 
@@ -24,4 +26,5 @@ matrix<cplxdb> read_mtx_cplxdb(const string &mtxfile);
 matrix<double> read_mtx_double(const string &mtxfile);
 
 void write_mtx_cplxdb(const matrix<cplxdb> &mat, const string &mtxfile,
+                      const string &comment = "",
                       double threshold = 1.e-15, bool row_first = true);

@@ -5,6 +5,8 @@
 #include "spglib_utils.h"
 #include "cell.h"
 #include "io.h"
+#include "kmesh.h"
+#include "trans.h"
 
 using std::cout;
 using std::endl;
@@ -15,7 +17,7 @@ int main (int argc, char *argv[])
     /* =============== */
     /* handling inputs */
     /* =============== */
-    cout << "Command: " << endl << "  ";
+    cout << "Command: " << argc << endl << "  ";
     for (int i = 0; i < argc; i++)
         cout << argv[i] << " ";
     cout << endl;
@@ -51,11 +53,43 @@ int main (int argc, char *argv[])
     read_abf_ids(argv[2], inequiv_types, map_type_abfs);
     ABF basis(types, map_type_abfs);
 
-    if (argc == 8)
+    /* prepare required quantities*/
+    string choice, mode, mtxfile;
+    vec<double> KRcoord(3);
+    vector<vec<double>> ks;
+    vector<int> isymops;
+    string outmtxfn;
+    char comment[80];
+
+    if (argc == 9)
     {
-        vec<double> kprime(3);
+        // one-line case
+        choice = argv[3];
+        mode = argv[4];
+        printf("RSH choice: %s\n", choice.c_str());
+        printf("      Mode: %s\n", mode.c_str());
+
         for (int i = 0; i < 3; i++)
-            kprime[i] = std::stod(argv[5+i]);
+            KRcoord[i] = decode_fraction(argv[5+i]);
+        mtxfile = argv[8];
+        const auto mat = read_mtx_cplxdb(mtxfile);
+
+        if (mode == "K")
+        {
+            printf("Computing all equivalent k-points to (%f, %f, %f)\n", KRcoord[0], KRcoord[1], KRcoord[2]);
+            get_all_equiv_k(KRcoord, spgdataset.lattice, spgdataset.rotations, ks, isymops);
+            printf("Found %zu equivalent kpoints (including itself)\n", ks.size());
+            for (int ik = 0; ik < ks.size(); ik++)
+            {
+                const auto k_mat = compute_representation_on_equiv_k(KRcoord, mat, spgdataset.lattice, spgdataset.positions, spgdataset.types, 
+                                                                     spgdataset.rotations[isymops[ik]], spgdataset.translations[isymops[ik]], map_type_abfs);
+                outmtxfn = "abf_trans_out_equivk_" + std::to_string(ik) + "_symop_" + std::to_string(isymops[ik]) + ".mtx";
+                sprintf(comment, "equiv k: %f %f %f", ks[ik][0], ks[ik][1], ks[ik][2]);
+                write_mtx_cplxdb(k_mat, outmtxfn);
+            }
+            ks.clear();
+            isymops.clear();
+        }
     }
 
 

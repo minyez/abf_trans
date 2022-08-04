@@ -2,6 +2,25 @@
 #include <iomanip>
 #include <fstream>
 #include <stdexcept>
+#include <algorithm>
+// #include <iostream>
+
+double decode_fraction(const string& frac_str)
+{
+    double frac = 0.0;
+    const auto ite_slash = std::find(frac_str.cbegin(), frac_str.cend(), '/');
+    if (ite_slash != frac_str.cend())
+    {
+        string s_nume, s_denu;
+        s_nume = string(frac_str.begin(), ite_slash);
+        s_denu = string(ite_slash+1, frac_str.end());
+        // std::cout << s_nume << " " << s_denu << std::endl;
+        frac = std::stod(s_nume) / std::stod(s_denu);
+    }
+    else
+        frac = std::stod(frac_str);
+    return frac;
+}
 
 void read_cell(const string &cellfile, matrix<double> &out_latt,
                matrix<double> &out_posi_frac, vector<int> &out_types)
@@ -132,7 +151,9 @@ matrix<double> read_mtx_double(const string &mtxfile)
     return mat;
 }
 
-void write_mtx_cplxdb(const matrix<cplxdb> &mat, const string &mtxfile, double threshold, bool row_first)
+void write_mtx_cplxdb(const matrix<cplxdb> &mat, const string &mtxfile,
+                      const string &comment,
+                      double threshold, bool row_first)
 {
     std::ofstream fs;
     fs.open(mtxfile);
@@ -142,7 +163,10 @@ void write_mtx_cplxdb(const matrix<cplxdb> &mat, const string &mtxfile, double t
     size_t nnz = 0;
     auto format = std::scientific;
     fs << "%%MatrixMarket matrix coordinate complex general" << std::endl;
-    fs << "%" << std::endl;
+    if (comment != "")
+        fs << "% " << comment << std::endl;
+    else
+        fs << "%" << std::endl;
     // count non-zero values first
     for (int i = 0; i < mat.size(); i++)
     {

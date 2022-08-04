@@ -1,6 +1,7 @@
 #include "../src/trans.h"
 #include "../src/spglib_utils.h"
 #include "testutils.h"
+#include <iostream>
 
 using namespace std;
 
@@ -30,10 +31,10 @@ void test_prim_nacl_spd()
     cout << "rotation mat: "<< endl << dataset.rotations[i_symop];
     cout << "inverse: " << endl << inverse(to_double(dataset.rotations[i_symop]));
     cout << "transition v: " << dataset.translations[i_symop] << endl;
-    auto euler = get_Euler_from_sym_matrix_spg(to_double(dataset.rotations[i_symop]), latt, is_proper);
+    auto euler = get_Euler_from_sym_matrix_spg(dataset.rotations[i_symop], latt, is_proper);
     printf("Euler angle: %f %f %f\n", euler[0], euler[1], euler[2]);
     auto Wmat = compute_W_matrix(latt, posi, atom_types, kprime,
-                                 to_double(dataset.rotations[i_symop]),
+                                 dataset.rotations[i_symop],
                                  dataset.translations[i_symop], map_type_abfs);
     std::cout << Wmat;
 
@@ -63,10 +64,10 @@ void test_prim_diamond_spd()
     cout << "rotation mat: "<< endl << dataset.rotations[i_symop];
     cout << "inverse: " << endl << inverse(to_double(dataset.rotations[i_symop]));
     cout << "transition v: " << dataset.translations[i_symop] << endl;
-    auto euler = get_Euler_from_sym_matrix_spg(to_double(dataset.rotations[i_symop]), latt, is_proper);
+    auto euler = get_Euler_from_sym_matrix_spg(dataset.rotations[i_symop], latt, is_proper);
     printf("Euler angle: %f %f %f, proper? %d\n", euler[0], euler[1], euler[2], is_proper);
     auto Wmat = compute_W_matrix(latt, posi, atom_types, kprime,
-                                 to_double(dataset.rotations[i_symop]),
+                                 dataset.rotations[i_symop],
                                  dataset.translations[i_symop], map_type_abfs);
     std::cout << Wmat;
     map_type_abfs.clear();

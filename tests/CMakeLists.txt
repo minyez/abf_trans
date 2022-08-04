@@ -35,6 +35,11 @@ add_executable(test_trans test_trans.cpp)
 target_sources(test_trans PRIVATE ../src/trans.cpp ../src/abf.cpp ../src/cell.cpp ../src/rotate.cpp ../src/spglib_utils.cpp)
 target_link_libraries(test_trans "${SPGLIB_LIBRARIES} ${LAPACK_LIBRARIES}")
 
+add_executable(test_io test_io.cpp)
+target_sources(test_io PRIVATE ../src/io.cpp ../src/abf.cpp)
+target_link_libraries(test_io "${LAPACK_LIBRARIES}")
+
+
 add_test(
   NAME test_sph
   COMMAND $<TARGET_FILE:test_sph>
@@ -88,5 +93,10 @@ add_test(
 add_test(
   NAME test_trans
   COMMAND $<TARGET_FILE:test_trans>
+  )
+
+add_test(
+  NAME test_io
+  COMMAND $<TARGET_FILE:test_io>
   )
 

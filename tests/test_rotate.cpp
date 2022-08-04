@@ -7,12 +7,13 @@ using namespace std;
 void test_identity()
 {
     cout << "Testing identity operation ..." << endl;
-    matrix<double> iden(3, 3), latt(3, 3);
+    matrix<int> iden(3, 3);
+    matrix<double> latt(3, 3);
     iden.set_diag(1);
     latt.set_diag(5);
-    assert(iden == get_sym_matrix_xyz(iden, latt));
+    assert(to_double(iden) == get_sym_matrix_xyz(iden, latt));
     bool is_proper;
-    auto euler = get_Euler_from_sym_matrix_xyz(iden, is_proper);
+    auto euler = get_Euler_from_sym_matrix_xyz(to_double(iden), is_proper);
     printf("alpha, beta, gamma = %f %f %f\n", euler[0], euler[1], euler[2]);
     assert(fequal(euler[0], 0.0) && fequal(euler[1], 0.0) && fequal(euler[2], 0.0));
     assert(is_proper);

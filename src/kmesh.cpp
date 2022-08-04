@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <vector>
+#include <iostream>
 #include "kmesh.h"
 #include "cell.h"
 
@@ -142,7 +143,7 @@ void get_all_equiv_k(const vec<double> &k, const matrix<double> lattice,
         const matrix<int> rotmat_spg = rotmats_spg[isymop];
         auto equiv_k = (AAT * to_double(rotmat_spg) * invAAT) * k;
         auto ite_ek = std::find(equiv_ks.cbegin(), equiv_ks.cend(), equiv_k);
-        if (ite_ek != equiv_ks.cend())
+        if (ite_ek == equiv_ks.cend())
         {
             equiv_ks.push_back(equiv_k);
             irots.push_back(isymop);

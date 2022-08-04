@@ -4,12 +4,12 @@
 #include <iostream>
 #include "sph.h"
 
-matrix<double> get_sym_matrix_xyz(const matrix<double> &rotmat_spg,
+matrix<double> get_sym_matrix_xyz(const matrix<int> &rotmat_spg,
                                        const matrix<double> &lattice)
 {
     assert(rotmat_spg.nc == 3 && rotmat_spg.nr == 3);
     matrix<double> rotmat_xyz(3, 3);
-    rotmat_xyz = lattice * rotmat_spg * inverse(lattice);
+    rotmat_xyz = lattice * to_double(rotmat_spg) * inverse(lattice);
     return rotmat_xyz;
 }
 
@@ -90,7 +90,7 @@ std::array<double, 3> get_Euler_from_sym_matrix_xyz(const matrix<double> &rotmat
     return std::array<double, 3>{alpha, beta, gamma};
 }
 
-std::array<double, 3> get_Euler_from_sym_matrix_spg(const matrix<double> &rotmat_spg, const matrix<double> &lattice, bool &is_proper)
+std::array<double, 3> get_Euler_from_sym_matrix_spg(const matrix<int> &rotmat_spg, const matrix<double> &lattice, bool &is_proper)
 {
     auto rotmat_xyz = get_sym_matrix_xyz(rotmat_spg, lattice);
     return get_Euler_from_sym_matrix_xyz(rotmat_xyz, is_proper);

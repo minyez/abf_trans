@@ -1,11 +1,12 @@
 #include "trans.h"
 #include <set>
+#include <iostream>
 
 matrix<cplxdb> compute_W_matrix(const matrix<double> &lattice, 
                                 const matrix<double> &positions, 
                                 const vector<int> &atom_types,
                                 const vec<double> &kprime,
-                                const matrix<double> &rotmat_spg,
+                                const matrix<int> &rotmat_spg,
                                 const vec<double> &transi_spg,
                                 const std::map<int, std::vector<abf_id>> &map_type_abfs_in)
 {
@@ -13,20 +14,20 @@ matrix<cplxdb> compute_W_matrix(const matrix<double> &lattice,
     const int nabf = abasis.get_number_of_total_abfs();
     const auto AAT = lattice * transpose(lattice);
     matrix<cplxdb> Wmat(nabf, nabf);
+    const auto rotmat_spg_db = to_double(rotmat_spg);
     // k = V k'
-    const auto k = AAT * rotmat_spg * inverse(AAT) * kprime;
+    const auto k = AAT * rotmat_spg_db * inverse(AAT) * kprime;
 
     for (int iMu = 0; iMu < atom_types.size(); iMu++)
     {
         const auto s_Mu = positions.get_row(iMu);
-        auto sprime_Mu = inverse(rotmat_spg) * (s_Mu - transi_spg);
-        std::cout << "S'_Mu = " << sprime_Mu << std::endl; // debug
+        auto sprime_Mu = inverse(rotmat_spg_db) * (s_Mu - transi_spg);
+        // std::cout << "S'_Mu = " << sprime_Mu << std::endl; // debug
         const auto OVMu = move_to_center(sprime_Mu, 0.0);
-        std::cout << "Shift back, S'_Mu = " << sprime_Mu << " , OV_Mu = " << OVMu << std::endl; // debug
+        // std::cout << "Shift back, S'_Mu = " << sprime_Mu << " , OV_Mu = " << OVMu << std::endl; // debug
         const double ang = dot(kprime, OVMu);
         const cplxdb eprefac(std::cos(ang), -std::sin(ang));
-        // debug
-        std::cout << ang << " " << eprefac << std::endl;
+        // std::cout << ang << " " << eprefac << std::endl; // debug
         const auto abfs_iMu = map_type_abfs[atom_types[iMu]];
         vector<int> ls_compute;
         for (const auto &abf: abfs_iMu)
@@ -67,4 +68,15 @@ matrix<cplxdb> compute_W_matrix(const matrix<double> &lattice,
         }
     }
     return Wmat;
+}
+
+matrix<cplxdb> compute_representation_on_equiv_k(const vec<double> &kprime, const matrix<cplxdb> &cmat_at_kprime,
+                                                 const matrix<double> &lattice,
+                                                 const matrix<double> &positions,
+                                                 const vector<int> &atom_types,
+                                                 const matrix<int> &rotmat_spg, const vec<double> &transi_spg,
+                                                 const std::map<int, std::vector<abf_id>> &map_type_abfs_in)
+{
+    auto wmat = compute_W_matrix(lattice, positions, atom_types, kprime, rotmat_spg, transi_spg, map_type_abfs_in);
+    return wmat * cmat_at_kprime * transpose(wmat, true);
 }

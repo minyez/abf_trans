@@ -3,7 +3,7 @@
 #include "base.h"
 #include "matrix.h"
 
-matrix<double> get_sym_matrix_xyz(const matrix<double> &rotmat_spg,
+matrix<double> get_sym_matrix_xyz(const matrix<int> &rotmat_spg,
                                   const matrix<double> &lattice);
 
 matrix<double> sym_matrix_xyz_from_Euler(double alpha, double beta, double gamma, bool add_inversion);
@@ -12,7 +12,7 @@ std::array<double, 3> get_Euler_from_sym_matrix_xyz(const matrix<double> &rotmat
                                                     bool &is_proper);
 
 //! A convenient function combining 
-std::array<double, 3> get_Euler_from_sym_matrix_spg(const matrix<double> &rotmat_spg,
+std::array<double, 3> get_Euler_from_sym_matrix_spg(const matrix<int> &rotmat_spg,
                                                     const matrix<double> &lattice,
                                                     bool &is_proper);
 
