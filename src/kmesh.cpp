@@ -125,3 +125,27 @@ void KGrids::generate_irk_map(const SpgDS_c &dataset)
     nirkpts = irkpts_vec.size();
     irkpts = irkpts_vec;
 }
+
+void get_all_equiv_k(const vec<double> &k, const matrix<double> lattice,
+                     const vector<matrix<int>> &rotmats_spg, vector<vec<double>> &equiv_ks, vector<int> &irots)
+{
+    if (!equiv_ks.empty()||!irots.empty())
+    {
+        std::cout << "Warning: clearing equiv_ks and irots" << std::endl;
+        equiv_ks.clear();
+        irots.clear();
+    }
+    auto AAT = lattice * transpose(lattice);
+    auto invAAT = inverse(AAT);
+    for (int isymop = 0; isymop < rotmats_spg.size(); isymop++)
+    {
+        const matrix<int> rotmat_spg = rotmats_spg[isymop];
+        auto equiv_k = (AAT * to_double(rotmat_spg) * invAAT) * k;
+        auto ite_ek = std::find(equiv_ks.cbegin(), equiv_ks.cend(), equiv_k);
+        if (ite_ek != equiv_ks.cend())
+        {
+            equiv_ks.push_back(equiv_k);
+            irots.push_back(isymop);
+        }
+    }
+}

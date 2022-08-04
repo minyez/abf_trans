@@ -22,3 +22,6 @@ void read_abf_ids(const string &abffile, const set<int> &types_verify, map<int, 
 matrix<cplxdb> read_mtx_cplxdb(const string &mtxfile);
 
 matrix<double> read_mtx_double(const string &mtxfile);
+
+void write_mtx_cplxdb(const matrix<cplxdb> &mat, const string &mtxfile,
+                      double threshold = 1.e-15, bool row_first = true);

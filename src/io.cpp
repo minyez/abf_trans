@@ -1,4 +1,5 @@
 #include "io.h"
+#include <iomanip>
 #include <fstream>
 #include <stdexcept>
 
@@ -129,4 +130,52 @@ matrix<double> read_mtx_double(const string &mtxfile)
         }
     }
     return mat;
+}
+
+void write_mtx_cplxdb(const matrix<cplxdb> &mat, const string &mtxfile, double threshold, bool row_first)
+{
+    std::ofstream fs;
+    fs.open(mtxfile);
+    int nr = mat.nr;
+    int nc = mat.nc;
+    int prec = 15;
+    size_t nnz = 0;
+    auto format = std::scientific;
+    fs << "%%MatrixMarket matrix coordinate complex general" << std::endl;
+    fs << "%" << std::endl;
+    // count non-zero values first
+    for (int i = 0; i < mat.size(); i++)
+    {
+        auto v = mat.c[i];
+        if ( fabs(v.real()) > threshold || fabs(v.imag()) > threshold )
+            nnz++;
+    }
+
+    fs << nr << " " << nc << " " << nnz << std::endl;
+
+    if (row_first)
+    {
+        for (int j = 0; j < nc; j++)
+        {
+            for (int i = 0; i < nr; i++)
+            {
+                auto v = mat(i, j);
+                if ( fabs(v.real()) > threshold || fabs(v.imag()) > threshold )
+                    fs << i + 1 << " " << j + 1 << " " << std::showpoint << format << std::setprecision(prec) << v.real() << " " << std::showpoint << format << std::setprecision(prec) << v.imag() << "\n";
+            }
+        }
+    }
+    else
+    {
+        for (int i = 0; i < nr; i++)
+        {
+            for (int j = 0; j < nc; j++)
+            {
+                auto v = mat(i, j);
+                if ( fabs(v.real()) > threshold || fabs(v.imag()) > threshold )
+                    fs << i + 1 << " " << j + 1 << " " << std::showpoint << format << std::setprecision(prec) << v.real() << " " << std::showpoint << format << std::setprecision(prec) << v.imag() << "\n";
+            }
+        }
+    }
+
 }
