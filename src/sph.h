@@ -35,9 +35,9 @@ inline cplxdb get_C_matrix_element_aims(int m, int mp)
         if (m > 0 && mp < 0)
             return cplxdb(std::pow(-1.0, m)/std::sqrt(2.0), 0.0);
         if (m < 0 && mp > 0)
-            return cplxdb(0, -1.0/std::sqrt(2.0));
-        if (m < 0 && mp < 0)
             return cplxdb(0, std::pow(-1, mp)/std::sqrt(2.0));
+        if (m < 0 && mp < 0)
+            return cplxdb(0, -1.0/std::sqrt(2.0));
     }
     return cplxdb(0., 0.);
 }

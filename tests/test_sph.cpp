@@ -8,7 +8,7 @@ void test_C_matrix_l1()
     const int l = 1;
     const unsigned msize = 2*l + 1;
 
-    auto cmat = get_C_matrix(l);
+    auto cmat = get_C_matrix(l, "orig");
     matrix<cplxdb> cmat_ref(msize, msize);
 
     // initialize
