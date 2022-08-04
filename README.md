@@ -56,18 +56,19 @@ Two files are required as inputs to use this project
 
 To run the program
 ```shell
-abf_trans.exe cell.txt basis_id.txt mode x1 x2 x3 [mtxfile]
+abf_trans.exe cell.txt basis_id.txt choice mode x1 x2 x3 mtxfile
 ```
-where mode should be either `R`/`K`, and `xN` are the components along direct/reciprocal lattice vectors.
-`mtxfile` is the name of matrix data file in sparse matrix-market format, but it is optional.
+where `choice` is the choice of real spherical harmonics. It can be `orig` or `aims` for the current stage.
+`mode` should be either `R`/`K`,
+and `xN` are the components along direct/reciprocal lattice vectors.
+`mtxfile` is the name of matrix data file in sparse matrix-market format for the matrix representation at the specified k/R-point.
 
 Another way to run the program is
 
 ```shell
 abf_trans.exe cell.txt basis_id.txt matrices.txt
 ```
-where each line in `matrices.txt` contain the `mode x1 x2 x3 mtxfile` information.
-Note that in this mode, `mtxfile` is required.
+where each line in `matrices.txt` contain the `choice mode x1 x2 x3 mtxfile` information.
    
 ## References
 

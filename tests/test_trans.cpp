@@ -24,7 +24,6 @@ void test_prim_nacl_spd()
     map_type_abfs[17].push_back({2});
 
     vec<double> kprime(3);
-    // FIXME: cannot map to a correct Mu'
     const int i_symop = 2;
     kprime[0] = 0.5;
     cout << "k': "<< kprime << endl;

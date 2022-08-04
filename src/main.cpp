@@ -51,6 +51,13 @@ int main (int argc, char *argv[])
     read_abf_ids(argv[2], inequiv_types, map_type_abfs);
     ABF basis(types, map_type_abfs);
 
+    if (argc == 8)
+    {
+        vec<double> kprime(3);
+        for (int i = 0; i < 3; i++)
+            kprime[i] = std::stod(argv[5+i]);
+    }
+
 
     return 0;
 }
