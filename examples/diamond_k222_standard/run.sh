@@ -23,13 +23,10 @@ EOF
 #   hydro 2 s 4.9
 
 cat > basis_id.txt << EOF
-6 0
-6 0
-6 0
-6 1
-6 1
-6 2
+6 0 3
+6 1 2
+6 2 1
 EOF
 
 
-$exe cell.txt basis_id.txt K 1/2 1/2 1/2
+$exe cell.txt basis_id.txt aims K 1/2 1/2 1/2 wc_k2.mtx

@@ -3,7 +3,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <algorithm>
-// #include <iostream>
+#include <iostream>
 
 double decode_fraction(const string& frac_str)
 {
@@ -78,12 +78,16 @@ void read_abf_ids(const string &abffile, const set<int> &inequiv_types_verify, m
     fin.open(abffile);
     if(fin)
     {
-        string t, l;
+        string t, l, n;
         while(!fin.eof())
         {
-            fin >> t >> l;
+            fin >> t >> l >> n;
+            if (fin.eof())
+                break;
+            std::cout << t << l << n << std::endl;
             abf_id aid(std::stoi(l));
-            map_t_abf[std::stoi(t)].push_back(aid);
+            for (int i = 0; i < std::stoi(n); i++)
+                map_t_abf[std::stoi(t)].push_back(aid);
         }
     }
     else

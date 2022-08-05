@@ -49,10 +49,11 @@ Two files are required as inputs to use this project
   Each line of the file represents a set of basis functions for one atom species with the same radial function
   The format is
    ```
-   type_a l_rf
+   type_a l_rf n_l
    ```
-  where `type_a` is the type of atom and `l_rf` the angular momentum quantum number of the radial function.
-  There can be lines that are identical to each other, but the radial functions are different by definition.
+  where `type_a` is the type of atom, `l_rf` the angular momentum quantum number of the radial functions, and `n_l` is the number of different radial functions in this channel.
+  There can be lines that have identical `type_a` and `l_rf`, but with a different `n_l`, for example, `n_l1` and `n_l2`.
+  In this case, `n_l1` plus `n_l2` radial functions in the `l_rf` channel is added to `type_a` specie.
 
 To run the program
 ```shell

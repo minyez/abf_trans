@@ -21,12 +21,9 @@ EOF
 #   hydro 2 s 4.9
 
 cat > basis_id.txt << EOF
-6 0
-6 0
-6 0
-6 1
-6 1
-6 2
+6 0 3
+6 1 2
+6 2 1
 EOF
 
 

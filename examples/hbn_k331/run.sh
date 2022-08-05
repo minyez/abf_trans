@@ -16,12 +16,10 @@ cat > cell.txt << EOF
 EOF
 
 cat > basis_id.txt << EOF
-5 0
-5 0
-5 1
-7 0
-7 0
-7 1
+5 0 2
+5 1 1
+7 0 2
+7 1 1
 EOF
 
 $exe cell.txt basis_id.txt K 1/2 1/2 1/2

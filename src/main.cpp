@@ -73,6 +73,11 @@ int main (int argc, char *argv[])
             KRcoord[i] = decode_fraction(argv[5+i]);
         mtxfile = argv[8];
         const auto mat = read_mtx_cplxdb(mtxfile);
+        if (mat.nr != basis.get_number_of_total_abfs())
+        {
+            cout << "matrix size = " << mat.nr << ", basis size = " << basis.get_number_of_total_abfs() << endl;
+            throw std::invalid_argument("The matrix size is not equal to the basis size, check input");
+        }
 
         if (mode == "K")
         {
@@ -80,12 +85,14 @@ int main (int argc, char *argv[])
             get_all_equiv_k(KRcoord, spgdataset.lattice, spgdataset.rotations, ks, isymops);
             printf("Found %zu equivalent kpoints (including itself)\n", ks.size());
             for (int ik = 0; ik < ks.size(); ik++)
+                printf("%2d: %f %f %f\n", ik, ks[ik][0], ks[ik][1], ks[ik][2]);
+            for (int ik = 0; ik < ks.size(); ik++)
             {
                 const auto k_mat = compute_representation_on_equiv_k(KRcoord, mat, spgdataset.lattice, spgdataset.positions, spgdataset.types, 
                                                                      spgdataset.rotations[isymops[ik]], spgdataset.translations[isymops[ik]], map_type_abfs);
                 outmtxfn = "abf_trans_out_equivk_" + std::to_string(ik) + "_symop_" + std::to_string(isymops[ik]) + ".mtx";
                 sprintf(comment, "equiv k: %f %f %f", ks[ik][0], ks[ik][1], ks[ik][2]);
-                write_mtx_cplxdb(k_mat, outmtxfn);
+                write_mtx_cplxdb(k_mat, outmtxfn, comment);
             }
             ks.clear();
             isymops.clear();
