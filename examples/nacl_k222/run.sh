@@ -30,22 +30,57 @@ EOF
 #    hydro 4 f 7.4
 #   # ionic 3 s auto
 
-# Note the following the auxiliary basis, not the original basis
+# Note the following is the auxiliary basis, not the original basis
 # Na: 9 s, 8 p, 7 d, 3 f, 1 g
 # Cl: 10 s, 10 p, 9 d, 8 f, 5 g, 2 h, 1 i
 cat > basis_id.txt << EOF
 11 0 2
-11 1 6
-11 2 6
-11 3 2
+11 1 1
+11 2 2
+11 0 1
+11 1 3
+11 3 1
+11 1 1
+11 2 2
+11 0 1
+11 2 1
+11 0 1
 11 4 1
-17 0 9
-17 1 9
-17 2 8
-17 3 7
-17 4 4
-17 5 2
+11 3 1
+11 2 1
+11 1 1
+11 0 1
+17 0 2
+17 1 1
+17 0 1
+17 1 2
+17 2 1
+17 1 1
+17 0 2
+17 1 1
+17 2 2
+17 3 1
+17 4 1
+17 2 1
+17 3 1
+17 0 1
+17 1 2
+17 2 1
+17 3 3
+17 4 2
+17 5 1
+17 0 1
+17 1 1
+17 2 2
+17 3 1
+17 0 1
 17 6 1
+17 5 1
+17 4 1
+17 3 1
+17 2 1
+17 1 1
+17 0 1
 EOF
 
 # the coordinates of corresponding k indices are

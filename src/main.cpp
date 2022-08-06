@@ -72,10 +72,11 @@ int main (int argc, char *argv[])
         for (int i = 0; i < 3; i++)
             KRcoord[i] = decode_fraction(argv[5+i]);
         mtxfile = argv[8];
+        cout << "Reading matrix data from file: " << mtxfile << endl;
         const auto mat = read_mtx_cplxdb(mtxfile);
+        printf("matrix size = (%d, %d), basis size = %d\n", mat.nr, mat.nc, basis.get_number_of_total_abfs());
         if (mat.nr != basis.get_number_of_total_abfs())
         {
-            cout << "matrix size = " << mat.nr << ", basis size = " << basis.get_number_of_total_abfs() << endl;
             throw std::invalid_argument("The matrix size is not equal to the basis size, check input");
         }
 
