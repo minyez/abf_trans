@@ -17,7 +17,7 @@ int main (int argc, char *argv[])
     /* =============== */
     /* handling inputs */
     /* =============== */
-    cout << "Command: " << argc << endl << "  ";
+    cout << "Command: " << argc << " arguments" << endl << "  ";
     for (int i = 0; i < argc; i++)
         cout << argv[i] << " ";
     cout << endl;
@@ -85,12 +85,21 @@ int main (int argc, char *argv[])
             printf("Computing all equivalent k-points to (%f, %f, %f)\n", KRcoord[0], KRcoord[1], KRcoord[2]);
             get_all_equiv_k(KRcoord, spgdataset.lattice, spgdataset.rotations, ks, isymops);
             printf("Found %zu equivalent kpoints (including itself)\n", ks.size());
-            for (int ik = 0; ik < ks.size(); ik++)
-                printf("%2d: %f %f %f\n", ik, ks[ik][0], ks[ik][1], ks[ik][2]);
+            // for (int ik = 0; ik < ks.size(); ik++)
+            //     printf("%2d: %f %f %f\n", ik, ks[ik][0], ks[ik][1], ks[ik][2]);
             for (int ik = 0; ik < ks.size(); ik++)
             {
-                const auto k_mat = compute_representation_on_equiv_k(KRcoord, mat, spgdataset.lattice, spgdataset.positions, spgdataset.types, 
-                                                                     spgdataset.rotations[isymops[ik]], spgdataset.translations[isymops[ik]], map_type_abfs, choice);
+                printf("Transforming matrix at %7.4f %7.4f %7.4f -> %7.4f %7.4f %7.4f (%3d)\n",
+                       KRcoord[0], KRcoord[1], KRcoord[2], ks[ik][0], ks[ik][1], ks[ik][2], ik);
+                bool is_proper;
+                const auto euler = get_Euler_from_sym_matrix_spg(spgdataset.rotations[isymops[ik]], spgdataset.lattice, is_proper);
+                if (is_proper)
+                    printf("  Euler angle of Op %2d: %10.6f %10.6f %10.6f\n", isymops[ik], euler[0], euler[1], euler[2]);
+                else
+                    printf("  Euler angle of Op %2d: %10.6f %10.6f %10.6f (plus inversion)\n", isymops[ik], euler[0], euler[1], euler[2]);
+                const auto k_mat = compute_representation_on_equiv_k(KRcoord, mat, spgdataset.lattice, spgdataset.positions, spgdataset.types,
+                                                                     spgdataset.rotations[isymops[ik]], spgdataset.translations[isymops[ik]], map_type_abfs,
+                                                                     choice);
                 outmtxfn = "abf_trans_out_equivk_" + std::to_string(ik) + "_symop_" + std::to_string(isymops[ik]) + ".mtx";
                 sprintf(comment, "equiv k: %f %f %f", ks[ik][0], ks[ik][1], ks[ik][2]);
                 write_mtx_cplxdb(k_mat, outmtxfn, comment);

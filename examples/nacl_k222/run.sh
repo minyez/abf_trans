@@ -114,3 +114,4 @@ $exe cell.txt basis_id.txt aims K 1/2 1/2 0 coulomb_matr_kpt_7.mtx
 # 2: 0.500000 0.000000 0.000000 -> 5
 # 5: 0.000000 0.000000 0.500000 -> 2
 # 6: 0.000000 0.500000 0.000000 -> 3
+### check passed, commit e004ed0eb
