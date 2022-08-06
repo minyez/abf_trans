@@ -36,7 +36,13 @@ void test_prim_nacl_spd()
     auto Wmat = compute_W_matrix(latt, posi, atom_types, kprime,
                                  dataset.rotations[i_symop],
                                  dataset.translations[i_symop], map_type_abfs);
-    std::cout << Wmat;
+    // std::cout << Wmat;
+
+    cout << "Testing unitary property " << endl;
+    auto iden = Wmat * transpose(Wmat, true);
+    matrix<cplxdb> iden_ref(iden.nr, iden.nc);
+    iden_ref.set_diag(1);
+    assert(iden == iden_ref);
 
     map_type_abfs.clear();
 }
@@ -69,13 +75,20 @@ void test_prim_diamond_spd()
     auto Wmat = compute_W_matrix(latt, posi, atom_types, kprime,
                                  dataset.rotations[i_symop],
                                  dataset.translations[i_symop], map_type_abfs);
-    std::cout << Wmat;
+
+    // std::cout << Wmat;
+    cout << "Testing unitary property " << endl;
+    auto iden = Wmat * transpose(Wmat, true);
+    matrix<cplxdb> iden_ref(iden.nr, iden.nc);
+    iden_ref.set_diag(1);
+    assert(iden == iden_ref);
+
     map_type_abfs.clear();
 }
 
 int main (int argc, char *argv[])
 {
-    // test_prim_nacl_spd();
+    test_prim_nacl_spd();
     test_prim_diamond_spd();
     return 0;
 }

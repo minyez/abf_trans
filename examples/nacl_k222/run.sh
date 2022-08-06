@@ -31,8 +31,7 @@ EOF
 #   # ionic 3 s auto
 
 # Note the following is the auxiliary basis, not the original basis
-# Na: 9 s, 8 p, 7 d, 3 f, 1 g
-# Cl: 10 s, 10 p, 9 d, 8 f, 5 g, 2 h, 1 i
+# ABFs on Na = 76, Cl = 197
 cat > basis_id.txt << EOF
 11 0 2
 11 1 1
@@ -83,6 +82,8 @@ cat > basis_id.txt << EOF
 17 0 1
 EOF
 
+rm -f abf_trans_out*
+
 # the coordinates of corresponding k indices are
 # 1:    0.0    0.0    0.0
 # 2:    0.0    0.0    0.5
@@ -94,9 +95,22 @@ EOF
 # 8:    0.5    0.5    0.5
 
 # $exe cell.txt basis_id.txt aims K 0 0 1/2 coulomb_matr_kpt_2.mtx
+
 # $exe cell.txt basis_id.txt aims K 0 1/2 0 coulomb_matr_kpt_3.mtx
+
 # $exe cell.txt basis_id.txt aims K 0 1/2 1/2 coulomb_matr_kpt_4.mtx
+
 # $exe cell.txt basis_id.txt aims K 1/2 0 0 coulomb_matr_kpt_5.mtx
+
 # $exe cell.txt basis_id.txt aims K 1/2 0 1/2 coulomb_matr_kpt_6.mtx
-# $exe cell.txt basis_id.txt aims K 1/2 1/2 0 coulomb_matr_kpt_7.mtx
-$exe cell.txt basis_id.txt aims K 1/2 1/2 1/2 coulomb_matr_kpt_8.mtx
+
+$exe cell.txt basis_id.txt aims K 1/2 1/2 0 coulomb_matr_kpt_7.mtx
+# 0: 0.500000 0.500000 0.000000 -> 7
+# 2: 0.000000 0.500000 0.500000 -> 4
+# 4: 0.500000 0.000000 0.500000 -> 6
+
+# $exe cell.txt basis_id.txt aims K 1/2 1/2 1/2 coulomb_matr_kpt_8.mtx
+# 0: 0.500000 0.500000 0.500000 -> 8
+# 2: 0.500000 0.000000 0.000000 -> 5
+# 5: 0.000000 0.000000 0.500000 -> 2
+# 6: 0.000000 0.500000 0.000000 -> 3
