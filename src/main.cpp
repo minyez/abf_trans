@@ -90,7 +90,7 @@ int main (int argc, char *argv[])
             for (int ik = 0; ik < ks.size(); ik++)
             {
                 const auto k_mat = compute_representation_on_equiv_k(KRcoord, mat, spgdataset.lattice, spgdataset.positions, spgdataset.types, 
-                                                                     spgdataset.rotations[isymops[ik]], spgdataset.translations[isymops[ik]], map_type_abfs);
+                                                                     spgdataset.rotations[isymops[ik]], spgdataset.translations[isymops[ik]], map_type_abfs, choice);
                 outmtxfn = "abf_trans_out_equivk_" + std::to_string(ik) + "_symop_" + std::to_string(isymops[ik]) + ".mtx";
                 sprintf(comment, "equiv k: %f %f %f", ks[ik][0], ks[ik][1], ks[ik][2]);
                 write_mtx_cplxdb(k_mat, outmtxfn, comment);
