@@ -5,6 +5,27 @@
 #include <algorithm>
 #include <iostream>
 
+CODE_CHOICE code_choice = CODE_CHOICE::ORIG;
+KRMODE krmode = KRMODE::K;
+
+CODE_CHOICE parse_code_choice(const string &cc_in)
+{
+    if (cc_in == "orig" || cc_in == "original")
+        return CODE_CHOICE::ORIG;
+    else if (cc_in == "aims" || cc_in == "fhiaims")
+        return CODE_CHOICE::AIMS;
+    throw std::invalid_argument("Unknown code choice: " + cc_in);
+}
+
+KRMODE parse_krmode(const string &mode_in)
+{
+    if (mode_in == "r" || mode_in == "R")
+        return KRMODE::R;
+    else if (mode_in == "k" || mode_in == "K")
+        return KRMODE::K;
+    throw std::invalid_argument("Unknown mode: " + mode_in);
+}
+
 double decode_fraction(const string& frac_str)
 {
     double frac = 0.0;
@@ -205,5 +226,48 @@ void write_mtx_cplxdb(const matrix<cplxdb> &mat, const string &mtxfile,
             }
         }
     }
+}
 
+void read_matrix_inputs(const string &mat_inputs_fn, std::array<int, 3> &ngs, vector<vec<double>> &krpoints, vector<string> &mtxfns, vector<matrix<cplxdb>> &matrices)
+{
+    if (!krpoints.empty() || !mtxfns.empty() || !matrices.empty())
+        throw std::logic_error("matrix inputs already parsed, please clean up first");
+
+    std::ifstream fin;
+    fin.open(mat_inputs_fn);
+    if(fin)
+    {
+        int n = 0;
+        string s1, s2, s3, s4, s5;
+        fin >> s1 >> s2 >> s3 >> s4 >> s5;
+        code_choice = parse_code_choice(s1);
+        krmode = parse_krmode(s2);
+        ngs[0] = stoi(s3);
+        ngs[1] = stoi(s4);
+        ngs[2] = stoi(s5);
+        while (!fin.eof())
+        {
+            fin >> s1 >> s2 >> s3 >> s4;
+            if (fin.eof()) break;
+            n++;
+            double varr[3] { decode_fraction(s1), decode_fraction(s2), decode_fraction(s3) };
+            vec<double> v(3, varr);
+            krpoints.push_back(v);
+            mtxfns.push_back(s4);
+            if (krmode == KRMODE::K)
+                printf("Reading %d-th matrix at k-point (%6.3f, %6.3f, %6.3f) from file: %s\n", n, v[0], v[1], v[2], s4.c_str());
+            if (krmode == KRMODE::R)
+                printf("Reading %d-th matrix at R-point (%4.1f, %4.1f, %4.1f) from file: %s\n", n, v[0], v[1], v[2], s4.c_str());
+            matrices.push_back(read_mtx_cplxdb(s4));
+        }
+        printf("%d files read\n", n);
+    }
+}
+
+void clear_matrix_inputs(vector<vec<double>> &krpoints, vector<string> &matfns,
+                         vector<matrix<cplxdb>> &matrices)
+{
+    krpoints.clear();
+    matfns.clear();
+    matrices.clear();
 }

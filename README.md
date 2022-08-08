@@ -1,13 +1,18 @@
----
-title: Demo of calculation of transformation matrix between equivalent k/R points
----
+# Symmetry transformation between operator representations on equivalent k/R points within atom-centered basis framework
 
 This project briefly implements the transformation matrix to obtain operator representation at one k/R point
-to other equivalent points within the atom-centered basis functions framework.
+to the equivalent points within the atom-centered basis functions framework, e.g. Gaussian type orbital and numeric atom-centered orbitals.
+It is for demostration and practice purpose.
+
+## Requirement
+
+- C++ compiler with C++-11 support
+- [Spglib](https://spglib.github.io)
+- A linear-algebra package, e.g. [LAPACK](https://netlib.org/lapack/)
 
 ## Compilation
 
-1. Ensure a valid `SPGLIB_HOME` environment variable as install path of [Spglib](https://spglib.github.io).
+1. Ensure a valid `SPGLIB_HOME` environment variable as install path of Spglib.
 2. Ensure a valid `LAPACK_HOME` environment variable and correct librarires in `LAPACK_LIBRARIES` in CMakeLists.txt.
    For example, if you use MKL,
     ```
@@ -17,21 +22,27 @@ to other equivalent points within the atom-centered basis functions framework.
     set(LAPACK_LIBRARIES "-L$ENV{LAPACK_PATH} -lmkl_intel_lp64 -lmkl_sequential -lmkl_core")
     ```
 3. (optional) Customize `CMAKE_CXX_COMPILER` and `CMAKE_CXX_FLAGS` in CMakeLists.txt to suit your need.
-4. Run the general cmake process
+4. Run the general cmake procedure
 
     ```bash
     mkdir build && cd && build
     cmake .. && make -j4
     ```
 
-This will leads to executable `abf_trans.exe`, and test executables in `build/tests`.
-Run `make test` to do some basic unit tests.
+This will leads to executable `abf_trans.exe` under `build` directory and test executables in `build/tests`.
+You may run `make test` to do basic unit tests.
 
 ## Usage
 
+The main program `abf_trans.exe` can be run by the following command
+
+```shell
+abf_trans.exe cell.txt basis_id.txt matrix_inputs
+```
+
 ### Inputs
 
-Two files are required as inputs to use this project
+Three input files are required as inputs to use this project
 
 - `cell.txt` for parsing the information of the cell.
     ```
@@ -54,23 +65,24 @@ Two files are required as inputs to use this project
   where `type_a` is the type of atom, `l_rf` the angular momentum quantum number of the radial functions, and `n_l` is the number of different radial functions in this channel.
   There can be lines that have identical `type_a` and `l_rf`, but with a different `n_l`, for example, `n_l1` and `n_l2`.
   In this case, `n_l1` plus `n_l2` radial functions in the `l_rf` channel is added to `type_a` specie.
+- `matrix_inputs` file is used to specify the data and related information of matrix representations to transform.
+  It has the following format
+  ```
+  choice mode ngrid1 ngrid2 ngrid3
+  x1_1 x2_1 x3_1 mtxfile_1
+  x1_2 x2_2 x3_2 mtxfile_2
+  # ...
+  x1_n x2_n x3_n mtxfile_n
+  ```
+  In the header, `choice` is the choice of conventions, e.g. real spherical harmonics, Bloch sum, etc.
+  They are generally chosen by the code used to generate the matrices. For the current stage, `choice` can be `orig` or `aims`
+  `mode` should be either `R`/`K`. `ngrid1`, `ngrid2` and `ngrid3` are the numbers of k/R grids on the three directions.
+  For each of the `n` lines below the header,  `x1_n`, `x2_n` and `x3_n` are the coordinates of k (in reciprocal lattice vectors)  or R (in direct lattice vectors) point.
+  `mtxfile_n` is the name of matrix data file in sparse matrix-market format for the matrix representation at the specified k/R-point.
+  The code will check if the specified mtxfiles exist and whether the contained data are valid.
 
-To run the program
-```shell
-abf_trans.exe cell.txt basis_id.txt choice mode x1 x2 x3 mtxfile
-```
-where `choice` is the choice of real spherical harmonics. It can be `orig` or `aims` for the current stage.
-`mode` should be either `R`/`K`,
-and `xN` are the components along direct/reciprocal lattice vectors.
-`mtxfile` is the name of matrix data file in sparse matrix-market format for the matrix representation at the specified k/R-point.
+Examples are given in the `examples` directory to check the usage and input files.
 
-Another way to run the program is
-
-```shell
-abf_trans.exe cell.txt basis_id.txt matrices.txt
-```
-where each line in `matrices.txt` contain the `choice mode x1 x2 x3 mtxfile` information.
-   
 ## References
 
 ```bibtex

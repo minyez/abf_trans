@@ -10,6 +10,7 @@ void test_add_subtract()
     matrix<double> a(2, 2);
     a(0, 0) = 2;
     a(1, 1) = 1;
+    assert( maxabs(a) == 2);
     a += 1;
     assert(fequal(a(0, 0), 3.0) && fequal(a(1, 1), 2.0));
 

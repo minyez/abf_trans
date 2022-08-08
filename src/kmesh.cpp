@@ -127,6 +127,7 @@ void KGrids::generate_irk_map(const SpgDS_c &dataset)
     irkpts = irkpts_vec;
 }
 
+
 void get_all_equiv_k(const vec<double> &k, const matrix<double> lattice,
                      const vector<matrix<int>> &rotmats_spg, vector<vec<double>> &equiv_ks, vector<int> &irots)
 {

@@ -2,6 +2,11 @@
 #include <complex>
 #include <cmath>
 
+enum CODE_CHOICE { ORIG, AIMS };
+constexpr const char * CODE_CHOICE_STR[] { "original", "FHI-aims" };
+enum KRMODE { R, K };
+constexpr const char * KRMODE_STR[] { "R", "K" };
+
 typedef std::complex<double> cplxdb;
 
 constexpr static const double DOUBLE_EQUAL_THRES = 1e-10;

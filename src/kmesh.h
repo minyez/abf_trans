@@ -1,8 +1,6 @@
 #pragma once
 #include "matrix.h"
 #include "spglib_utils.h"
-#include <map>
-#include <utility>
 #include <array>
 
 // the kgrids are always Gamma-centered
@@ -37,6 +35,22 @@ public:
     ~KGrids() {};
     void rebuild_grids(int nkx, int nky, int nkz);
     void rebuild_grids(const std::array<int, 3> &nks_in);
+    int index(const vec<double> &kvec) const
+    {
+        // a naive implementation of find
+        for (int i = 0; i < kpts.nr; i++)
+            if (vec_equal(kpts.get_row(i), kvec, 1e-6)) return i;
+        return -1;
+    }
+    int index(double k1, double k2, double k3) const
+    {
+        double k[3] {k1, k2, k3};
+        return index({3, k});
+    }
+    int index(const double *kvec) const { return index({3, kvec}); }
+    bool have_k(const vec<double> &kvec) const { return index(kvec) != -1; }
+    bool have_k(const double *kvec) const { return index(kvec) != -1; }
+    bool have_k(double k1, double k2, double k3) const { return index(k1, k2, k3) != -1; }
 
     // member functions
     void generate_irk_map(const SpgDS_c &dataset);

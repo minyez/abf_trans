@@ -42,14 +42,14 @@ inline cplxdb get_C_matrix_element_aims(int m, int mp)
     return cplxdb(0., 0.);
 }
 
-inline cplxdb get_C_matrix_element(int m, int mp, const std::string &choice = "orig")
+inline cplxdb get_C_matrix_element(int m, int mp, const CODE_CHOICE &choice)
 {
-    if (choice == "orig")
+    if (choice == CODE_CHOICE::ORIG)
         return get_C_matrix_element_orig(m, mp);
-    if (choice == "aims")
+    if (choice == CODE_CHOICE::AIMS)
         return get_C_matrix_element_aims(m, mp);
     else
         throw std::invalid_argument("Unknown choice of real spherical harmonics");
 }
 
-matrix<cplxdb> get_C_matrix(unsigned l, const std::string &choice = "orig");
+matrix<cplxdb> get_C_matrix(unsigned l, const CODE_CHOICE &choice);

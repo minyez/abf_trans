@@ -11,6 +11,12 @@ using std::vector;
 using std::map;
 using std::set;
 
+extern CODE_CHOICE code_choice;
+extern KRMODE krmode;
+
+CODE_CHOICE parse_code_choice(const string &cc_in);
+KRMODE parse_krmode(const string &mode_in);
+
 double decode_fraction(const string& frac_str);
 
 void read_cell(const string &cellfile, matrix<double> &out_latt,
@@ -28,3 +34,11 @@ matrix<double> read_mtx_double(const string &mtxfile);
 void write_mtx_cplxdb(const matrix<cplxdb> &mat, const string &mtxfile,
                       const string &comment = "",
                       double threshold = 1.e-15, bool row_first = true);
+
+void read_matrix_inputs(const string &mat_inputs_fn, std::array<int, 3> &ngs,
+                        vector<vec<double>> &krpoints,
+                        vector<string> &mtxfns,
+                        vector<matrix<cplxdb>> &matrices);
+
+void clear_matrix_inputs(vector<vec<double>> &krpoints, vector<string> &mtxfns,
+                         vector<matrix<cplxdb>> &matrices);

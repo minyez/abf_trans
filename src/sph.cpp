@@ -1,7 +1,7 @@
 #include <cmath>
 #include "sph.h"
 
-matrix<cplxdb> get_C_matrix(unsigned l, const std::string &choice)
+matrix<cplxdb> get_C_matrix(unsigned l, const CODE_CHOICE &choice)
 {
     auto msize = get_msize(l);
     const int il = int(l);
@@ -14,4 +14,3 @@ matrix<cplxdb> get_C_matrix(unsigned l, const std::string &choice)
         }
     return cmat;
 }
-

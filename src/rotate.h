@@ -20,4 +20,4 @@ matrix<double> get_Wigner_small_d_matrix_from_Euler_beta(const unsigned int &l, 
 
 matrix<cplxdb> get_Wigner_D_matrix_from_Euler(unsigned l, const std::array<double, 3> &euler_angle, bool is_proper);
 
-matrix<cplxdb> get_RSH_Delta_matrix_from_Euler(unsigned l, const std::array<double, 3> &euler_angle, bool is_proper);
+matrix<cplxdb> get_RSH_Delta_matrix_from_Euler(unsigned l, const std::array<double, 3> &euler_angle, bool is_proper, const CODE_CHOICE &choice);

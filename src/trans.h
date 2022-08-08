@@ -11,7 +11,7 @@ matrix<cplxdb> compute_W_matrix(const matrix<double> &lattice,
                                 const matrix<int> &rotmat_spg,
                                 const vec<double> &transi_spg,
                                 const std::map<int, std::vector<abf_id>> &map_type_abfs_in,
-                                const std::string & bloch_choice);
+                                const CODE_CHOICE & choice);
 
 matrix<cplxdb> compute_representation_on_equiv_k(const vec<double> &kprime, const matrix<cplxdb> &cmat_at_kprime,
                                                  const matrix<double> &lattice, 
@@ -20,4 +20,4 @@ matrix<cplxdb> compute_representation_on_equiv_k(const vec<double> &kprime, cons
                                                  const matrix<int> &rotmat_spg,
                                                  const vec<double> &transi_spg,
                                                  const std::map<int, std::vector<abf_id>> &map_type_abfs_in,
-                                                 const std::string & bloch_choice);
+                                                 const CODE_CHOICE & choice);

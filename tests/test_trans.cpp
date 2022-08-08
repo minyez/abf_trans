@@ -35,7 +35,7 @@ void test_prim_nacl_spd()
     printf("Euler angle: %f %f %f\n", euler[0], euler[1], euler[2]);
     auto Wmat = compute_W_matrix(latt, posi, atom_types, kprime,
                                  dataset.rotations[i_symop],
-                                 dataset.translations[i_symop], map_type_abfs, "orig");
+                                 dataset.translations[i_symop], map_type_abfs, CODE_CHOICE::ORIG);
     // std::cout << Wmat;
 
     cout << "Testing unitary property " << endl;
@@ -74,7 +74,7 @@ void test_prim_diamond_spd()
     printf("Euler angle: %f %f %f, proper? %d\n", euler[0], euler[1], euler[2], is_proper);
     auto Wmat = compute_W_matrix(latt, posi, atom_types, kprime,
                                  dataset.rotations[i_symop],
-                                 dataset.translations[i_symop], map_type_abfs, "orig");
+                                 dataset.translations[i_symop], map_type_abfs, CODE_CHOICE::ORIG);
 
     // std::cout << Wmat;
     cout << "Testing unitary property " << endl;

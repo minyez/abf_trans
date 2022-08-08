@@ -513,3 +513,27 @@ matrix<double> to_double(const matrix<T> &mat)
     }
     return dmat;
 }
+
+template <typename T>
+T maxabs(matrix<complex<T>> cmat)
+{
+    T ma = 0.;
+    for (int i = 0; i < cmat.size(); i++)
+    {
+        T tmp = fabs(cmat.c[i]);
+        if (tmp > ma) ma = tmp;
+    }
+    return ma;
+}
+
+template <typename T>
+T maxabs(matrix<T> cmat)
+{
+    T ma = 0.;
+    for (int i = 0; i < cmat.size(); i++)
+    {
+        T tmp = fabs(cmat.c[i]);
+        if (tmp > ma) ma = tmp;
+    }
+    return ma;
+}

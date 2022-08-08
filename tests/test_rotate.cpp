@@ -18,7 +18,7 @@ void test_identity()
     assert(fequal(euler[0], 0.0) && fequal(euler[1], 0.0) && fequal(euler[2], 0.0));
     assert(is_proper);
 
-    cout << get_RSH_Delta_matrix_from_Euler(1, euler, true);
+    cout << get_RSH_Delta_matrix_from_Euler(1, euler, true, CODE_CHOICE::ORIG);
 }
 
 void test_inversion()
@@ -114,7 +114,7 @@ void test_RSH_Delta()
             {
                 printf("testing RSH Delta for alpha, beta, gamma = %f %f %f\n", alpha, beta, gamma);
                 std::array<double, 3> euler{alpha, beta, gamma};
-                auto Delta = get_RSH_Delta_matrix_from_Euler(1, euler, true);
+                auto Delta = get_RSH_Delta_matrix_from_Euler(1, euler, true, CODE_CHOICE::ORIG);
                 matrix<cplxdb> Delta_ref(3, 3);
                 const double ca = std::cos(alpha);
                 const double cb = std::cos(beta);
@@ -133,7 +133,7 @@ void test_RSH_Delta()
                 Delta_ref(2, 2) = ca*cg*cb - sa*sg;
                 /* cout << Delta << Delta_ref; */
                 assert(Delta == Delta_ref);
-                Delta = get_RSH_Delta_matrix_from_Euler(1, euler, false);
+                Delta = get_RSH_Delta_matrix_from_Euler(1, euler, false, CODE_CHOICE::ORIG);
                 assert(Delta == (Delta_ref * cplxdb{-1, 0}));
             }
 }

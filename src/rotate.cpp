@@ -5,7 +5,7 @@
 #include "sph.h"
 
 matrix<double> get_sym_matrix_xyz(const matrix<int> &rotmat_spg,
-                                       const matrix<double> &lattice)
+                                  const matrix<double> &lattice)
 {
     assert(rotmat_spg.nc == 3 && rotmat_spg.nr == 3);
     matrix<double> rotmat_xyz(3, 3);
@@ -139,7 +139,7 @@ matrix<cplxdb> get_Wigner_D_matrix_from_Euler(unsigned int l, const std::array<d
     return alpha * to_complex(smalld) * gamma;
 }
 
-matrix<cplxdb> get_RSH_Delta_matrix_from_Euler(unsigned l, const std::array<double, 3> &euler_angle, bool is_proper)
+matrix<cplxdb> get_RSH_Delta_matrix_from_Euler(unsigned l, const std::array<double, 3> &euler_angle, bool is_proper, const CODE_CHOICE &rsh_choice)
 {
     auto Dmat= get_Wigner_D_matrix_from_Euler(l, euler_angle, is_proper);
     int msize = get_msize(l);
@@ -152,13 +152,13 @@ matrix<cplxdb> get_RSH_Delta_matrix_from_Euler(unsigned l, const std::array<doub
             if (m == 0 && mp == 0)
                 Delta(m+il, mp+il) = Dmat(m+il, mp+il);
             else if (m == 0)
-                Delta(m+il, mp+il) = Dmat(il, mp+il) * get_C_matrix_element(mp, mp) + Dmat(il, -mp+il) * get_C_matrix_element(mp, -mp);
+                Delta(m+il, mp+il) = Dmat(il, mp+il) * get_C_matrix_element(mp, mp, rsh_choice) + Dmat(il, -mp+il) * get_C_matrix_element(mp, -mp, rsh_choice);
             else if (mp == 0)
-                Delta(m+il, mp+il) = Dmat(m+il, il) * std::conj(get_C_matrix_element(m, m)) + Dmat(-m+il, il) * std::conj(get_C_matrix_element(m, -m));
+                Delta(m+il, mp+il) = Dmat(m+il, il) * std::conj(get_C_matrix_element(m, m, rsh_choice)) + Dmat(-m+il, il) * std::conj(get_C_matrix_element(m, -m, rsh_choice));
             else
             {
-                Delta(m+il, mp+il) = std::conj(get_C_matrix_element(m, m)) * (Dmat(m+il, mp+il) * get_C_matrix_element(mp, mp) + Dmat(m+il, -mp+il) * get_C_matrix_element(mp, -mp)) +
-                                     std::conj(get_C_matrix_element(m, -m)) * (Dmat(-m+il, mp+il) * get_C_matrix_element(mp, mp) + Dmat(-m+il, -mp+il) * get_C_matrix_element(mp, -mp));
+                Delta(m+il, mp+il) = std::conj(get_C_matrix_element(m, m, rsh_choice)) * (Dmat(m+il, mp+il) * get_C_matrix_element(mp, mp, rsh_choice) + Dmat(m+il, -mp+il) * get_C_matrix_element(mp, -mp, rsh_choice)) +
+                                     std::conj(get_C_matrix_element(m, -m, rsh_choice)) * (Dmat(-m+il, mp+il) * get_C_matrix_element(mp, mp, rsh_choice) + Dmat(-m+il, -mp+il) * get_C_matrix_element(mp, -mp, rsh_choice));
             }
         }
     // NOTE: filter out small values, mainly due to the last condition above.

@@ -10,13 +10,14 @@ matrix<cplxdb> compute_W_matrix(const matrix<double> &lattice,
                                 const matrix<int> &rotmat_spg,
                                 const vec<double> &transi_spg,
                                 const std::map<int, std::vector<abf_id>> &map_type_abfs_in,
-                                const std::string & bloch_choice)
+                                const CODE_CHOICE & choice)
 {
     ABF abasis(atom_types, map_type_abfs_in);
     const int nabf = abasis.get_number_of_total_abfs();
     const auto AAT = lattice * transpose(lattice);
     matrix<cplxdb> Wmat(nabf, nabf);
-    const double prefac = bloch_choice == "aims" ? -1. : 1.;
+    // const double prefac = choice == CODE_CHOICE::AIMS ? -1. : 1.;
+    const double prefac = choice == CODE_CHOICE::AIMS ? 1. : 1.;
     const auto rotmat_spg_db = to_double(rotmat_spg);
     // k = V k'
     const auto k = AAT * rotmat_spg_db * inverse(AAT) * kprime;
@@ -46,7 +47,7 @@ matrix<cplxdb> compute_W_matrix(const matrix<double> &lattice,
                 {
                     bool is_proper;
                     auto euler = get_Euler_from_sym_matrix_spg(rotmat_spg, lattice, is_proper);
-                    auto Delta = get_RSH_Delta_matrix_from_Euler(l, euler, is_proper);
+                    auto Delta = get_RSH_Delta_matrix_from_Euler(l, euler, is_proper, choice);
                     Delta.conj();
                     // std::cout << Delta; // debug
                     Delta *= eprefac;
@@ -79,8 +80,8 @@ matrix<cplxdb> compute_representation_on_equiv_k(const vec<double> &kprime, cons
                                                  const vector<int> &atom_types,
                                                  const matrix<int> &rotmat_spg, const vec<double> &transi_spg,
                                                  const std::map<int, std::vector<abf_id>> &map_type_abfs_in,
-                                                 const std::string & bloch_choice)
+                                                 const CODE_CHOICE & choice)
 {
-    auto wmat = compute_W_matrix(lattice, positions, atom_types, kprime, rotmat_spg, transi_spg, map_type_abfs_in, bloch_choice);
+    auto wmat = compute_W_matrix(lattice, positions, atom_types, kprime, rotmat_spg, transi_spg, map_type_abfs_in, choice);
     return wmat * cmat_at_kprime * transpose(wmat, true);
 }
