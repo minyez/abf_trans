@@ -15,6 +15,7 @@ using std::vector;
 struct SpgDS_c
 {
 public:
+    double symprec;
     matrix<double> lattice;
     matrix<double> positions;
     vector<int> types;
@@ -46,7 +47,7 @@ public:
     vector<int> inverse_operation;
 
     SpgDS_c(const matrix<double> &latt_in, const matrix<double> &posi_frac_in,
-            const vector<int> &types_in, const double symprec = 1.0e-5);
+            const vector<int> &types_in, const double symprec_in = 1.0e-5);
     ~SpgDS_c() {};
     // std_lattice is already the ideal one
     matrix<double> get_ideal_lattice() { return std_lattice; }
@@ -56,6 +57,7 @@ public:
     void show_cell() const;
     string get_operation_str(int isymop) const;
     string get_operation_str_matform(int isymop) const;
+    bool is_proper(int isymop) const;
 };
 
 SpglibDataset* wrapper_spg_get_dataset(const matrix<double> &latt,

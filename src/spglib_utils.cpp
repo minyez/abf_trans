@@ -2,8 +2,8 @@
 #include "spglib_utils.h"
 
 SpgDS_c::SpgDS_c(const matrix<double> &latt_in, const matrix<double> &posi_frac_in,
-                 const std::vector<int> &types_in, const double symprec) : 
-    lattice(latt_in), positions(posi_frac_in), types(types_in)
+                 const std::vector<int> &types_in, const double symprec_in) :
+    lattice(latt_in), positions(posi_frac_in), types(types_in), symprec(symprec_in)
 {
     SpglibDataset *dataset = wrapper_spg_get_dataset(latt_in, posi_frac_in, types_in, symprec);
 
@@ -143,7 +143,7 @@ void SpgDS_c::show(bool show_operations) const
     printf("Symmetry operations (%d):\n", n_operations);
     if (show_operations)
         for (int i = 0; i < n_operations; i++)
-            printf("%3d: %s (invop %3d)\n", i+1, get_operation_str(i).c_str(), inverse_operation[i]+1);
+            printf("%3d: %s (invop %3d) (%d)\n", i+1, get_operation_str(i).c_str(), inverse_operation[i]+1, is_proper(i));
     printf("Equivalent atoms:\n");
     for (int i = 0; i < n_atoms; i++) {
       printf("  %d -> %d (type %d)\n", i, equivalent_atoms[i], types[i]);
@@ -190,57 +190,18 @@ string SpgDS_c::get_operation_str_matform(int isymop) const
 
     return string(s);
 }
-// routine adapted from https://github.com/spglib/spglib/blob/develop/example/example.c#L880
-void show_spg_dataset(const SpglibDataset *dataset)
+
+bool SpgDS_c::is_proper(int isymop) const
 {
-    int i, j, size;
-    char ptsymbol[6];
-    int pt_trans_mat[3][3];
-    const char *wl = "abcdefghijklmnopqrstuvwxyz";
-
-    printf("International: %s (%d)\n", dataset->international_symbol, dataset->spacegroup_number);
-    printf("  Hall symbol: %s\n", dataset->hall_symbol);
-    spg_get_pointgroup(ptsymbol, pt_trans_mat, dataset->rotations,
-                       dataset->n_operations);
-    printf("  Point group: %s\n", ptsymbol);
-    // printf("Transformation matrix:\n");
-    // for (i = 0; i < 3; i++) {
-    //   printf("%f %f %f\n", dataset->transformation_matrix[i][0],
-    //          dataset->transformation_matrix[i][1],
-    //          dataset->transformation_matrix[i][2]);
-    // }
-    // printf("Origin shift: [%f %f %f]^T\n",
-    //        dataset->origin_shift[0],dataset->origin_shift[1],dataset->origin_shift[2]);
-    // printf("Wyckoff letters:\n");
-    // for (i = 0; i < dataset->n_atoms; i++) {
-    //   printf("%c ", wl[dataset->wyckoffs[i]]);
-    // }
-    // printf("\n");
-    // printf("Standard atoms: %d. Poistions\n", dataset->n_std_atoms);
-    // for (i = 0; i < dataset->n_std_atoms; i++) {
-    //   printf("%d: %f %f %f\n", i+1, dataset->std_positions[i][0],  dataset->std_positions[i][1], dataset->std_positions[i][2]);
-    // }
-    // printf("\n");
-    // printf("Equivalent atoms:\n");
-    // for (i = 0; i < dataset->n_atoms; i++) {
-    //   printf("%d ", dataset->equivalent_atoms[i]);
-    // }
-    // printf("\n");
-
-    for (i = 0; i < dataset->n_operations; i++)
-    {
-        printf("%3d: %2d %2d %2d %2d %2d %2d %2d %2d %2d [ %f %f %f ]\n", i+1,
-               dataset->rotations[i][0][0], dataset->rotations[i][0][1], dataset->rotations[i][0][2],
-               dataset->rotations[i][1][0], dataset->rotations[i][1][1], dataset->rotations[i][1][2],
-               dataset->rotations[i][2][0], dataset->rotations[i][2][1], dataset->rotations[i][2][2],
-               dataset->translations[i][0], dataset->translations[i][1], dataset->translations[i][2]
-               );
-      // printf("--- %d ---\n", i + 1);
-      // for (j = 0; j < 3; j++) {
-      //   printf("%2d %2d %2d\n", dataset->rotations[i][j][0],
-      //          dataset->rotations[i][j][1], dataset->rotations[i][j][2]);
-      // }
-      // printf("%f %f %f\n", dataset->translations[i][0],
-      //        dataset->translations[i][1], dataset->translations[i][2]);
-    }
+    if (!(isymop < n_operations))
+        throw std::invalid_argument("Required operation not exist");
+    const matrix<int> &rot = rotations[isymop];
+    int det = rot(0, 0) * (rot(1, 1) * rot(2, 2) - rot(1, 2) * rot(2, 1))
+            + rot(0, 1) * (rot(1, 2) * rot(2, 0) - rot(1, 0) * rot(2, 2))
+            + rot(0, 2) * (rot(1, 0) * rot(2, 1) - rot(1, 1) * rot(2, 0));
+    if (det == 1)
+        return true;
+    if (det == -1)
+        return false;
+    throw std::logic_error("Determinant of rotation matrix is neither 1 or -1");
 }

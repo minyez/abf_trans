@@ -3,31 +3,57 @@
 #include <iostream>
 #include "kmesh.h"
 #include "cell.h"
+#include "mathtools.h"
 
-matrix<double> get_kgrids(std::array<int, 3> nks)
+matrix<double> get_kgrids(std::array<int, 3> nks, const CODE_CHOICE &code)
 {
     const int nkpts = nks[0] * nks[1] * nks[2];
     std::vector<vec<double>> kgrids(nkpts);
     int ikpt = 0;
-    for (int ikz = 0; ikz < nks[2]; ikz++)
+    switch (code)
     {
-        double kz = double(ikz) / nks[2];
-        if (kz > 0.5) kz -= 1.0;
-        for (int iky = 0; iky < nks[1]; iky++)
-        {
-            double ky = double(iky) / nks[1];
-            if (ky > 0.5) ky -= 1.0;
+        case CODE_CHOICE::ORIG:
+            for (int ikz = 0; ikz < nks[2]; ikz++)
+            {
+                double kz = double(ikz) / nks[2];
+                if (kz > 0.5) kz -= 1.0;
+                for (int iky = 0; iky < nks[1]; iky++)
+                {
+                    double ky = double(iky) / nks[1];
+                    if (ky > 0.5) ky -= 1.0;
+                    for (int ikx = 0; ikx < nks[0]; ikx++)
+                    {
+                        double kx = double(ikx) / nks[0];
+                        if (kx > 0.5) kx -= 1.0;
+                        kgrids[ikpt].resize(3);
+                        kgrids[ikpt][0] = kx;
+                        kgrids[ikpt][1] = ky;
+                        kgrids[ikpt][2] = kz;
+                        ikpt++;
+                    }
+                }
+            }
+            break;
+        // by default aims does not have negative k-point.
+        case CODE_CHOICE::AIMS:
             for (int ikx = 0; ikx < nks[0]; ikx++)
             {
                 double kx = double(ikx) / nks[0];
-                if (kx > 0.5) kx -= 1.0;
-                kgrids[ikpt].resize(3);
-                kgrids[ikpt][0] = kx;
-                kgrids[ikpt][1] = ky;
-                kgrids[ikpt][2] = kz;
-                ikpt++;
+                for (int iky = 0; iky < nks[1]; iky++)
+                {
+                    double ky = double(iky) / nks[1];
+                    for (int ikz = 0; ikz < nks[2]; ikz++)
+                    {
+                        double kz = double(ikz) / nks[2];
+                        kgrids[ikpt].resize(3);
+                        kgrids[ikpt][0] = kx;
+                        kgrids[ikpt][1] = ky;
+                        kgrids[ikpt][2] = kz;
+                        ikpt++;
+                    }
+                }
             }
-        }
+            break;
     }
 
     return matrix<double>(kgrids);
@@ -36,30 +62,32 @@ matrix<double> get_kgrids(std::array<int, 3> nks)
 void KGrids::set_kgrids()
 {
     nkpts = nks[0] * nks[1] * nks[2];
-    kpts = get_kgrids(nks);
+    kpts = get_kgrids(nks, code);
 }
 
-KGrids::KGrids(int nkx, int nky, int nkz): nks({nkx, nky, nkz})
+KGrids::KGrids(int nkx, int nky, int nkz, const CODE_CHOICE &code_in): nks({nkx, nky, nkz}), code(code_in)
 {
     set_kgrids();
 }
 
-KGrids::KGrids(const std::array<int, 3> &nks_in): nks(nks_in)
+KGrids::KGrids(const std::array<int, 3> &nks_in, const CODE_CHOICE &code_in): nks(nks_in), code(code_in)
 {
     set_kgrids();
 }
 
-void KGrids::rebuild_grids(int nkx, int nky, int nkz)
+void KGrids::rebuild_grids(int nkx, int nky, int nkz, const CODE_CHOICE &code_in)
 {
     nks = std::array<int, 3>{nkx, nky, nkz};
+    code = code_in;
     set_kgrids();
     if (irkgrids_generated())
         clear_irkgrids();
 }
 
-void KGrids::rebuild_grids(const std::array<int, 3> &nks_in)
+void KGrids::rebuild_grids(const std::array<int, 3> &nks_in, const CODE_CHOICE &code_in)
 {
     nks = nks_in;
+    code = code_in;
     set_kgrids();
     if (irkgrids_generated())
         clear_irkgrids();
@@ -96,7 +124,14 @@ void KGrids::generate_irk_map(const SpgDS_c &dataset)
             {
                 auto tranmat = AAT * to_double(dataset.rotations[is]) * invAAT;
                 auto vk = tranmat * kpt;
-                move_to_center(vk, -0.5, false);
+                switch (code)
+                {
+                    case CODE_CHOICE::ORIG:
+                        move_to_center(vk, -0.5, false); break;
+                    case CODE_CHOICE::AIMS:
+                        move_to_center(vk, 0.0, true); break;
+                        /* move_to_center(vk, -0.5, false); break; */
+                }
                 // TODO: there might be precision problem
                 const auto ite_vk = std::find(irkpts_vec.cbegin(), irkpts_vec.cend(), vk);
                 if (ite_vk != irkpts_vec.cend())
@@ -129,7 +164,8 @@ void KGrids::generate_irk_map(const SpgDS_c &dataset)
 
 
 void get_all_equiv_k(const vec<double> &k, const matrix<double> lattice,
-                     const vector<matrix<int>> &rotmats_spg, vector<vec<double>> &equiv_ks, vector<int> &irots)
+                     const vector<matrix<int>> &rotmats_spg, vector<vec<double>> &equiv_ks, vector<int> &irots,
+                     const CODE_CHOICE &code)
 {
     if (!equiv_ks.empty()||!irots.empty())
     {
@@ -137,12 +173,13 @@ void get_all_equiv_k(const vec<double> &k, const matrix<double> lattice,
         equiv_ks.clear();
         irots.clear();
     }
-    auto AAT = lattice * transpose(lattice);
-    auto invAAT = inverse(AAT);
+    const auto AAT = lattice * transpose(lattice);
+    const auto invAAT = inverse(AAT);
     for (int isymop = 0; isymop < rotmats_spg.size(); isymop++)
     {
-        const matrix<int> rotmat_spg = rotmats_spg[isymop];
+        const matrix<int> &rotmat_spg = rotmats_spg[isymop];
         auto equiv_k = (AAT * to_double(rotmat_spg) * invAAT) * k;
+        move_k_back(equiv_k, code);
         auto ite_ek = std::find(equiv_ks.cbegin(), equiv_ks.cend(), equiv_k);
         if (ite_ek == equiv_ks.cend())
         {
@@ -150,4 +187,70 @@ void get_all_equiv_k(const vec<double> &k, const matrix<double> lattice,
             irots.push_back(isymop);
         }
     }
+}
+
+vector<int> get_all_symops_connecting_ks(const vec<double> &k, const vec<double> &Vk,
+                                         const matrix<double> lattice,
+                                         const vector<matrix<int>> &rotmats_spg)
+{
+    vector<int> indices;
+    const auto AAT = lattice * transpose(lattice);
+    const auto invAAT = inverse(AAT);
+    for (int isymop = 0; isymop < rotmats_spg.size(); isymop++)
+    {
+        const matrix<int> &rotmat_spg = rotmats_spg[isymop];
+        auto equiv_k = (AAT * to_double(rotmat_spg) * invAAT) * k;
+        if (is_same_k(equiv_k, Vk))
+            indices.push_back(isymop);
+    }
+    return indices;
+}
+
+bool is_same_k(const vec<double> &k1, const vec<double> &k2, const double thres)
+{
+    auto k1_shift = k1;
+    auto k2_shift = k2;
+    move_to_center(k1_shift);
+    move_to_center(k2_shift);
+    return vec_equal(k1_shift, k2_shift, thres);
+}
+
+matrix<double> move_k_back(matrix<double> &kpts, const CODE_CHOICE &code)
+{
+    matrix<double> K(kpts.nr, kpts.nc);
+    switch (code)
+    {
+        case CODE_CHOICE::ORIG:
+            for (int ia = 0; ia < K.nr; ia++)
+                for (int ic = 0; ic < K.nc; ic++)
+                {
+                    K(ia, ic) = shift_to_unit(kpts(ia, ic), -0.5, false);
+                }
+            break;
+        case CODE_CHOICE::AIMS:
+            for (int ia = 0; ia < K.nr; ia++)
+                for (int ic = 0; ic < K.nc; ic++)
+                {
+                    K(ia, ic) = shift_to_unit(kpts(ia, ic), 0.0, true);
+                }
+            break;
+    }
+    return K;
+}
+
+vec<double> move_k_back(vec<double> &kpts, const CODE_CHOICE &code)
+{
+    vec<double> K(kpts.n);
+    switch (code)
+    {
+        case CODE_CHOICE::ORIG:
+                for (int ic = 0; ic < K.n; ic++)
+                    K[ic] = shift_to_unit(kpts[ic], -0.5, false);
+            break;
+        case CODE_CHOICE::AIMS:
+                for (int ic = 0; ic < K.n; ic++)
+                    K[ic] = shift_to_unit(kpts[ic], 0.0, true);
+            break;
+    }
+    return K;
 }

@@ -85,7 +85,7 @@ int main (int argc, char *argv[])
         if (krmode == KRMODE::K)
         {
             printf("Computing all equivalent k-points to (%f, %f, %f)\n", KRcoord[0], KRcoord[1], KRcoord[2]);
-            get_all_equiv_k(KRcoord, spgdataset.lattice, spgdataset.rotations, equiv_ks, isymops);
+            get_all_equiv_k(KRcoord, spgdataset.lattice, spgdataset.rotations, equiv_ks, isymops, code_choice);
             printf("Found %zu equivalent kpoints (including itself)\n", equiv_ks.size());
             // for (int ik = 0; ik < ks.size(); ik++)
             //     printf("%2d: %f %f %f\n", ik, ks[ik][0], ks[ik][1], ks[ik][2]);
@@ -95,13 +95,13 @@ int main (int argc, char *argv[])
                        KRcoord[0], KRcoord[1], KRcoord[2], equiv_ks[ik][0], equiv_ks[ik][1], equiv_ks[ik][2], ik);
                 const auto euler = get_Euler_from_sym_matrix_spg(spgdataset.rotations[isymops[ik]], spgdataset.lattice, is_proper);
                 if (is_proper)
-                    printf("  Euler angle of Op %2d: %10.6f %10.6f %10.6f\n", isymops[ik], euler[0], euler[1], euler[2]);
+                    printf("  Euler angle of Op %2d: %10.6f %10.6f %10.6f\n", isymops[ik]+1, euler[0], euler[1], euler[2]);
                 else
-                    printf("  Euler angle of Op %2d: %10.6f %10.6f %10.6f (plus inversion)\n", isymops[ik], euler[0], euler[1], euler[2]);
+                    printf("  Euler angle of Op %2d: %10.6f %10.6f %10.6f (plus inversion)\n", isymops[ik]+1, euler[0], euler[1], euler[2]);
                 const auto k_mat = compute_representation_on_equiv_k(KRcoord, mat, spgdataset.lattice, spgdataset.positions, spgdataset.types,
                                                                      spgdataset.rotations[isymops[ik]], spgdataset.translations[isymops[ik]], map_type_abfs,
                                                                      code_choice);
-                outmtxfn = "abf_trans_out_equivk_" + std::to_string(ik) + "_symop_" + std::to_string(isymops[ik]) + ".mtx";
+                outmtxfn = "abf_trans_out_equivk_" + std::to_string(ik) + "_symop_" + std::to_string(isymops[ik]+1) + ".mtx";
                 sprintf(comment, "equiv k: %f %f %f", equiv_ks[ik][0], equiv_ks[ik][1], equiv_ks[ik][2]);
                 write_mtx_cplxdb(k_mat, outmtxfn, comment);
             }
@@ -120,11 +120,11 @@ int main (int argc, char *argv[])
         read_matrix_inputs(argv[3], ngs, krpoints, mtxfns, matrices);
         if (krmode == KRMODE::K)
         {
-            KGrids kgrids(ngs);
+            KGrids kgrids(ngs, code_choice);
             for (int ik = 0; ik < krpoints.size(); ik++)
             {
                 const auto &kprime = krpoints[ik]; // k'
-                get_all_equiv_k(kprime, spgdataset.lattice, spgdataset.rotations, equiv_ks, isymops); // all ks that k=Vk'
+                get_all_equiv_k(kprime, spgdataset.lattice, spgdataset.rotations, equiv_ks, isymops, code_choice); // all ks that k=Vk'
                 for (int ik_equiv = 0; ik_equiv < equiv_ks.size(); ik_equiv++)
                 {
                     const auto &k_equiv = equiv_ks[ik_equiv]; // k
@@ -142,20 +142,46 @@ int main (int argc, char *argv[])
                                                            spgdataset.translations[isymop], map_type_abfs, code_choice);
                         const auto mat_k_transformed = wmat * mat_kprime * transpose(wmat, true);
                         double maxabs_diff = maxabs(mat_k_transformed - mat_k_equiv);
-                        printf("Found k-point matrix mapping %4d(%6.3f, %6.3f, %6.3f) -> %4d(%6.3f, %6.3f, %6.3f) by symop. %2d, |Mk - Mkeq|_max = %f, |W Mk W^H - Mkeq|_max  = %f\n",
+                        // printf("Found k-point matrix mapping %4d(%6.3f, %6.3f %6.3f) -> %4d(%6.3f, %6.3f %6.3f) by symop. %2d, |Mk - Mkeq|_max = %f, |W Mk W^H - Mkeq|_max  = %f\n",
+                        //        ik+1, kprime[0], kprime[1], kprime[2],
+                        //        ik_equiv_in_krpoints+1, k_equiv[0], k_equiv[1], k_equiv[2],
+                        //        isymop+1, maxabs(mat_kprime - mat_k_equiv), maxabs_diff);
+                        printf("Found k-point matrix mapping %4d(%6.3f, %6.3f %6.3f) -> %4d(%6.3f, %6.3f %6.3f)\n",
                                ik+1, kprime[0], kprime[1], kprime[2],
-                               ik_equiv_in_krpoints+1, k_equiv[0], k_equiv[1], k_equiv[2],
+                               ik_equiv_in_krpoints+1, k_equiv[0], k_equiv[1], k_equiv[2]);
+                        printf("    by symop. %2d, |Mk - Mkeq|_max = %8.5e, |W Mk W^H - Mkeq|_max  = %8.5e",
                                isymop+1, maxabs(mat_kprime - mat_k_equiv), maxabs_diff);
+                        const auto iops_kpke = get_all_symops_connecting_ks(kprime, k_equiv, spgdataset.lattice, spgdataset.rotations);
+                        if (maxabs_diff > output_thres)
+                            printf(" (X)");
+                        printf("\n");
+                        cout << "All operations connecting two k: ";
+                        for (const auto &iop: iops_kpke)
+                            cout << iop+1 << " ";
+                        cout << endl;
                         if (maxabs_diff > output_thres)
                         {
                             // debug
-                            // print the symmetry operation
-                            cout << "     Symop " << isymop+1 << ": " << endl << spgdataset.get_operation_str_matform(isymop) << endl;
-                            const int i_invop = spgdataset.inverse_operation[isymop];
-                            cout << "Inverse op " << i_invop+1 << ": " << endl << spgdataset.get_operation_str_matform(i_invop) << endl;
                             outmtxfn = "abf_trans_out_ik_" + std::to_string(ik_equiv_in_krpoints+1) + 
                                 "_from_" + std::to_string(ik+1) + "_symop_" + std::to_string(isymop+1) + ".mtx";
                             write_mtx_cplxdb(mat_k_transformed, outmtxfn);
+                            // print the symmetry operation
+                            // cout << "     Symop " << isymop+1 << ": " << endl << spgdataset.get_operation_str_matform(isymop) << endl;
+                            // const int i_invop = spgdataset.inverse_operation[isymop];
+                            // cout << "Inverse op " << i_invop+1 << ": " << endl << spgdataset.get_operation_str_matform(i_invop) << endl;
+                            for (const auto &iop: iops_kpke)
+                            {
+                                if (iop == isymop) continue;
+                                const auto wmat = compute_W_matrix(spgdataset.lattice, spgdataset.positions, spgdataset.types, kprime,
+                                                                   spgdataset.rotations[iop],
+                                                                   spgdataset.translations[iop], map_type_abfs, code_choice);
+                                const auto mat_k_transformed = wmat * mat_kprime * transpose(wmat, true);
+                                double maxabs_diff = maxabs(mat_k_transformed - mat_k_equiv);
+                                printf("    by symop. %2d,                                |W Mk W^H - Mkeq|_max  = %8.5e", iop+1, maxabs_diff);
+                                if (maxabs_diff > output_thres)
+                                    printf(" (X)");
+                                printf("\n");
+                            }
                         }
                     }
                 }

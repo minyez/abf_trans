@@ -143,7 +143,7 @@ public:
     bool operator==(const matrix<T> &m) const
     {
         if (size() == 0 || m.size() == 0) return false;
-        if (nc != m.nc && nr != m.nr) return false;
+        if (nc != m.nc || nr != m.nr) return false;
         for (int i = 0; i < size(); i++)
             if (fabs(c[i] - m.c[i]) > matrix<T>::EQUAL_THRES) return false;
         return true;
