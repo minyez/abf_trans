@@ -377,6 +377,19 @@ matrix<T> operator*(const matrix<T> &m1, const matrix<T> &m2)
     return prod;
 }
 
+// a naive implementation for integer matrix, e.g. Spglib rotation matrices
+template <>
+inline matrix<int> operator*(const matrix<int> &m1, const matrix<int> &m2)
+{
+    assert(m1.nc == m2.nr);
+    matrix<int> prod(m1.nr, m2.nc);
+    for (int ir = 0; ir < m1.nr; ir++)
+        for (int ik = 0; ik < m1.nc; ik++)
+            for (int ic = 0; ic < m2.nc; ic++)
+                prod(ir, ic) += m1(ir, ik) * m2(ik, ic);
+    return prod;
+}
+
 template <typename T>
 vec<T> operator*(const matrix<T> &m, const vec<T> &v)
 {
@@ -407,7 +420,7 @@ matrix<T> operator*(const matrix<T> &m, const T &cnum)
 template <typename T>
 matrix<T> operator*(const T &cnum, const matrix<T> &m)
 {
-    return m + cnum;
+    return m * cnum;
 }
 
 template <typename T>

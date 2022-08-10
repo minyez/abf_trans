@@ -44,9 +44,21 @@ void check_nonideal_prim_diamond()
     matrix<double> ideal_lattm(3, 3, ideal_latt);
 }
 
+void check_inverse_operations_prim_diamond()
+{
+    const double halfa = 1.78356;
+    double latt[9] = { 0, halfa, halfa, halfa, 0, halfa, halfa, halfa, 0};
+    double posi[6] = {0, 0, 0, 0.25, 0.25, 0.25};
+    SpgDS_c dataset({3, 3, latt}, {2, 3, posi}, {6, 6});
+    dataset.show(true);
+    for (int i = 0; i < dataset.n_operations; i++)
+        cout << "Reciprocal operations: " << i+1 << " <-> " << dataset.inverse_operation[i]+1 << endl;
+}
+
 int main (int argc, char *argv[])
 {
     check_prim_diamond();
     check_nonideal_prim_diamond();
+    check_inverse_operations_prim_diamond();
     return 0;
 }

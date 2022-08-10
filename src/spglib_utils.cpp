@@ -1,3 +1,4 @@
+#include "mathtools.h"
 #include "spglib_utils.h"
 
 SpgDS_c::SpgDS_c(const matrix<double> &latt_in, const matrix<double> &posi_frac_in,
@@ -69,6 +70,39 @@ SpgDS_c::SpgDS_c(const matrix<double> &latt_in, const matrix<double> &posi_frac_
         std_mapping_to_primitive.push_back(dataset->std_mapping_to_primitive[ia]);
     }
 
+    // tabulate inverse operations
+    inverse_operation.resize(n_operations);
+    for (int i = 0; i < n_operations; i++)
+        inverse_operation[i] = -1;
+    matrix<int> iden(3, 3);
+    vec<double> zero(3);
+    iden.set_diag(1);
+    for (int i_op = 0; i_op < n_operations; i_op++)
+    {
+        if (inverse_operation[i_op] != -1) continue;
+        for (int j_op = i_op; j_op < n_operations; j_op++)
+        {
+            if (rotations[i_op] * rotations[j_op] == iden)
+            {
+                vec<double> ff(3);
+                for (int i = 0; i < 3; i++)
+                {
+                    // V_inv f + f_inv should be direct lattice vectors.
+                    ff[i] = rotations[j_op](i, 0) * translations[i_op][0] +
+                            rotations[j_op](i, 1) * translations[i_op][1] +
+                            rotations[j_op](i, 2) * translations[i_op][2] + translations[j_op][i];
+                    shift_to_unit(ff[i], 0.0, true);
+                }
+                if (ff == zero)
+                {
+                    inverse_operation[i_op] = j_op;
+                    inverse_operation[j_op] = i_op;
+                    break;
+                }
+            }
+        }
+    }
+
     spg_free_dataset(dataset);
 }
 
@@ -96,7 +130,7 @@ SpglibDataset* wrapper_spg_get_dataset(const matrix<double> &latt_in,
     return dataset;
 }
 
-void SpgDS_c::show() const
+void SpgDS_c::show(bool show_operations) const
 {
     printf("International: %s (%d)\n", international_symbol.c_str(), spacegroup_number);
     printf("  Hall symbol: %s\n", hall_symbol.c_str());
@@ -107,15 +141,9 @@ void SpgDS_c::show() const
     }
     printf("Origin shift: [%f %f %f]^T\n", origin_shift[0],origin_shift[1],origin_shift[2]);
     printf("Symmetry operations (%d):\n", n_operations);
-    for (int i = 0; i < n_operations; i++)
-    {
-        printf("%3d: %2d %2d %2d %2d %2d %2d %2d %2d %2d [ %f %f %f ]\n", i+1,
-               rotations[i](0, 0), rotations[i](0, 1), rotations[i](0, 2),
-               rotations[i](1, 0), rotations[i](1, 1), rotations[i](1, 2),
-               rotations[i](2, 0), rotations[i](2, 1), rotations[i](2, 2),
-               translations[i][0], translations[i][1], translations[i][2]
-               );
-    }
+    if (show_operations)
+        for (int i = 0; i < n_operations; i++)
+            printf("%3d: %s (invop %3d)\n", i+1, get_operation_str(i).c_str(), inverse_operation[i]+1);
     printf("Equivalent atoms:\n");
     for (int i = 0; i < n_atoms; i++) {
       printf("  %d -> %d (type %d)\n", i, equivalent_atoms[i], types[i]);
@@ -134,6 +162,34 @@ void SpgDS_c::show_cell() const
     }
 }
 
+string SpgDS_c::get_operation_str(int isymop) const
+{
+    char s[100];
+    if (!(isymop < n_operations))
+        throw std::invalid_argument("Required operation not exist");
+    sprintf(s, "%2d %2d %2d %2d %2d %2d %2d %2d %2d [ %5.3f %5.3f %5.3f ]",
+            rotations[isymop](0, 0), rotations[isymop](0, 1), rotations[isymop](0, 2),
+            rotations[isymop](1, 0), rotations[isymop](1, 1), rotations[isymop](1, 2),
+            rotations[isymop](2, 0), rotations[isymop](2, 1), rotations[isymop](2, 2),
+            translations[isymop][0], translations[isymop][1], translations[isymop][2]
+            );
+
+    return string(s);
+}
+
+string SpgDS_c::get_operation_str_matform(int isymop) const
+{
+    char s[100];
+    if (!(isymop < n_operations))
+        throw std::invalid_argument("Required operation not exist");
+    sprintf(s, "%2d %2d %2d | %5.3f\n%2d %2d %2d | %5.3f\n%2d %2d %2d | %5.3f",
+            rotations[isymop](0, 0), rotations[isymop](0, 1), rotations[isymop](0, 2), translations[isymop][0],
+            rotations[isymop](1, 0), rotations[isymop](1, 1), rotations[isymop](1, 2), translations[isymop][1],
+            rotations[isymop](2, 0), rotations[isymop](2, 1), rotations[isymop](2, 2), translations[isymop][2]
+            );
+
+    return string(s);
+}
 // routine adapted from https://github.com/spglib/spglib/blob/develop/example/example.c#L880
 void show_spg_dataset(const SpglibDataset *dataset)
 {
