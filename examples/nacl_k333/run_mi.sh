@@ -113,4 +113,7 @@ rm -f abf_trans_out*
 # 25:  2/3   2/3   0.0 
 # 26:  2/3   2/3   1/3 
 # 27:  2/3   2/3   2/3
+
 $exe cell.txt basis_id.txt matrix_inputs.txt
+
+# $exe cell.txt basis_id.txt matrix_inputs_all.txt

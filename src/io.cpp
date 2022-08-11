@@ -323,21 +323,30 @@ matrix<cplxdb> read_csc_cplxdb(const string &cscfile)
 
     // read row-col info and data
     long col_ptr[n_basis+1];
+    // printf("Reading col_ptr ...\n");
     for (int i = 0; i < n_basis; i++)
     {
         rf.read((char *) &col_ptr[i], sizeof(long));
         col_ptr[i] -= 1;
     }
     col_ptr[n_basis] = nnz_g;
+
+    // printf("Reading row_ind ...\n");
     int row_ind[nnz_g];
     for (long i = 0; i < nnz_g; i++)
     {
         rf.read((char *) &row_ind[i], sizeof(int));
         row_ind[i] -= 1;
     }
+
+    // printf("Reading nnz_val ...\n");
     cplxdb nnz_val[nnz_g];
     for (long i = 0; i < nnz_g; i++)
+    {
+        /* printf("%zu", nnz_g); */
         rf.read((char *) &nnz_val[i], sizeof(cplxdb));
+        /* printf(" %zu %f %f\n", i, nnz_val[i].real(), nnz_val[i].imag()); */
+    }
     rf.close();
 
     // distribute to the full matrix
@@ -351,6 +360,7 @@ matrix<cplxdb> read_csc_cplxdb(const string &cscfile)
                 col = ic;
                 break;
             }
+        /* printf("%zu %zu %d %d\n", nnz_g, i, row_ind[i], col); */
         cmat(row_ind[i], col) = nnz_val[i];
     }
     return cmat;
