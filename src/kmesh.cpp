@@ -97,9 +97,11 @@ void KGrids::clear_irkgrids()
 {
     irkpts.resize(0, 0);
     indexmap_k_symop.clear();
+    indexmap_k_invsymop.clear();
     indexmap_k_irk.clear();
     irk_index.clear();
     irk_weights.clear();
+    map_iirk_iks.clear();
     nirkpts = 0;
 }
 
@@ -147,16 +149,26 @@ void KGrids::generate_irk_map(const SpgDS_c &dataset)
             indexmap_k_irk.push_back(irkpts_vec.size());
             irkpts_vec.push_back(kpt);
             irk_index.push_back(ik);
-            indexmap_k_symop.push_back(0);
+            indexmap_k_symop.push_back(0); // always the identity operation
+            indexmap_k_invsymop.push_back(0); // always the identity operation
             irk_weights.push_back(1);
+            map_iirk_iks[ik].push_back(ik);
         }
         else
         {
             indexmap_k_irk.push_back(i_equiv_k);
             indexmap_k_symop.push_back(is);
+            indexmap_k_invsymop.push_back(dataset.inverse_operation[is]);
             irk_weights[i_equiv_k] += 1;
+            map_iirk_iks[irk_index[i_equiv_k]].push_back(ik);
         }
     }
+
+    // internal check
+    int n_mapped_ik = 0;
+    for (const auto &iirk: irk_index)
+        n_mapped_ik += map_iirk_iks[iirk].size();
+    assert(n_mapped_ik == nkpts);
 
     nirkpts = irkpts_vec.size();
     irkpts = irkpts_vec;

@@ -43,12 +43,6 @@ void test_KGrids_irkgrids_diamond_orig()
     for (int i = 0; i < kgrids.nirkpts; i++)
         cout << kgrids.irkpts.get_row(i) << " " << kgrids.irk_weights[i] << endl;
 
-    // kgrids.rebuild_grids(3, 3, 3);
-    // kgrids.generate_irk_map(dataset);
-    // assert(kgrids.nirkpts == 4);
-    // cout << "Irreducible points for 3x3x3" << endl;
-    // cout << kgrids.irkpts;
-
     kgrids.rebuild_grids(4, 2, 3, CODE_CHOICE::ORIG);
     kgrids.generate_irk_map(dataset);
     assert(kgrids.nirkpts == 12);
@@ -106,6 +100,21 @@ void test_KGrids_irkgrids_nacl_aims()
     matrix<double> irkpts(4, 3, irkpts_k333_aims);
     assert(irkpts == kgrids.irkpts);
     cout << irkpts << kgrids.irkpts;
+
+    printf("Checking irk indices ...\n");
+    const vector<int> i_irks {0, 1, 4, 5};
+    assert( vec<int>(i_irks) == vec<int>(kgrids.irk_index));
+    
+    printf("Checking iirk to ik mapping ...\n");
+    map<int, vector<int>> map_iirk_iks;
+    map_iirk_iks[0] = vector<int>({0});
+    map_iirk_iks[1] = vector<int>({1, 2, 3, 6, 9, 13, 18, 26});
+    map_iirk_iks[4] = vector<int>({4, 8, 10, 12, 20, 24});
+    map_iirk_iks[5] = vector<int>({5, 7, 11, 14, 15, 16, 17, 19, 21, 22, 23, 25});
+    for (auto iirk: kgrids.irk_index)
+    {
+        assert(vec<int>(map_iirk_iks[iirk]) == vec<int>(kgrids.map_iirk_iks[iirk]));
+    }
 }
 
 void test_get_all_equiv_k_nacl()
@@ -124,7 +133,7 @@ void test_get_all_equiv_k_nacl()
     /* 6( 0.500,  0.000,  0.500) ->    4( 0.000,  0.500,  0.500) */
     // kvec[1] = 0.0, kvec[0] = kvec[2] = 0.5; ktarget[0] = 0.0, ktarget[1] = ktarget[2] = 0.5;
     /* 6( 0.500,  0.000,  0.500) ->    7( 0.500,  0.500,  0.000) */
-    /* kvec[1] = 0.0, kvec[0] = kvec[2] = 0.5; ktarget[2] = 0.0, ktarget[1] = ktarget[0] = 0.5; */
+    kvec[1] = 0.0, kvec[0] = kvec[2] = 0.5; ktarget[2] = 0.0, ktarget[1] = ktarget[0] = 0.5;
     vector<vec<double>> ks;
     vector<int> isymops;
     const matrix<double> AAT = dataset.lattice * transpose(dataset.lattice);

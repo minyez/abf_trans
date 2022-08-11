@@ -27,7 +27,9 @@ void clean_cell(matrix<double> &in_latt,
 
 void read_abf_ids(const string &abffile, const set<int> &types_verify, map<int, vector<abf_id>> &map_t_abf);
 
+matrix<cplxdb> read_cplxdb(const string &cmatfile, const string &format_in = "none");
 matrix<cplxdb> read_mtx_cplxdb(const string &mtxfile);
+matrix<cplxdb> read_csc_cplxdb(const string &cscfile);
 
 matrix<double> read_mtx_double(const string &mtxfile);
 
@@ -37,8 +39,9 @@ void write_mtx_cplxdb(const matrix<cplxdb> &mat, const string &mtxfile,
 
 void read_matrix_inputs(const string &mat_inputs_fn, std::array<int, 3> &ngs,
                         vector<vec<double>> &krpoints,
-                        vector<string> &mtxfns,
+                        vector<string> &cmatfns,
                         vector<matrix<cplxdb>> &matrices);
 
-void clear_matrix_inputs(vector<vec<double>> &krpoints, vector<string> &mtxfns,
+void clear_matrix_inputs(vector<vec<double>> &krpoints, vector<string> &cmatfns,
                          vector<matrix<cplxdb>> &matrices);
+

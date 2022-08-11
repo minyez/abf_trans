@@ -38,6 +38,8 @@ target_link_libraries(test_trans "${SPGLIB_LIBRARIES} ${LAPACK_LIBRARIES}")
 add_executable(test_io test_io.cpp)
 target_sources(test_io PRIVATE ../src/io.cpp ../src/abf.cpp)
 target_link_libraries(test_io "${LAPACK_LIBRARIES}")
+# Copy sample files for input test
+configure_file(sample_complexmat.csc ${CMAKE_CURRENT_BINARY_DIR}/sample_complexmat.csc COPYONLY)
 
 
 add_test(

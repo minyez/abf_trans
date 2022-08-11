@@ -17,7 +17,7 @@ matrix<cplxdb> compute_W_matrix(const matrix<double> &lattice,
     const auto AAT = lattice * transpose(lattice);
     matrix<cplxdb> Wmat(nabf, nabf);
     // const double prefac = choice == CODE_CHOICE::AIMS ? -1. : 1.;
-    const double prefac = choice == CODE_CHOICE::AIMS ? -1. : 1.;
+    const double prefac = choice == CODE_CHOICE::AIMS ? 1. : 1.;
     const auto rotmat_spg_db = to_double(rotmat_spg);
     // k = V k'
     const auto k = AAT * rotmat_spg_db * inverse(AAT) * kprime;

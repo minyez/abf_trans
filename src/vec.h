@@ -5,6 +5,7 @@
 #include <complex>
 #include <cassert>
 #include <cmath>
+#include <vector>
 
 template <typename T>
 class vec
@@ -26,6 +27,15 @@ public:
         // do not manually check out of bound
         for (int i = 0; i < size(); i++)
             c[i] = valarr[i];
+    }
+    vec(const std::vector<T> &v): n(v.size()), c(nullptr)
+    {
+        if (n>0)
+        {
+            c = new T [n];
+        }
+        for (int i = 0; i < size(); i++)
+            c[i] = v[i];
     }
     vec(const vec &v): n(v.n), c(nullptr)
     {

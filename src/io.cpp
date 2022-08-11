@@ -1,5 +1,6 @@
 #include "io.h"
 #include <iomanip>
+#include <ios>
 #include <fstream>
 #include <stdexcept>
 #include <algorithm>
@@ -120,6 +121,20 @@ void read_abf_ids(const string &abffile, const set<int> &inequiv_types_verify, m
     }
 }
 
+matrix<cplxdb> read_cplxdb(const string &cmatfile, const string &format_in)
+{
+    string format = format_in;
+    if (format == "none")
+    {
+        format = cmatfile.substr(cmatfile.find_last_of(".") + 1);
+    }
+    if (format == "csc")
+        return read_csc_cplxdb(cmatfile);
+    else if (format == "mtx")
+        return read_mtx_cplxdb(cmatfile);
+    throw std::invalid_argument("Unknown format: " + format);
+}
+
 matrix<cplxdb> read_mtx_cplxdb(const string &mtxfile)
 {
     std::ifstream fin;
@@ -142,7 +157,28 @@ matrix<cplxdb> read_mtx_cplxdb(const string &mtxfile)
             if (fin.eof())
                 throw std::logic_error("EOF is reached unexpectedly in reading complex MTX");
             fin >> s1 >> s2 >> s3 >> s4;
-            cmat(std::stoi(s1) - 1, std::stoi(s2) - 1) = cplxdb(std::stod(s3), std::stod(s4));
+            double re, im;
+            // out-of-range error when converting subnormal values
+            // see https://stackoverflow.com/questions/48086830/stdstod-throws-out-of-range-error-for-a-string-that-should-be-valid
+            try
+            {
+                re = std::stod(s3);
+            } 
+            catch (std::out_of_range)
+            {
+                re = 0.0;
+                // throw std::out_of_range("nnz " + std::to_string(i) + ": " + s1 + " " + s2 + " " + s3 + " " + s4);
+            }
+            try
+            {
+                im = std::stod(s4);
+            } 
+            catch (std::out_of_range)
+            {
+                im = 0.0;
+                // throw std::out_of_range("nnz " + std::to_string(i) + ": " + s1 + " " + s2 + " " + s3 + " " + s4);
+            }
+            cmat(std::stoi(s1) - 1, std::stoi(s2) - 1) = cplxdb(re, im);
         }
     }
     return cmat;
@@ -228,9 +264,9 @@ void write_mtx_cplxdb(const matrix<cplxdb> &mat, const string &mtxfile,
     }
 }
 
-void read_matrix_inputs(const string &mat_inputs_fn, std::array<int, 3> &ngs, vector<vec<double>> &krpoints, vector<string> &mtxfns, vector<matrix<cplxdb>> &matrices)
+void read_matrix_inputs(const string &mat_inputs_fn, std::array<int, 3> &ngs, vector<vec<double>> &krpoints, vector<string> &cmatfns, vector<matrix<cplxdb>> &matrices)
 {
-    if (!krpoints.empty() || !mtxfns.empty() || !matrices.empty())
+    if (!krpoints.empty() || !cmatfns.empty() || !matrices.empty())
         throw std::logic_error("matrix inputs already parsed, please clean up first");
 
     std::ifstream fin;
@@ -253,21 +289,69 @@ void read_matrix_inputs(const string &mat_inputs_fn, std::array<int, 3> &ngs, ve
             double varr[3] { decode_fraction(s1), decode_fraction(s2), decode_fraction(s3) };
             vec<double> v(3, varr);
             krpoints.push_back(v);
-            mtxfns.push_back(s4);
+            cmatfns.push_back(s4);
             if (krmode == KRMODE::K)
                 printf("Reading %d-th matrix at k-point (%6.3f, %6.3f, %6.3f) from file: %s\n", n, v[0], v[1], v[2], s4.c_str());
             if (krmode == KRMODE::R)
                 printf("Reading %d-th matrix at R-point (%4.1f, %4.1f, %4.1f) from file: %s\n", n, v[0], v[1], v[2], s4.c_str());
-            matrices.push_back(read_mtx_cplxdb(s4));
+            matrices.push_back(read_cplxdb(s4));
         }
         printf("%d files read\n", n);
     }
 }
 
-void clear_matrix_inputs(vector<vec<double>> &krpoints, vector<string> &matfns,
+void clear_matrix_inputs(vector<vec<double>> &krpoints, vector<string> &cmatfns,
                          vector<matrix<cplxdb>> &matrices)
 {
     krpoints.clear();
-    matfns.clear();
+    cmatfns.clear();
     matrices.clear();
+}
+
+matrix<cplxdb> read_csc_cplxdb(const string &cscfile)
+{
+    long header[16];
+
+    std::ifstream rf(cscfile, std::ios::out | std::ios::binary);
+    if (!rf)
+        throw std::logic_error("fail to open binary file " + cscfile + " to read complex matrix");
+    // read the header
+    for (int i = 0; i < 16; i++)
+        rf.read((char *) &header[i], sizeof(long));
+    const int n_basis = header[3];
+    const long nnz_g = header[5];
+
+    // read row-col info and data
+    long col_ptr[n_basis+1];
+    for (int i = 0; i < n_basis; i++)
+    {
+        rf.read((char *) &col_ptr[i], sizeof(long));
+        col_ptr[i] -= 1;
+    }
+    col_ptr[n_basis] = nnz_g;
+    int row_ind[nnz_g];
+    for (long i = 0; i < nnz_g; i++)
+    {
+        rf.read((char *) &row_ind[i], sizeof(int));
+        row_ind[i] -= 1;
+    }
+    cplxdb nnz_val[nnz_g];
+    for (long i = 0; i < nnz_g; i++)
+        rf.read((char *) &nnz_val[i], sizeof(cplxdb));
+    rf.close();
+
+    // distribute to the full matrix
+    matrix<cplxdb> cmat(n_basis, n_basis);
+    for (long i = 0; i < nnz_g; i++)
+    {
+        int col;
+        for (int ic = 0; ic < n_basis; ic++)
+            if (i >= col_ptr[ic] && i < col_ptr[ic+1])
+            {
+                col = ic;
+                break;
+            }
+        cmat(row_ind[i], col) = nnz_val[i];
+    }
+    return cmat;
 }
