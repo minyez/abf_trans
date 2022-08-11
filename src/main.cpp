@@ -127,7 +127,7 @@ int main (int argc, char *argv[])
                 const auto &kprime = krpoints[ik]; // k'
                 const auto ik_in_grids = kgrids.index(kprime);
                 // only the IBZ kpts
-                // if (!kgrids.have_irk(kprime)) continue;
+                if (!kgrids.have_irk(kprime)) continue;
                 get_all_equiv_k(kprime, spgdataset.lattice, spgdataset.rotations, equiv_ks, isymops, code_choice); // all ks that k=Vk'
                 for (int ik_equiv = 0; ik_equiv < equiv_ks.size(); ik_equiv++)
                 {

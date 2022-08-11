@@ -115,6 +115,13 @@ void test_KGrids_irkgrids_nacl_aims()
     {
         assert(vec<int>(map_iirk_iks[iirk]) == vec<int>(kgrids.map_iirk_iks[iirk]));
     }
+
+    kgrids.rebuild_grids(4, 4, 4, CODE_CHOICE::AIMS);
+    kgrids.generate_irk_map(dataset);
+    {
+        const vector<int> i_irks {0, 1, 2, 5, 6, 7, 10, 27};
+        assert( vec<int>(i_irks) == vec<int>(kgrids.irk_index));
+    }
 }
 
 void test_get_all_equiv_k_nacl()
