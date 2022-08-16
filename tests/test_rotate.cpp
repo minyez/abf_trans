@@ -4,6 +4,54 @@
 #include <iostream>
 using namespace std;
 
+void test_corotate_k_R()
+{
+    // the inner product of recip space k and real space R should be invariant
+    // when rotating k and R simultaneously
+    matrix<int> rot(3, 3);
+    rot = 0;
+    rot(0, 0) = 1;
+    rot(1, 2) = -1;
+    rot(2, 1) = 1;
+    matrix<double> latt(3, 3);
+    latt = 0;
+    // a non-standard lattice;
+    latt(0, 1) = latt(0, 2) = latt(1, 0) = latt(1, 2) = 1.0;
+    latt(2, 0) = latt(2, 1) = 1.0;
+    auto recip_latt = transpose(inverse(latt)); // wo 2PI, only as a scaling factor
+    cout << latt;
+    cout << "Determinant of lattice = " << latt.det() << endl;
+    cout << "Determinant of rot.mat = " << to_double(rot).det() << endl;
+    auto AAT = latt * transpose(latt);
+    auto invAAT = inverse(AAT);
+    vec<double> k(3), R(3);
+    k[0] = 0.5, k[1] = 0.2, k[2] = -0.1;
+    R[0] = 2.5, R[1] = -1.5, R[2] = -0.8;
+
+    double prod = dot(k, R);
+    auto R_rot = to_double(rot) * R;
+    vec<double> k_rot(3);
+
+    // k_rot = transpose(recip_latt) * k;
+    // k_rot = transpose(latt) * to_double(rot) * inverse(transpose(latt)) * k_rot;
+    // k_rot = inverse(transpose(recip_latt)) * k_rot;
+    k_rot = inverse(transpose(to_double(rot))) * k;
+    // cout << AAT;
+    // cout << rot;
+    // cout << invAAT;
+    // cout << (AAT * to_double(rot) * invAAT);
+    // cout << (AAT * to_double(rot) * invAAT).det() << endl;
+    auto prod_rot = dot(k_rot, R_rot);
+
+    cout << dot(R, R) << " " << dot(R_rot, R_rot) << endl;
+    cout << dot(k, k) << " " << dot(k_rot, k_rot) << endl;
+    cout << "R(" << R << ") . k(" << k << ") = " << prod << endl;
+    cout << dot(transpose(latt) * R, transpose(recip_latt) * k) << endl;
+    cout << "R'(" << R_rot << ") . k'(" << k_rot << ") = " << prod_rot << endl;
+
+    assert(prod_rot == prod);
+}
+
 void test_identity()
 {
     cout << "Testing identity operation ..." << endl;
@@ -189,6 +237,7 @@ void test_Delta_matrix_aims()
 
 int main (int argc, char *argv[])
 {
+    test_corotate_k_R();
     test_identity();
     test_inversion();
     test_generate_symmat_nonzero_sinbeta();
