@@ -9,12 +9,35 @@ matrix<double> get_sym_matrix_xyz(const matrix<int> &rotmat_spg,
 {
     assert(rotmat_spg.nc == 3 && rotmat_spg.nr == 3);
     matrix<double> rotmat_xyz(3, 3);
-    rotmat_xyz = lattice * to_double(rotmat_spg) * inverse(lattice);
+    rotmat_xyz = transpose(lattice) * to_double(rotmat_spg) * inverse(transpose(lattice));
     return rotmat_xyz;
 }
 
+matrix<int> sym_matrix_spg_from_Euler(double alpha, double beta, double gamma, bool is_proper,
+                                      const matrix<double> &lattice)
+{
+    matrix<int> rotmat_spg(3, 3);
+    rotmat_spg = 0;
+    matrix<double> rotmat_xyz = sym_matrix_xyz_from_Euler(alpha, beta, gamma, is_proper);
+    auto rotmat_spg_db = inverse(transpose(lattice)) * rotmat_xyz * transpose(lattice);
+    for (int i = 0; i < rotmat_spg_db.size(); i++)
+        if (rotmat_spg_db.c[i] > 0.9)
+        {
+            rotmat_spg.c[i] = 1;
+        }
+        else if (rotmat_spg_db.c[i] < -0.9)
+        {
+            rotmat_spg.c[i] = 1;
+        }
+        else
+            throw std::invalid_argument("sym_matrix_spg_from_Euler: ");
+    if(!is_proper)
+        rotmat_spg *= -1;
+    return rotmat_spg;
+}
 
-matrix<double> sym_matrix_xyz_from_Euler(double alpha, double beta, double gamma, bool add_inversion)
+
+matrix<double> sym_matrix_xyz_from_Euler(double alpha, double beta, double gamma, bool is_proper)
 {
     matrix<double> symmat(3, 3);
     const double cosa = std::cos(alpha);
@@ -34,7 +57,7 @@ matrix<double> sym_matrix_xyz_from_Euler(double alpha, double beta, double gamma
     symmat(2, 1) = sina*sinb;
     symmat(2, 2) = cosb;
 
-    if(add_inversion)
+    if(!is_proper)
         symmat *= -1;
 
     return symmat;
@@ -46,46 +69,80 @@ std::array<double, 3> get_Euler_from_sym_matrix_xyz(const matrix<double> &rotmat
     assert(rotmat_xyz.nc == 3 && rotmat_xyz.nr == 3);
     double alpha, beta, gamma;
     matrix<double> prop_rot = rotmat_xyz;
+    const double zerothres = 1e-8;
     if (rotmat_xyz.det() < 0)
         is_proper = false;
     else
         is_proper = true;
     if (!is_proper)
         prop_rot *= -1;
-    beta = std::acos(prop_rot(2, 2));
-    double sinbeta = std::sin(beta);
-    /* std::cout << beta << std::endl; */
-    if (std::fabs(sinbeta) > 1.0e-7)
-    {
-        // handle value slightly larger than 1 or smaller than -1 during division
-        double divided_by_sinb;
-        divided_by_sinb = prop_rot(2, 0) / sinbeta;
-        if (fabs(divided_by_sinb - 1) < 1e-7 && divided_by_sinb > 0)
-            divided_by_sinb = 1.0;
-        if (fabs(divided_by_sinb + 1) < 1e-7 && divided_by_sinb < 0)
-            divided_by_sinb = -1.0;
-        alpha = std::acos(divided_by_sinb);
-        if (prop_rot(2, 1) < 0)
-            alpha = 2*PI - alpha;
 
-        divided_by_sinb = - prop_rot(0, 2) / sinbeta;
-        if (fabs(divided_by_sinb - 1) < 1e-7 && divided_by_sinb > 0)
-            divided_by_sinb = 1.0;
-        if (fabs(divided_by_sinb + 1) < 1e-7 && divided_by_sinb < 0)
-            divided_by_sinb = -1.0;
-        gamma = std::acos(divided_by_sinb);
-        if (prop_rot(1, 2) < 0)
-            gamma = 2*PI - gamma;
+    // Version 1
+    // beta = std::acos(prop_rot(2, 2));
+    // double sinbeta = std::sin(beta);
+    // /* std::cout << beta << std::endl; */
+    // if (std::fabs(sinbeta) > zerothres)
+    // {
+    //     // handle value slightly larger than 1 or smaller than -1 during division
+    //     double divided_by_sinb;
+    //     divided_by_sinb = prop_rot(2, 0) / sinbeta;
+    //     if (fabs(divided_by_sinb - 1) < zerothres && divided_by_sinb > 0)
+    //         divided_by_sinb = 1.0;
+    //     if (fabs(divided_by_sinb + 1) < zerothres && divided_by_sinb < 0)
+    //         divided_by_sinb = -1.0;
+    //     alpha = std::acos(divided_by_sinb);
+    //     if (prop_rot(2, 1) < 0)
+    //         alpha = 2*PI - alpha;
+
+    //     divided_by_sinb = - prop_rot(0, 2) / sinbeta;
+    //     if (fabs(divided_by_sinb - 1) < zerothres && divided_by_sinb > 0)
+    //         divided_by_sinb = 1.0;
+    //     if (fabs(divided_by_sinb + 1) < zerothres && divided_by_sinb < 0)
+    //         divided_by_sinb = -1.0;
+    //     gamma = std::acos(divided_by_sinb);
+    //     if (prop_rot(1, 2) < 0)
+    //         gamma = 2*PI - gamma;
+    // }
+    // else
+    // {
+    //     // always set gamma as 0 for this case.
+    //     gamma = 0.;
+    //     // symmat(1,1) = cos(a+g) if cosb > 0 i.e. symmat(2,2) > 0
+    //     //             = cos(a-g) if cosb < 0
+    //     alpha = std::acos(prop_rot(1, 1));
+    //     if (prop_rot(0, 1) * prop_rot(2, 2) < 0)
+    //         alpha = 2*PI - alpha;
+    // }
+
+    // Version 2, adapt from aims code
+    if (fabs(prop_rot(2, 0)) > zerothres || fabs(prop_rot(2, 1)) > zerothres)
+    {
+        alpha = std::atan2(prop_rot(2, 1), prop_rot(2, 0));
+        if (alpha < 0) alpha += 2.0*PI;
+        gamma = std::atan2(prop_rot(1, 2), -prop_rot(0, 2));
+        if (gamma < 0) gamma += 2.0*PI;
+        if (fabs(prop_rot(2, 0)) > fabs(prop_rot(2, 1)))
+            beta = std::atan2(prop_rot(2, 0) / std::cos(alpha), prop_rot(2, 2));
+        else
+            beta = std::atan2(prop_rot(2, 1) / std::sin(alpha), prop_rot(2, 2));
     }
     else
     {
-        // always set gamma as 0 for this case.
-        gamma = 0.;
-        // symmat(1,1) = cos(a+g) if cosb > 0 i.e. symmat(2,2) > 0
-        //             = cos(a-g) if cosb < 0
-        alpha = std::acos(prop_rot(1, 1));
-        if (prop_rot(0, 1) * prop_rot(2, 2) < 0)
-            alpha = 2*PI - alpha;
+        // beta =  0: cos(a+g), sin(a+g)
+        // beta = pi: cos(pi+a-g), sin(pi+a-g)
+        alpha = std::atan2(prop_rot(0, 1), prop_rot(0, 0));
+        if (alpha < 0)
+            alpha += 2*PI;
+        if (prop_rot(2, 2) > 0)
+        {
+            beta = 0;
+            gamma = 0;
+        }
+        else
+        {
+            beta = PI;
+            gamma = PI;
+        }
     }
     return std::array<double, 3>{alpha, beta, gamma};
 }

@@ -66,5 +66,7 @@ build
 abf_trans_out_*.mtx
 
 *.txt
+*.mtx
+*.png
 !examples/*/abfid.txt
 !examples/*/matrix_inputs*.txt

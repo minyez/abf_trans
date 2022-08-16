@@ -291,9 +291,9 @@ void read_matrix_inputs(const string &mat_inputs_fn, std::array<int, 3> &ngs, ve
             krpoints.push_back(v);
             cmatfns.push_back(s4);
             if (krmode == KRMODE::K)
-                printf("Reading %d-th matrix at k-point (%6.3f, %6.3f, %6.3f) from file: %s\n", n, v[0], v[1], v[2], s4.c_str());
+                printf("Reading %2d-th matrix at k-point (%6.3f, %6.3f, %6.3f) from file: %s\n", n, v[0], v[1], v[2], s4.c_str());
             if (krmode == KRMODE::R)
-                printf("Reading %d-th matrix at R-point (%4.1f, %4.1f, %4.1f) from file: %s\n", n, v[0], v[1], v[2], s4.c_str());
+                printf("Reading %2d-th matrix at R-point (%4.1f, %4.1f, %4.1f) from file: %s\n", n, v[0], v[1], v[2], s4.c_str());
             matrices.push_back(read_cplxdb(s4));
         }
         printf("%d files read\n", n);

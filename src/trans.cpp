@@ -27,7 +27,7 @@ matrix<cplxdb> compute_W_matrix(const matrix<double> &lattice,
         const auto s_Mu = positions.get_row(iMu);
         auto sprime_Mu = inverse(rotmat_spg_db) * (s_Mu - transi_spg);
         // std::cout << "S'_Mu = " << sprime_Mu << std::endl; // debug
-        const auto OVMu = move_to_center(sprime_Mu, 0.0);
+        const auto OVMu = move_to_center(sprime_Mu, 0.0, true);
         // std::cout << "Shift back, S'_Mu = " << sprime_Mu << " , OV_Mu = " << OVMu << std::endl; // debug
         const double ang = prefac * 2.0 * PI * dot(kprime, OVMu);
         const cplxdb eprefac(std::cos(ang), -std::sin(ang));
@@ -63,6 +63,7 @@ matrix<cplxdb> compute_W_matrix(const matrix<double> &lattice,
                                 {
                                     int iabf2 = abasis.get_abf_index(iMup, irf, mp);
                                     Wmat(iabf1, iabf2) = Delta(m+l, mp+l);
+                                    // printf("%5d %5d %5d %5d %5d %5d %5d %5d %10.5f %10.5f\n", iMu, iMup, irf, l, m, mp, iabf1, iabf2, Wmat(iabf1, iabf2).real(), Wmat(iabf1, iabf2).imag()); // debug
                                 }
                             }
                         }

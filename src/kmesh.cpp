@@ -109,6 +109,7 @@ void KGrids::generate_irk_map(const SpgDS_c &dataset)
 {
     vector<vec<double>> irkpts_vec;
     auto AAT = dataset.lattice * transpose(dataset.lattice);
+    // auto AAT = transpose(dataset.lattice) * dataset.lattice;
     auto invAAT = inverse(AAT);
 
     if (irkgrids_generated())
@@ -134,13 +135,14 @@ void KGrids::generate_irk_map(const SpgDS_c &dataset)
                         move_to_center(vk, 0.0, true); break;
                         /* move_to_center(vk, -0.5, false); break; */
                 }
-                // TODO: there might be precision problem
-                const auto ite_vk = std::find(irkpts_vec.cbegin(), irkpts_vec.cend(), vk);
-                if (ite_vk != irkpts_vec.cend())
+                for (int irk = 0; irk < irkpts_vec.size(); irk++)
                 {
-                    i_equiv_k = std::distance(irkpts_vec.cbegin(), ite_vk);
-                    found_no_equiv = false;
-                    break;
+                    if (is_same_k(irkpts_vec[irk], vk))
+                    {
+                        i_equiv_k = irk;
+                        found_no_equiv = false;
+                        break;
+                    }
                 }
             }
         if (found_no_equiv)
@@ -192,8 +194,16 @@ void get_all_equiv_k(const vec<double> &k, const matrix<double> lattice,
         const matrix<int> &rotmat_spg = rotmats_spg[isymop];
         auto equiv_k = (AAT * to_double(rotmat_spg) * invAAT) * k;
         move_k_back(equiv_k, code);
-        auto ite_ek = std::find(equiv_ks.cbegin(), equiv_ks.cend(), equiv_k);
-        if (ite_ek == equiv_ks.cend())
+        bool found = false;
+        for (const auto &already_found_ek: equiv_ks)
+        {
+            if (is_same_k(already_found_ek, equiv_k))
+            {
+                found = true;
+                break;
+            }
+        }
+        if (!found)
         {
             equiv_ks.push_back(equiv_k);
             irots.push_back(isymop);
@@ -212,19 +222,13 @@ vector<int> get_all_symops_connecting_ks(const vec<double> &k, const vec<double>
     {
         const matrix<int> &rotmat_spg = rotmats_spg[isymop];
         auto equiv_k = (AAT * to_double(rotmat_spg) * invAAT) * k;
+        // std::cout << isymop << " " << k << " " << equiv_k << " " << Vk << std::endl; // debug
         if (is_same_k(equiv_k, Vk))
+        {
             indices.push_back(isymop);
+        }
     }
     return indices;
-}
-
-bool is_same_k(const vec<double> &k1, const vec<double> &k2, const double thres)
-{
-    auto k1_shift = k1;
-    auto k2_shift = k2;
-    move_to_center(k1_shift);
-    move_to_center(k2_shift);
-    return vec_equal(k1_shift, k2_shift, thres);
 }
 
 matrix<double> move_k_back(matrix<double> &kpts, const CODE_CHOICE &code)

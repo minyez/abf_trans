@@ -22,7 +22,6 @@ void test_C_matrix_l1()
     assert(is_mat_A_equal_B(msize, msize, cmat.c, cmat_ref.c, false, true));
 }
 
-
 int main (int argc, char *argv[])
 {
     test_C_matrix_l1();

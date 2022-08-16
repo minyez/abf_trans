@@ -1,4 +1,5 @@
 #pragma once
+#include "mathtools.h"
 #include "matrix.h"
 #include "spglib_utils.h"
 #include <array>
@@ -6,6 +7,17 @@
 
 // the kgrids are always Gamma-centered
 matrix<double> get_kgrids(std::array<int, 3> nks, const CODE_CHOICE &code = CODE_CHOICE::ORIG);
+
+inline bool is_same_k(const vec<double> &k1, const vec<double> &k2, const double thres = 1.0e-5)
+{
+    auto kdiff = k1 - k2;
+    for (int i = 0; i < kdiff.size(); i++)
+    {
+        shift_to_unit(kdiff[i], 0.0, true);
+        if(1 - kdiff[i] < thres) kdiff[i] = 1 - kdiff[i];
+    }
+    return vec_equal(kdiff, {3}, thres);
+}
 
 class KGrids
 {
@@ -45,7 +57,7 @@ public:
     {
         // a naive implementation of find
         for (int i = 0; i < kpts.nr; i++)
-            if (vec_equal(kpts.get_row(i), kvec, 1e-6)) return i;
+            if (is_same_k(kpts.get_row(i), kvec, 1e-6)) return i;
         return -1;
     }
     int index(double k1, double k2, double k3) const
@@ -63,7 +75,7 @@ public:
         if (!irkgrids_generated()) throw std::logic_error("irkgrids not generated");
         // a naive implementation of find
         for (int i = 0; i < irkpts.nr; i++)
-            if (vec_equal(irkpts.get_row(i), kvec, 1e-6)) return i;
+            if (is_same_k(irkpts.get_row(i), kvec, 1e-6)) return i;
         return -1;
     }
     bool have_irk(const vec<double> &kvec) const { return index_irk(kvec) != -1; }
@@ -83,8 +95,6 @@ void get_all_equiv_k(const vec<double> &k, const matrix<double> lattice,
 vector<int> get_all_symops_connecting_ks(const vec<double> &k, const vec<double> &Vk,
                                          const matrix<double> lattice,
                                          const vector<matrix<int>> &rotmats_spg);
-
-bool is_same_k(const vec<double> &k1, const vec<double> &k2, const double thres = 1.0e-5);
 
 matrix<double> move_k_back(matrix<double> &kpts, const CODE_CHOICE &code);
 vec<double> move_k_back(vec<double> &kpts, const CODE_CHOICE &code);

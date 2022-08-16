@@ -41,7 +41,7 @@ void test_generate_symmat_nonzero_sinbeta()
     array<double, 3> euler;
 
     double alphas[] = { 0, PI/4, 5*PI/4, 3*PI/2 };
-    double betas[] = { 0.2, 1.0, PI/3, PI/2, 2*PI/3, 3*PI/4, 5*PI/6 };
+    double betas[] = { 0.2, 1.0, PI/3, PI/2, 2*PI/3, 3*PI/4, 5*PI/6};
     double gammas[] = { 0, PI/4, 5*PI/4, 3*PI/2 };
 
     for (auto alpha: alphas)
@@ -49,20 +49,29 @@ void test_generate_symmat_nonzero_sinbeta()
             for (auto gamma: gammas)
             {
                 /* printf("testing alpha, beta, gamma = %f %f %f\n", alpha, beta, gamma); */
-                symmat = sym_matrix_xyz_from_Euler(alpha, beta, gamma, false);
+                symmat = sym_matrix_xyz_from_Euler(alpha, beta, gamma, true);
                 /* cout << symmat; */
                 euler = get_Euler_from_sym_matrix_xyz(symmat, is_proper);
                 /* printf("obtained alpha, beta, gamma = %f %f %f\n", euler[0], euler[1], euler[2]); */
                 assert(fequal(euler[0], alpha) && fequal(euler[1], beta) && fequal(euler[2], gamma) && is_proper);
 
                 // with inversion
-                symmat = sym_matrix_xyz_from_Euler(alpha, beta, gamma, true);
+                symmat = sym_matrix_xyz_from_Euler(alpha, beta, gamma, false);
                 /* cout << symmat; */
                 euler = get_Euler_from_sym_matrix_xyz(symmat, is_proper);
                 /* printf("obtained alpha, beta, gamma = %f %f %f\n", euler[0], euler[1], euler[2]); */
                 assert(fequal(euler[0], alpha) && fequal(euler[1], beta) && fequal(euler[2], gamma) && !is_proper);
             }
 
+    symmat = sym_matrix_xyz_from_Euler(0, 0, 0, true);
+    euler = get_Euler_from_sym_matrix_xyz(symmat, is_proper);
+    printf("obtained alpha, beta, gamma = %f %f %f\n", euler[0], euler[1], euler[2]);
+    assert(fequal(euler[0], 0.) && fequal(euler[1], 0.) && fequal(euler[2], 0.) && is_proper);
+
+    symmat = sym_matrix_xyz_from_Euler(PI, PI, PI, true);
+    euler = get_Euler_from_sym_matrix_xyz(symmat, is_proper);
+    printf("obtained alpha, beta, gamma = %f %f %f\n", euler[0], euler[1], euler[2]);
+    assert(fequal(euler[0], PI) && fequal(euler[1], PI) && fequal(euler[2], PI) && is_proper);
     /* symmat = sym_matrix_xyz_from_Euler(PI/4, PI/3, PI/6, false); */
     /* cout << symmat; */
     /* euler = get_Euler_from_sym_matrix_xyz(symmat, is_proper); */
@@ -72,7 +81,7 @@ void test_generate_symmat_nonzero_sinbeta()
 
 void test_Wigner_smalld()
 {
-    double betas[] = {0, 0.2, 1.0, PI/3, PI/2, 2*PI/3, 3*PI/4, 5*PI/6 };
+    double betas[] = {0, 0.2, 1.0, PI/3, PI/2, 2*PI/3, 3*PI/4, 5*PI/6, PI };
     // verify l = 1, the result in p67 and p72 of RoseME57
     // Note that the indices therein are 1, 0, -1, while -1, 0, 1 are used here,
     // following FHI-aims
@@ -112,7 +121,7 @@ void test_RSH_Delta()
         for (auto beta: betas)
             for (auto gamma: gammas)
             {
-                printf("testing RSH Delta for alpha, beta, gamma = %f %f %f\n", alpha, beta, gamma);
+                // printf("testing RSH Delta for alpha, beta, gamma = %f %f %f\n", alpha, beta, gamma);
                 std::array<double, 3> euler{alpha, beta, gamma};
                 auto Delta = get_RSH_Delta_matrix_from_Euler(1, euler, true, CODE_CHOICE::ORIG);
                 matrix<cplxdb> Delta_ref(3, 3);
@@ -138,6 +147,46 @@ void test_RSH_Delta()
             }
 }
 
+void test_Delta_matrix_aims()
+{
+    matrix<cplxdb> cmat;
+    std::array<double, 3> euler;
+    const double sqrt3 = sqrt(3);
+    const double sqrt5 = sqrt(5);
+    const double sqrt6 = sqrt(6);
+    const double sqrt10 = sqrt(10);
+    {
+        euler = { 2*PI, PI/2, 0};
+        cplxdb matval_l1[] = { 1, 0, 0,
+                               0, 0, 1,
+                               0, -1, 0 };
+        matrix<cplxdb> mat_l1(3, 3, matval_l1);
+        assert(get_RSH_Delta_matrix_from_Euler(1, euler, true, CODE_CHOICE::AIMS) == mat_l1);
+
+        cplxdb matval_l2[] = { 0, 1, 0, 0, 0,
+                              -1, 0, 0, 0, 0,
+                               0, 0, -0.5, 0, sqrt3*0.5,
+                               0, 0, 0, -1, 0,
+                               0, 0, sqrt3*0.5, 0, 0.5 };
+        matrix<cplxdb> mat_l2(5, 5, matval_l2);
+        assert(get_RSH_Delta_matrix_from_Euler(2, euler, true, CODE_CHOICE::AIMS) == mat_l2);
+
+        cplxdb matval_l3[] = { 0.25, 0, 0.25*sqrt3*sqrt5, 0, 0, 0, 0,
+                               0, -1, 0, 0, 0, 0, 0,
+                            0.25*sqrt3*sqrt5, 0, -0.25, 0, 0, 0, 0,
+                               0, 0, 0, 0, -0.25*sqrt6, 0, 0.25*sqrt10,
+                               0, 0, 0, 0.25*sqrt6, 0, -0.25*sqrt10, 0,
+                               0, 0, 0, 0, 0.25*sqrt10, 0, 0.25*sqrt6,
+                               0, 0, 0, -0.25*sqrt10, 0, -0.25*sqrt6, 0};
+        matrix<cplxdb> mat_l3_ref(7, 7, matval_l3);
+        cout << mat_l3_ref << endl;
+        auto mat_l3 = get_RSH_Delta_matrix_from_Euler(3, euler, true, CODE_CHOICE::AIMS);
+        cout << mat_l3;
+        assert(mat_l3 == mat_l3_ref);
+    }
+}
+
+
 int main (int argc, char *argv[])
 {
     test_identity();
@@ -146,5 +195,6 @@ int main (int argc, char *argv[])
     test_Wigner_smalld();
     test_Wigner_D();
     test_RSH_Delta();
+    test_Delta_matrix_aims();
     return 0;
 }

@@ -83,9 +83,45 @@ void test_basbas_prim_diamond_tier1()
     map_type_abfs.clear();
 }
 
+void test_basbas_prim_lif_tier1()
+{
+    std::vector<int> atypes;
+    atypes.push_back(3);
+    atypes.push_back(9);
+    map_type_abfs[3].push_back({0});
+    map_type_abfs[3].push_back({2});
+    map_type_abfs[3].push_back({0});
+    map_type_abfs[3].push_back({2});
+    map_type_abfs[3].push_back({0});
+    map_type_abfs[3].push_back({4});
+    map_type_abfs[3].push_back({3});
+    map_type_abfs[3].push_back({2});
+    map_type_abfs[3].push_back({1});
+    map_type_abfs[3].push_back({0});
+    map_type_abfs[9].push_back({0});
+    map_type_abfs[9].push_back({0});
+    map_type_abfs[9].push_back({1});
+    map_type_abfs[9].push_back({0});
+    map_type_abfs[9].push_back({1});
+    map_type_abfs[9].push_back({2});
+    map_type_abfs[9].push_back({1});
+    map_type_abfs[9].push_back({0});
+    
+    ABF basis(atypes, map_type_abfs);
+    cout << "Total number of product basis functions: " << basis.get_number_of_total_abfs() << endl;
+    assert(basis.get_number_of_total_abfs() == 56);
+
+    check_search_basis_index(basis, 36, 0, 8, 1, 1);
+    check_search_basis_index(basis, 54, 1, 6, 1, 1);
+    check_search_basis_index(basis, 55, 1, 7, 0, 0);
+
+    map_type_abfs.clear();
+}
+
 int main (int argc, char *argv[])
 {
     test_abf_prim_diamond_tier1();
     test_basbas_prim_diamond_tier1();
+    test_basbas_prim_lif_tier1();
     return 0;
 }

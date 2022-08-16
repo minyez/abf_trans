@@ -6,7 +6,10 @@
 matrix<double> get_sym_matrix_xyz(const matrix<int> &rotmat_spg,
                                   const matrix<double> &lattice);
 
-matrix<double> sym_matrix_xyz_from_Euler(double alpha, double beta, double gamma, bool add_inversion);
+matrix<double> sym_matrix_xyz_from_Euler(double alpha, double beta, double gamma, bool is_proper);
+
+matrix<int> sym_matrix_spg_from_Euler(double alpha, double beta, double gamma, bool is_proper,
+                                      const matrix<double> &lattice);
 
 std::array<double, 3> get_Euler_from_sym_matrix_xyz(const matrix<double> &rotmat_xyz,
                                                     bool &is_proper);
