@@ -108,9 +108,9 @@ void KGrids::clear_irkgrids()
 void KGrids::generate_irk_map(const SpgDS_c &dataset)
 {
     vector<vec<double>> irkpts_vec;
-    auto AAT = dataset.lattice * transpose(dataset.lattice);
+    // auto AAT = dataset.lattice * transpose(dataset.lattice);
     // auto AAT = transpose(dataset.lattice) * dataset.lattice;
-    auto invAAT = inverse(AAT);
+    // auto invAAT = inverse(AAT);
 
     if (irkgrids_generated())
         clear_irkgrids();
@@ -125,8 +125,7 @@ void KGrids::generate_irk_map(const SpgDS_c &dataset)
         if (irkpts_vec.size() > 0)
             for (is = 0; is < dataset.n_operations; is++)
             {
-                auto tranmat = AAT * to_double(dataset.rotations[is]) * invAAT;
-                auto vk = tranmat * kpt;
+                auto vk = inverse(transpose(to_double(dataset.rotations[is]))) * kpt;
                 switch (code)
                 {
                     case CODE_CHOICE::ORIG:
@@ -187,12 +186,12 @@ void get_all_equiv_k(const vec<double> &k, const matrix<double> lattice,
         equiv_ks.clear();
         irots.clear();
     }
-    const auto AAT = lattice * transpose(lattice);
-    const auto invAAT = inverse(AAT);
+    // const auto AAT = lattice * transpose(lattice);
+    // const auto invAAT = inverse(AAT);
     for (int isymop = 0; isymop < rotmats_spg.size(); isymop++)
     {
         const matrix<int> &rotmat_spg = rotmats_spg[isymop];
-        auto equiv_k = (AAT * to_double(rotmat_spg) * invAAT) * k;
+        auto equiv_k = inverse(transpose(to_double(rotmat_spg))) * k;
         move_k_back(equiv_k, code);
         bool found = false;
         for (const auto &already_found_ek: equiv_ks)
@@ -216,12 +215,12 @@ vector<int> get_all_symops_connecting_ks(const vec<double> &k, const vec<double>
                                          const vector<matrix<int>> &rotmats_spg)
 {
     vector<int> indices;
-    const auto AAT = lattice * transpose(lattice);
-    const auto invAAT = inverse(AAT);
+    // const auto AAT = lattice * transpose(lattice);
+    // const auto invAAT = inverse(AAT);
     for (int isymop = 0; isymop < rotmats_spg.size(); isymop++)
     {
         const matrix<int> &rotmat_spg = rotmats_spg[isymop];
-        auto equiv_k = (AAT * to_double(rotmat_spg) * invAAT) * k;
+        auto equiv_k = inverse(transpose(to_double(rotmat_spg))) * k;
         // std::cout << isymop << " " << k << " " << equiv_k << " " << Vk << std::endl; // debug
         if (is_same_k(equiv_k, Vk))
         {

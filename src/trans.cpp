@@ -14,13 +14,18 @@ matrix<cplxdb> compute_W_matrix(const matrix<double> &lattice,
 {
     ABF abasis(atom_types, map_type_abfs_in);
     const int nabf = abasis.get_number_of_total_abfs();
-    const auto AAT = lattice * transpose(lattice);
+    // const auto AAT = lattice * transpose(lattice);
     matrix<cplxdb> Wmat(nabf, nabf);
     // const double prefac = choice == CODE_CHOICE::AIMS ? -1. : 1.;
     const double prefac = choice == CODE_CHOICE::AIMS ? -1. : 1.;
     const auto rotmat_spg_db = to_double(rotmat_spg);
     // k = V k'
-    const auto k = AAT * rotmat_spg_db * inverse(AAT) * kprime;
+    // const auto k = AAT * rotmat_spg_db * inverse(AAT) * kprime;
+    const auto k = inverse(transpose(rotmat_spg_db)) * kprime;
+
+    auto rotmat_xyz = get_sym_matrix_xyz(rotmat_spg, lattice);
+    bool is_proper;
+    auto euler = get_Euler_from_sym_matrix_xyz(inverse(rotmat_xyz), is_proper);
 
     for (int iMu = 0; iMu < atom_types.size(); iMu++)
     {
@@ -45,8 +50,7 @@ matrix<cplxdb> compute_W_matrix(const matrix<double> &lattice,
                 // loop over l to avoid duplicate calculations of radial functions with the same l
                 for (const auto &l: std::set<int>{ls_compute.cbegin(), ls_compute.cend()})
                 {
-                    bool is_proper;
-                    auto euler = get_Euler_from_sym_matrix_spg(rotmat_spg, lattice, is_proper);
+                    // auto euler = get_Euler_from_sym_matrix_spg(rotmat_spg, lattice, is_proper);
                     auto Delta = get_RSH_Delta_matrix_from_Euler(l, euler, is_proper, choice);
                     Delta.conj();
                     // std::cout << Delta; // debug

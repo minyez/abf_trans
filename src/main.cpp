@@ -150,7 +150,7 @@ int main (int argc, char *argv[])
                     }
                     if (ik_equiv_in_krpoints == krpoints.size()) continue; // not found the transformed point in the grid
                     // debug: LiF case, map IBZ k2 to BZ k7
-                    if (ik_in_grids != 1 || ik_equiv_in_grids != 6) continue;
+                    // if (ik_in_grids != 1 || ik_equiv_in_grids != 6) continue;
 
                     // if (ik == ik_equiv_in_krpoints)
                     {
