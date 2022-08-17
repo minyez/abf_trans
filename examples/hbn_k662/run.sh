@@ -16,10 +16,24 @@ cat > cell.txt << EOF
 EOF
 
 cat > basis_id.txt << EOF
+7 0 2
+7 1 2
+7 0 1
+7 2 1
+7 1 1
+7 0 1
 5 0 2
 5 1 1
-7 0 2
-7 1 1
+5 2 2
+5 3 1
+5 0 2
+5 1 2
+5 2 2
+5 4 1
+5 3 1
+5 2 1
+5 1 1
+5 0 1
 EOF
 
-$exe cell.txt basis_id.txt K 1/2 1/2 1/2
+$exe cell.txt basis_id.txt matrix_inputs.txt
