@@ -46,6 +46,8 @@ public:
 
     vector<int> inverse_operation;
 
+    matrix<int> map_atoms;
+
     SpgDS_c(const matrix<double> &latt_in, const matrix<double> &posi_frac_in,
             const vector<int> &types_in, const double symprec_in = 1.0e-5);
     ~SpgDS_c() {};
@@ -53,7 +55,7 @@ public:
     matrix<double> get_ideal_lattice() { return std_lattice; }
     const matrix<double> &get_ideal_lattice() const { return std_lattice; }
 
-    void show(bool show_operations = false) const;
+    void show(bool show_operations = false, bool show_map_atoms = false) const;
     void show_cell() const;
     string get_operation_str(int isymop) const;
     string get_operation_str_matform(int isymop) const;

@@ -103,6 +103,19 @@ SpgDS_c::SpgDS_c(const matrix<double> &latt_in, const matrix<double> &posi_frac_
         }
     }
 
+    // set atoms mapping by symmetry operations
+    map_atoms.resize(n_atoms, n_operations);
+    for (int ia = 0; ia < n_atoms; ia++)
+        for (int isymop = 0; isymop < n_operations; isymop++)
+        {
+            auto a_rot = to_double(this->rotations[isymop]) * this->positions.get_row(ia) + this->translations[isymop];
+            for (int i = 0; i < 3; i++)
+                shift_to_unit(a_rot[i], 0.0, true);
+            for (int iap = 0; iap < n_atoms; iap++)
+                if (a_rot ==this->positions.get_row(iap))
+                    map_atoms(ia, isymop) = iap;
+        }
+
     spg_free_dataset(dataset);
 }
 
@@ -130,7 +143,7 @@ SpglibDataset* wrapper_spg_get_dataset(const matrix<double> &latt_in,
     return dataset;
 }
 
-void SpgDS_c::show(bool show_operations) const
+void SpgDS_c::show(bool show_operations, bool show_map_atoms) const
 {
     printf("International: %s (%d)\n", international_symbol.c_str(), spacegroup_number);
     printf("  Hall symbol: %s\n", hall_symbol.c_str());
@@ -147,6 +160,14 @@ void SpgDS_c::show(bool show_operations) const
     printf("Equivalent atoms:\n");
     for (int i = 0; i < n_atoms; i++) {
       printf("  %d -> %d (type %d)\n", i, equivalent_atoms[i], types[i]);
+    }
+    printf("Atom mapping:\n");
+    for (int ia = 0; ia < n_atoms; ia++)
+    {
+        printf("%2d:", ia);
+        for (int isymop = 0; isymop < n_operations; isymop++)
+            printf(" %2d", map_atoms(ia, isymop));
+        printf("\n");
     }
 }
 

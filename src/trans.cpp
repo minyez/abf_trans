@@ -25,17 +25,20 @@ matrix<cplxdb> compute_W_matrix(const matrix<double> &lattice,
 
     auto rotmat_xyz = get_sym_matrix_xyz(rotmat_spg, lattice);
     bool is_proper;
-    auto euler = get_Euler_from_sym_matrix_xyz(inverse(rotmat_xyz), is_proper);
+    // auto euler = get_Euler_from_sym_matrix_xyz(inverse(rotmat_xyz), is_proper);
+    auto euler = get_Euler_from_sym_matrix_xyz(rotmat_xyz, is_proper);
 
     for (int iMu = 0; iMu < atom_types.size(); iMu++)
     {
         const auto s_Mu = positions.get_row(iMu);
         auto sprime_Mu = inverse(rotmat_spg_db) * (s_Mu - transi_spg);
         // std::cout << "S'_Mu = " << sprime_Mu << std::endl; // debug
-        const auto OVMu = move_to_center(sprime_Mu, 0.0, true);
+        const auto OVMu = -move_to_center(sprime_Mu, 0.0, true);
         // std::cout << "Shift back, S'_Mu = " << sprime_Mu << " , OV_Mu = " << OVMu << std::endl; // debug
+        // const double ang = prefac * 2.0 * PI * (dot(kprime, OVMu) + dot(k, transi_spg));
+        // const double ang = prefac * 2.0 * PI * dot(k, transi_spg);
         const double ang = prefac * 2.0 * PI * dot(kprime, OVMu);
-        const cplxdb eprefac(std::cos(ang), -std::sin(ang));
+        const cplxdb phase(std::cos(ang), -std::sin(ang));
         // std::cout << ang << " " << eprefac << std::endl; // debug
         const auto abfs_iMu = map_type_abfs[atom_types[iMu]];
         vector<int> ls_compute;
@@ -52,9 +55,12 @@ matrix<cplxdb> compute_W_matrix(const matrix<double> &lattice,
                 {
                     // auto euler = get_Euler_from_sym_matrix_spg(rotmat_spg, lattice, is_proper);
                     auto Delta = get_RSH_Delta_matrix_from_Euler(l, euler, is_proper, choice);
-                    Delta.conj();
+                    // perform conjugate is just a formal treatment and should not affect the result, as Delta is real by definition
+                    // Delta.conj();
                     // std::cout << Delta; // debug
-                    Delta *= eprefac;
+                    // const double ang = prefac * 2.0 * PI * (dot(k, s_Mu) - dot(kprime, s_Mup));
+                    // const cplxdb phase(std::cos(ang), std::sin(ang));
+                    Delta *= phase;
                     for (int irf = 0; irf < abfs_iMu.size(); irf++)
                     {
                         // distribute to the full matrix

@@ -44,7 +44,7 @@ int main (int argc, char *argv[])
     /* Compute and display symmetry information */
     cout << "Compute symmetry related information by Spglib" << endl;
     SpgDS_c spgds(latt, posi_frac, types, 1.0e-5);
-    spgds.show(true);
+    spgds.show(true, true);
     for (int iop = 0; iop < spgds.n_operations; iop++)
     {
         bool is_proper;
@@ -115,7 +115,8 @@ int main (int argc, char *argv[])
             isymops.clear();
         }
     }
-    else if (argc == 4)
+
+    if (argc == 4)
     {
         vector<vec<double>> krpoints;
         std::array<int, 3> ngs;
@@ -152,7 +153,7 @@ int main (int argc, char *argv[])
                     // debug: LiF case, map IBZ k2 to BZ k7
                     // if (ik_in_grids != 1 || ik_equiv_in_grids != 6) continue;
 
-                    // if (ik == ik_equiv_in_krpoints)
+                    // if (ik == ik_equiv_in_krpoints) // debug: mapping to itself
                     {
                         const auto euler = get_Euler_from_sym_matrix_spg(spgds.rotations[isymop], spgds.lattice, is_proper);
                         const auto &mat_kprime = matrices[ik];
@@ -161,6 +162,7 @@ int main (int argc, char *argv[])
                                                      spgds.rotations[isymop],
                                                      spgds.translations[isymop], map_type_abfs, code_choice);
                         /* wmat = transpose(wmat); // debug, test operation 23 */
+                        /* wmat = transpose(wmat, true); // debug, test operation 23 */
                         const auto mat_k_transformed = wmat * mat_kprime * transpose(wmat, true);
                         double maxabs_diff = maxabs(mat_k_transformed - mat_k_equiv);
                         // printf("Found k-point matrix mapping %4d(%6.3f, %6.3f %6.3f) -> %4d(%6.3f, %6.3f %6.3f) by symop. %2d, |Mk - Mkeq|_max = %f, |W Mk W^H - Mkeq|_max  = %f\n",
@@ -200,6 +202,7 @@ int main (int argc, char *argv[])
                                                              spgds.rotations[iop],
                                                              spgds.translations[iop], map_type_abfs, code_choice);
                                 /* wmat = transpose(wmat); // debug, test operation 23 */
+                                /* wmat = transpose(wmat, true); // debug, test operation 23 */
                                 const auto mat_k_transformed = wmat * mat_kprime * transpose(wmat, true);
                                 double maxabs_diff = maxabs(mat_k_transformed - mat_k_equiv);
                                 printf("    by symop. %2d,                                |W Mk W^H - Mkeq|_max  = %8.5e", iop+1, maxabs_diff);

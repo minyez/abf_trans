@@ -149,6 +149,13 @@ public:
         return true;
     }
 
+    bool operator==(const T &cnum) const
+    {
+        for (int i = 0; i < size(); i++)
+            if (fabs(c[i] - cnum) > matrix<T>::EQUAL_THRES) return false;
+        return true;
+    }
+
     void operator+=(const matrix<T> &m)
     {
         assert(size() == m.size());

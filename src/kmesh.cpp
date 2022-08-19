@@ -176,7 +176,7 @@ void KGrids::generate_irk_map(const SpgDS_c &dataset)
 }
 
 
-void get_all_equiv_k(const vec<double> &k, const matrix<double> lattice,
+void get_all_equiv_k(const vec<double> &kprime, const matrix<double> lattice,
                      const vector<matrix<int>> &rotmats_spg, vector<vec<double>> &equiv_ks, vector<int> &irots,
                      const CODE_CHOICE &code)
 {
@@ -191,12 +191,12 @@ void get_all_equiv_k(const vec<double> &k, const matrix<double> lattice,
     for (int isymop = 0; isymop < rotmats_spg.size(); isymop++)
     {
         const matrix<int> &rotmat_spg = rotmats_spg[isymop];
-        auto equiv_k = inverse(transpose(to_double(rotmat_spg))) * k;
-        move_k_back(equiv_k, code);
+        auto k = inverse(transpose(to_double(rotmat_spg))) * kprime;
+        move_k_back(k, code);
         bool found = false;
         for (const auto &already_found_ek: equiv_ks)
         {
-            if (is_same_k(already_found_ek, equiv_k))
+            if (is_same_k(already_found_ek, k))
             {
                 found = true;
                 break;
@@ -204,7 +204,7 @@ void get_all_equiv_k(const vec<double> &k, const matrix<double> lattice,
         }
         if (!found)
         {
-            equiv_ks.push_back(equiv_k);
+            equiv_ks.push_back(k);
             irots.push_back(isymop);
         }
     }

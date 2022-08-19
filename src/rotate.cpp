@@ -222,5 +222,7 @@ matrix<cplxdb> get_RSH_Delta_matrix_from_Euler(unsigned l, const std::array<doub
     for (int i = 0; i < Delta.size(); i++)
         if (fabs(Delta.c[i]) < 1.e-14)
             Delta.c[i] = 0.0;
+    // ensure real matrix
+    assert(get_imag(Delta) == 0.0);
     return Delta;
 }

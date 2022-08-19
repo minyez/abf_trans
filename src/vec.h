@@ -78,6 +78,14 @@ public:
         return *this;
     }
 
+    vec<T> operator-() const
+    {
+        vec<T> newv(*this);
+        for (int i = 0; i < this->size(); i++)
+            newv[i] = -this->c[i];
+        return newv;
+    }
+
     bool operator<(const vec<T> &v) const
     {
         return norm2(*this) < norm2(v);
