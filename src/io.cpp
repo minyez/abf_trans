@@ -73,9 +73,9 @@ void read_cell(const string &cellfile, matrix<double> &out_latt,
             fin >> s1 >> s2 >> s3 >> s4;
             if (!fin)
                 throw std::logic_error("error in reading the atom positions and types");
-            out_posi_frac(i, 0) = std::stod(s1);
-            out_posi_frac(i, 1) = std::stod(s2);
-            out_posi_frac(i, 2) = std::stod(s3);
+            out_posi_frac(i, 0) = decode_fraction(s1);
+            out_posi_frac(i, 1) = decode_fraction(s2);
+            out_posi_frac(i, 2) = decode_fraction(s3);
             out_types.push_back(std::stoi(s4));
         }
     }

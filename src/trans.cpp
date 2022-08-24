@@ -48,7 +48,7 @@ matrix<cplxdb> compute_M_matrix(const matrix<double> &lattice,
         for (int iMup = 0; iMup < atom_types.size(); iMup++)
         {
             const auto s_Mup = positions.get_row(iMup);
-            if (s_Mup == s_tildeMu)
+            if (is_same_atom_in_center(s_Mup, s_tildeMu))
             {
                 // loop over l to avoid duplicate calculations of radial functions with the same l
                 for (const auto &l: std::set<int>{ls_compute.cbegin(), ls_compute.cend()})

@@ -42,3 +42,14 @@ vec<double> move_to_center(vec<double> &posi, const double lowlim, bool keep_low
         R[ic] = shift_to_unit(posi[ic], lowlim, keep_lowlim);
     return R;
 }
+
+bool is_same_atom_in_center(const vec<double> &a1, const vec<double> &a2, double thres)
+{
+    auto diff = a1 - a2;
+    for (int i = 0; i < diff.size(); i++)
+    {
+        shift_to_unit(diff[i], 0.0, true);
+        if(1 - diff[i] < thres) diff[i] = 1 - diff[i];
+    }
+    return vec_equal(diff, {3}, thres);
+}

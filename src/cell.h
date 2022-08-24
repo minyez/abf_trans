@@ -22,3 +22,5 @@ void generate_map_type_iatom(const vector<int> &atypes, set<int> &inequiv_types,
 matrix<double> move_to_center(matrix<double> &posi, const double lowlim = 0.0, bool keep_lowlim = true);
 
 vec<double> move_to_center(vec<double> &posi, const double lowlim = 0.0, bool keep_lowlim = true);
+
+bool is_same_atom_in_center(const vec<double> &a1, const vec<double> &a2, double thres = 1.e-5);
