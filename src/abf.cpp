@@ -95,3 +95,14 @@ int ABF::get_abf_index(int iat, int irf, int m) const
     iabf += l + m;
     return iabf;
 }
+
+void get_bloch_phase_convention(const CODE_CHOICE &cc, int &a, int &b)
+{
+    switch (cc)
+    {
+        case (CODE_CHOICE::ORIG):
+            a = 1; b = 0; break;
+        case (CODE_CHOICE::AIMS):
+            a = -1; b = 0; break;
+    }
+}

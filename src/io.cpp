@@ -264,7 +264,9 @@ void write_mtx_cplxdb(const matrix<cplxdb> &mat, const string &mtxfile,
     }
 }
 
-void read_matrix_inputs(const string &mat_inputs_fn, std::array<int, 3> &ngs, vector<vec<double>> &krpoints, vector<string> &cmatfns, vector<matrix<cplxdb>> &matrices)
+void read_matrix_inputs(const string &mat_inputs_fn,
+                        CODE_CHOICE &cc, KRMODE &mode, std::array<int, 3> &ngs,
+                        vector<vec<double>> &krpoints, vector<string> &cmatfns, vector<matrix<cplxdb>> &matrices)
 {
     if (!krpoints.empty() || !cmatfns.empty() || !matrices.empty())
         throw std::logic_error("matrix inputs already parsed, please clean up first");
@@ -276,8 +278,8 @@ void read_matrix_inputs(const string &mat_inputs_fn, std::array<int, 3> &ngs, ve
         int n = 0;
         string s1, s2, s3, s4, s5;
         fin >> s1 >> s2 >> s3 >> s4 >> s5;
-        code_choice = parse_code_choice(s1);
-        krmode = parse_krmode(s2);
+        cc = parse_code_choice(s1);
+        mode = parse_krmode(s2);
         ngs[0] = stoi(s3);
         ngs[1] = stoi(s4);
         ngs[2] = stoi(s5);

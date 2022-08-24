@@ -86,15 +86,14 @@ public:
 };
 
 // k in reciprocal lattice vector coordinate
-void get_all_equiv_k(const vec<double> &k, const matrix<double> lattice,
+void get_all_equiv_k(const vec<double> &k,
                      const vector<matrix<int>> &rotmats_spg,
                      vector<vec<double>> &equiv_ks, vector<int> &irots,
                      const CODE_CHOICE &code);
 
-//! get all symmetry operations (index) V in rotmats_spg connecting k to Vk
-vector<int> get_all_symops_connecting_ks(const vec<double> &k, const vec<double> &Vk,
-                                         const matrix<double> lattice,
-                                         const vector<matrix<int>> &rotmats_spg);
+//! get all symmetry operations (index) V in rotmats_spg such that Vk1 = k2
+vector<int> get_symops_connecting_k1_k2(const vec<double> &k1, const vec<double> &k2,
+                                        const vector<matrix<int>> &rotmats_spg);
 
 matrix<double> move_k_back(matrix<double> &kpts, const CODE_CHOICE &code);
 vec<double> move_k_back(vec<double> &kpts, const CODE_CHOICE &code);

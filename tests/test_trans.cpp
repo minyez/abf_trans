@@ -33,13 +33,13 @@ void test_prim_nacl_spd()
     cout << "transition v: " << dataset.translations[i_symop] << endl;
     auto euler = get_Euler_from_sym_matrix_spg(dataset.rotations[i_symop], latt, is_proper);
     printf("Euler angle: %f %f %f\n", euler[0], euler[1], euler[2]);
-    auto Wmat = compute_W_matrix(latt, posi, atom_types, kprime,
+    auto mmat = compute_M_matrix(latt, posi, atom_types, kprime,
                                  dataset.rotations[i_symop],
                                  dataset.translations[i_symop], map_type_abfs, CODE_CHOICE::ORIG);
     // std::cout << Wmat;
 
     cout << "Testing unitary property " << endl;
-    auto iden = Wmat * transpose(Wmat, true);
+    auto iden = mmat * transpose(mmat, true);
     matrix<cplxdb> iden_ref(iden.nr, iden.nc);
     iden_ref.set_diag(1);
     assert(iden == iden_ref);
@@ -63,7 +63,6 @@ void test_prim_diamond_spd()
     map_type_abfs[6].push_back({2});
 
     vec<double> kprime(3);
-    // FIXME: cannot map to a correct Mu'
     const int i_symop = 3;
     kprime[0] = 0.5;
     cout << "k': "<< kprime << endl;
@@ -72,13 +71,13 @@ void test_prim_diamond_spd()
     cout << "transition v: " << dataset.translations[i_symop] << endl;
     auto euler = get_Euler_from_sym_matrix_spg(dataset.rotations[i_symop], latt, is_proper);
     printf("Euler angle: %f %f %f, proper? %d\n", euler[0], euler[1], euler[2], is_proper);
-    auto Wmat = compute_W_matrix(latt, posi, atom_types, kprime,
+    auto Mmat = compute_M_matrix(latt, posi, atom_types, kprime,
                                  dataset.rotations[i_symop],
                                  dataset.translations[i_symop], map_type_abfs, CODE_CHOICE::ORIG);
 
     // std::cout << Wmat;
     cout << "Testing unitary property " << endl;
-    auto iden = Wmat * transpose(Wmat, true);
+    auto iden = Mmat * transpose(Mmat, true);
     matrix<cplxdb> iden_ref(iden.nr, iden.nc);
     iden_ref.set_diag(1);
     assert(iden == iden_ref);

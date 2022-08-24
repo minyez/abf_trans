@@ -37,7 +37,10 @@ void write_mtx_cplxdb(const matrix<cplxdb> &mat, const string &mtxfile,
                       const string &comment = "",
                       double threshold = 1.e-15, bool row_first = true);
 
-void read_matrix_inputs(const string &mat_inputs_fn, std::array<int, 3> &ngs,
+void read_matrix_inputs(const string &mat_inputs_fn,
+                        CODE_CHOICE &cc,
+                        KRMODE &mode,
+                        std::array<int, 3> &ngs,
                         vector<vec<double>> &krpoints,
                         vector<string> &cmatfns,
                         vector<matrix<cplxdb>> &matrices);

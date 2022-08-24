@@ -45,3 +45,4 @@ public:
 
 extern std::map<int, std::vector<abf_id>> map_type_abfs;
 
+void get_bloch_phase_convention(const CODE_CHOICE &cc, int &a, int &b);
