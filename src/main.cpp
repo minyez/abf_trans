@@ -65,7 +65,7 @@ int main (int argc, char *argv[])
     vector<int> isymops;
     bool is_proper;
     char comment[80];
-    string mtxfile, outmtxfn;
+    string mtxfile, transformed_mat_outmtxfn, mmat_outmtxfn;
 
     if (argc == 9)
     {
@@ -107,9 +107,9 @@ int main (int argc, char *argv[])
                 const auto k_mat = compute_representation_on_equiv_k(KRcoord, mat, spgds.lattice, spgds.positions, spgds.types,
                                                                      spgds.rotations[isymops[ik]], spgds.translations[isymops[ik]], map_type_abfs,
                                                                      code_choice);
-                outmtxfn = "abf_trans_out_equivk_" + std::to_string(ik) + "_symop_" + std::to_string(isymops[ik]+1) + ".mtx";
+                transformed_mat_outmtxfn = "abf_trans_out_equivk_" + std::to_string(ik) + "_symop_" + std::to_string(isymops[ik]+1) + ".mtx";
                 sprintf(comment, "equiv k: %f %f %f", ks[ik][0], ks[ik][1], ks[ik][2]);
-                write_mtx_cplxdb(k_mat, outmtxfn, comment);
+                write_mtx_cplxdb(k_mat, transformed_mat_outmtxfn, comment);
             }
             ks.clear();
             isymops.clear();
@@ -149,9 +149,9 @@ int main (int argc, char *argv[])
                     }
                     if (ik_in_krpoints == krpoints.size()) continue; // not found the transformed point in the grid
 
-                    printf("Found k-point matrix mapping %4d(%6.3f, %6.3f %6.3f) -> %4d(%6.3f, %6.3f %6.3f)\n",
-                           ivk_in_grids+1, vk[0], vk[1], vk[2],
-                           ik_in_grids+1, k[0], k[1], k[2]);
+                    printf("Found k-point matrix mapping: k %4d(%6.3f, %6.3f %6.3f) -> Vk %4d(%6.3f, %6.3f %6.3f)\n",
+                           ik_in_grids+1, k[0], k[1], k[2],
+                           ivk_in_grids+1, vk[0], vk[1], vk[2]);
                     const auto &mat_k = matrices[ik_in_krpoints];
                     const auto &mat_vk = matrices[ivk];
 
@@ -161,29 +161,36 @@ int main (int argc, char *argv[])
                         cout << iop+1 << " ";
                     cout << endl;
 
+
                     for (auto isymop: isymops)
                     {
+                        int ik_trans_from, ik_trans_to;
                         // consistency check
                         assert(is_same_k(vk, inverse(transpose(to_double(spgds.rotations[isymop]))) * k));
                         // do the transform, general
+                        // ik_trans_from = ivk_in_grids;
+                        // ik_trans_to = ik_in_grids;
                         // auto mmat = compute_M_matrix(spgds.lattice, spgds.positions, spgds.types, k,
                         //                         spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs, code_choice);
-                        // const auto mat_k_transformed = mmat * mat_tk * transpose(mmat, true);
-                        // double maxabs_diff = maxabs(mat_k_transformed - mat_k);
+                        // const auto mat_transformed = mmat * mat_vk * transpose(mmat, true);
+                        // double maxabs_diff = maxabs(mat_transformed - mat_k);
 
+                        // check the aims implementation particularly
+                        ik_trans_from = ik_in_grids;
+                        ik_trans_to = ivk_in_grids;
                         auto mmat = compute_M_matrix_aims(spgds.lattice, spgds.positions, spgds.types, k,
                                                           spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs);
-                        const auto mat_vk_transformed = mmat * mat_k * transpose(mmat, true);
-                        double maxabs_diff = maxabs(mat_vk_transformed - mat_vk);
+                        const auto mat_transformed = mmat * mat_k * transpose(mmat, true);
+                        double maxabs_diff = maxabs(mat_transformed - mat_vk);
 
-                        printf("    by Sym. Op. %2d, |M Ftk M^H - Fk|_max = %8.5f\n", isymop+1, maxabs_diff);
-
-                        outmtxfn = "abf_trans_out_ik_" + std::to_string(ik_in_grids+1) + 
-                            "_from_" + std::to_string(ivk_in_grids+1) + "_symop_" + std::to_string(isymop+1) + ".mtx";
-                        /* write_mtx_cplxdb(mat_k_transformed, outmtxfn); */
-                        outmtxfn = "M_ik_" + std::to_string(ik_in_grids+1) + 
-                            "_from_" + std::to_string(ivk_in_grids+1) + "_symop_" + std::to_string(isymop+1) + ".mtx";
-                        write_mtx_cplxdb(mmat, outmtxfn);
+                        // print out the result
+                        printf("    Sym. Op. %2d, |M(trans) - M(origi)|_max = %8.5f\n", isymop+1, maxabs_diff);
+                        transformed_mat_outmtxfn = "abf_trans_out_ik_" + std::to_string(ik_trans_to+1) + 
+                            "_from_" + std::to_string(ik_trans_from+1) + "_symop_" + std::to_string(isymop+1) + ".mtx";
+                        mmat_outmtxfn = "M_ik_" + std::to_string(ik_trans_to+1) + 
+                            "_from_" + std::to_string(ik_trans_from+1) + "_symop_" + std::to_string(isymop+1) + ".mtx";
+                        write_mtx_cplxdb(mat_transformed, transformed_mat_outmtxfn);
+                        write_mtx_cplxdb(mmat, mmat_outmtxfn);
                     }
 
                     // debug: LiF case, map IBZ k2 to BZ k7
