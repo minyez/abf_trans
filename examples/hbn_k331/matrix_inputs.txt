@@ -1,0 +1,10 @@
+aims K 3 3 1
+0.0   0.0   0.0  coulomb_matr_kpt_1.csc
+0.0   1/3   0.0  coulomb_matr_kpt_2.csc
+0.0   2/3   0.0  coulomb_matr_kpt_3.csc
+1/3   0.0   0.0  coulomb_matr_kpt_4.csc
+1/3   1/3   0.0  coulomb_matr_kpt_5.csc
+1/3   2/3   0.0  coulomb_matr_kpt_6.csc
+2/3   0.0   0.0  coulomb_matr_kpt_7.csc
+2/3   1/3   0.0  coulomb_matr_kpt_8.csc
+2/3   2/3   0.0  coulomb_matr_kpt_9.csc
