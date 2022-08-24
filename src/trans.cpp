@@ -99,6 +99,7 @@ matrix<cplxdb> compute_M_matrix_aims(const matrix<double> &lattice,
     matrix<cplxdb> Mmat(nabf, nabf);
     const auto rotmat_spg_db = to_double(rotmat_spg);
     auto Vk = inverse(transpose(rotmat_spg_db)) * k;
+    // std::cout << k << " " << Vk << std::endl;
 
     auto rotmat_xyz = get_sym_matrix_xyz(rotmat_spg, lattice);
     bool is_proper;
@@ -118,7 +119,7 @@ matrix<cplxdb> compute_M_matrix_aims(const matrix<double> &lattice,
         for (int iMup = 0; iMup < atom_types.size(); iMup++)
         {
             const auto s_Mup = positions.get_row(iMup);
-            if (s_Mup == s_tildeMu)
+            if (is_same_atom_in_center(s_Mup, s_tildeMu))
             {
                 // loop over l to avoid duplicate calculations of radial functions with the same l
                 for (const auto &l: std::set<int>{ls_compute.cbegin(), ls_compute.cend()})
