@@ -21,6 +21,14 @@ matrix<cplxdb> compute_M_matrix_aims(const matrix<double> &lattice,
                                      const vec<double> &transi_spg,
                                      const std::map<int, std::vector<abf_id>> &map_type_abfs_in);
 
+matrix<cplxdb> compute_M_matrix_abacus(const matrix<double> &lattice, 
+                                       const matrix<double> &positions, 
+                                       const vector<int> &atom_types,
+                                       const vec<double> &k,
+                                       const matrix<int> &rotmat_spg,
+                                       const vec<double> &transi_spg,
+                                       const std::map<int, std::vector<abf_id>> &map_type_abfs_in);
+
 matrix<cplxdb> compute_representation_on_equiv_k(const vec<double> &kprime, const matrix<cplxdb> &cmat_at_kprime,
                                                  const matrix<double> &lattice, 
                                                  const matrix<double> &positions, 

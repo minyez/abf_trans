@@ -134,11 +134,13 @@ int main (int argc, char *argv[])
                 const auto &vk = krpoints[ivk]; // Vk
                 const auto ivk_in_grids = kgrids.index(vk);
                 if (ivk_in_grids < 0) continue; // not found in the kgrids
-                // if (!kgrids.have_irk(t_k)) continue; // only the IBZ kpts
+                // if (ivk_in_grids != 0) continue; // debug, only the Gamma point
+                // if (!kgrids.have_irk(vk)) continue; // debug, only IBZ kpts
                 get_all_equiv_k(vk, spgds.rotations, ks, isymops, code_choice); // all ks that ~k = Vk
                 for (int ik = 0; ik < ks.size(); ik++)
                 {
                     const auto &k = ks[ik]; // k
+                    if (!kgrids.have_irk(vk) or !kgrids.have_irk(k)) continue; // debug, only mapping IBZ kpts to itself
                     const auto &ik_in_grids = kgrids.index(k);
 
                     int ik_in_krpoints;
@@ -176,10 +178,18 @@ int main (int argc, char *argv[])
                         // double maxabs_diff = maxabs(mat_transformed - mat_k);
 
                         // check the aims implementation particularly
+                        // ik_trans_from = ik_in_grids;
+                        // ik_trans_to = ivk_in_grids;
+                        // auto mmat = compute_M_matrix_aims(spgds.lattice, spgds.positions, spgds.types, k,
+                        //                                   spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs);
+                        // const auto mat_transformed = mmat * mat_k * transpose(mmat, true);
+                        // double maxabs_diff = maxabs(mat_transformed - mat_vk);
+
+                        // check the abacus implementation particularly
                         ik_trans_from = ik_in_grids;
                         ik_trans_to = ivk_in_grids;
-                        auto mmat = compute_M_matrix_aims(spgds.lattice, spgds.positions, spgds.types, k,
-                                                          spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs);
+                        auto mmat = compute_M_matrix_abacus(spgds.lattice, spgds.positions, spgds.types, k,
+                                                            spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs);
                         const auto mat_transformed = mmat * mat_k * transpose(mmat, true);
                         double maxabs_diff = maxabs(mat_transformed - mat_vk);
 
