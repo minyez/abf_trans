@@ -15,10 +15,8 @@ EOF
 
 # ABFs on He = 14
 cat > basis_id.txt << EOF
-2 0 1
-2 0 1
-2 1 1
-2 1 1
+2 0 3
+2 1 2
 2 2 1
 EOF
 

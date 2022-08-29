@@ -206,15 +206,17 @@ matrix<cplxdb> get_RSH_Delta_matrix_from_Euler(unsigned l, const std::array<doub
     for (int m = -il; m <= il; m++)
         for (int mp = -il; mp <= il; mp++)
         {
+            const int i_m = get_lm_index(il, m, rsh_choice);
+            const int i_mp = get_lm_index(il, mp, rsh_choice);
             if (m == 0 && mp == 0)
-                Delta(m+il, mp+il) = Dmat(m+il, mp+il);
+                Delta(i_m, i_mp) = Dmat(m+il, mp+il);
             else if (m == 0)
-                Delta(m+il, mp+il) = Dmat(il, mp+il) * get_C_matrix_element(mp, mp, rsh_choice) + Dmat(il, -mp+il) * get_C_matrix_element(mp, -mp, rsh_choice);
+                Delta(i_m, i_mp) = Dmat(il, mp+il) * get_C_matrix_element(mp, mp, rsh_choice) + Dmat(il, -mp+il) * get_C_matrix_element(mp, -mp, rsh_choice);
             else if (mp == 0)
-                Delta(m+il, mp+il) = Dmat(m+il, il) * std::conj(get_C_matrix_element(m, m, rsh_choice)) + Dmat(-m+il, il) * std::conj(get_C_matrix_element(m, -m, rsh_choice));
+                Delta(i_m, i_mp) = Dmat(m+il, il) * std::conj(get_C_matrix_element(m, m, rsh_choice)) + Dmat(-m+il, il) * std::conj(get_C_matrix_element(m, -m, rsh_choice));
             else
             {
-                Delta(m+il, mp+il) = std::conj(get_C_matrix_element(m, m, rsh_choice)) * (Dmat(m+il, mp+il) * get_C_matrix_element(mp, mp, rsh_choice) + Dmat(m+il, -mp+il) * get_C_matrix_element(mp, -mp, rsh_choice)) +
+                Delta(i_m, i_mp) = std::conj(get_C_matrix_element(m, m, rsh_choice)) * (Dmat(m+il, mp+il) * get_C_matrix_element(mp, mp, rsh_choice) + Dmat(m+il, -mp+il) * get_C_matrix_element(mp, -mp, rsh_choice)) +
                                      std::conj(get_C_matrix_element(m, -m, rsh_choice)) * (Dmat(-m+il, mp+il) * get_C_matrix_element(mp, mp, rsh_choice) + Dmat(-m+il, -mp+il) * get_C_matrix_element(mp, -mp, rsh_choice));
             }
         }

@@ -3,7 +3,7 @@
 
 matrix<cplxdb> get_C_matrix(unsigned l, const CODE_CHOICE &choice)
 {
-    auto msize = get_msize(l);
+    const auto msize = get_msize(l);
     const int il = int(l);
     matrix<cplxdb> cmat(msize, msize);
     for (int m = -il; m <= il; m++)

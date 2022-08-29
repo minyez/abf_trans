@@ -26,20 +26,11 @@ matrix<cplxdb> compute_M_matrix(const matrix<double> &lattice,
     auto rotmat_xyz = get_sym_matrix_xyz(rotmat_spg, lattice);
     bool is_proper;
     auto euler = get_Euler_from_sym_matrix_xyz(inverse(rotmat_xyz), is_proper);
-    // auto euler = get_Euler_from_sym_matrix_xyz(rotmat_xyz, is_proper);
 
     for (int iMu = 0; iMu < atom_types.size(); iMu++)
     {
         const auto s_Mu = positions.get_row(iMu);
-        auto s_tildeMu = rotmat_spg_db * s_Mu + transi_spg;
-        // std::cout << "S'_Mu = " << sprime_Mu << std::endl; // debug
-        const auto OSMu = move_to_center(s_tildeMu, 0.0, true);
-        // std::cout << "Shift back, S'_Mu = " << sprime_Mu << " , OV_Mu = " << OVMu << std::endl; // debug
-        // const double ang = prefac * 2.0 * PI * (dot(kprime, OVMu) + dot(k, transi_spg));
-        // const double ang = prefac * 2.0 * PI * dot(k, transi_spg);
-        // const double ang = prefac * 2.0 * PI * dot(kprime, OVMu);
-        // const cplxdb phase(std::cos(ang), -std::sin(ang));
-        // std::cout << ang << " " << eprefac << std::endl; // debug
+        const auto s_tildeMu = rotmat_spg_db * s_Mu + transi_spg;
         const auto abfs_iMu = map_type_abfs[atom_types[iMu]];
         vector<int> ls_compute;
         for (const auto &abf: abfs_iMu)
@@ -50,6 +41,7 @@ matrix<cplxdb> compute_M_matrix(const matrix<double> &lattice,
             const auto s_Mup = positions.get_row(iMup);
             if (is_same_atom_in_center(s_Mup, s_tildeMu))
             {
+                const auto OSMu = s_tildeMu - s_Mup;
                 // loop over l to avoid duplicate calculations of radial functions with the same l
                 for (const auto &l: std::set<int>{ls_compute.cbegin(), ls_compute.cend()})
                 {
@@ -57,8 +49,8 @@ matrix<cplxdb> compute_M_matrix(const matrix<double> &lattice,
                     auto Delta = get_RSH_Delta_matrix_from_Euler(l, euler, is_proper, choice);
                     double ang = dot(tilde_k, OSMu);
                     if (b != 0)
-                        ang += b * (dot(k, s_Mu) - dot(tilde_k, s_Mup));
-                    ang *= -a * 2.0 * PI;
+                        ang += b * (dot(tilde_k, s_Mup) - dot(k, s_Mu));
+                    ang *= a * 2.0 * PI;
                     // perform conjugate is just a formal treatment and should not affect the result, as Delta is real by definition
                     // std::cout << Delta; // debug
                     const cplxdb phase(std::cos(ang), std::sin(ang));
@@ -109,8 +101,6 @@ matrix<cplxdb> compute_M_matrix_aims(const matrix<double> &lattice,
     {
         const auto s_Mu = positions.get_row(iMu);
         auto s_tildeMu = inverse(rotmat_spg_db) * (s_Mu - transi_spg);
-        // std::cout << "S'_Mu = " << sprime_Mu << std::endl; // debug
-        move_to_center(s_tildeMu, 0.0, true);
         const auto abfs_iMu = map_type_abfs[atom_types[iMu]];
         vector<int> ls_compute;
         for (const auto &abf: abfs_iMu)

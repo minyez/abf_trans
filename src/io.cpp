@@ -15,6 +15,8 @@ CODE_CHOICE parse_code_choice(const string &cc_in)
         return CODE_CHOICE::ORIG;
     else if (cc_in == "aims" || cc_in == "fhiaims")
         return CODE_CHOICE::AIMS;
+    else if (cc_in == "abacus")
+        return CODE_CHOICE::ABACUS;
     throw std::invalid_argument("Unknown code choice: " + cc_in);
 }
 
@@ -292,11 +294,18 @@ void read_matrix_inputs(const string &mat_inputs_fn,
             vec<double> v(3, varr);
             krpoints.push_back(v);
             cmatfns.push_back(s4);
+            auto cmat = read_cplxdb(s4);
+            matrices.push_back(cmat);
             if (krmode == KRMODE::K)
-                printf("Reading %2d-th matrix at k-point (%6.3f, %6.3f, %6.3f) from file: %s\n", n, v[0], v[1], v[2], s4.c_str());
+            {
+                printf("Read %2d-th matrix at k-point (%6.3f, %6.3f, %6.3f) from file: %s, size (%d,%d)\n",
+                       n, v[0], v[1], v[2], s4.c_str(), cmat.nr, cmat.nc);
+            }
             if (krmode == KRMODE::R)
-                printf("Reading %2d-th matrix at R-point (%4.1f, %4.1f, %4.1f) from file: %s\n", n, v[0], v[1], v[2], s4.c_str());
-            matrices.push_back(read_cplxdb(s4));
+            {
+                printf("Read %2d-th matrix at R-point (%4.1f, %4.1f, %4.1f) from file: %s, size (%d,%d)\n",
+                       n, v[0], v[1], v[2], s4.c_str(), cmat.nr, cmat.nc);
+            }
         }
         printf("%d files read\n", n);
     }

@@ -60,14 +60,50 @@ inline cplxdb get_C_matrix_element_aims(int m, int mp)
     return cplxdb(0., 0.);
 }
 
+// real spherical harmonics used in the ABACUS code
+inline cplxdb get_C_matrix_element_abacus(int m, int mp)
+{
+    const double sqrt2 = M_SQRT2;
+    if (abs(m) == abs(mp))
+    {
+        if (m == 0)
+            return cplxdb(1.0, 0.0);
+        if (m > 0 && mp > 0)
+            return cplxdb(1.0/sqrt2, 0.0);
+        if (m > 0 && mp < 0)
+            return cplxdb(std::pow(-1.0, m)/sqrt2, 0.0);
+        if (m < 0 && mp > 0)
+            return cplxdb(0, -1.0/sqrt2);
+        if (m < 0 && mp < 0)
+            return cplxdb(0, std::pow(-1, mp)/sqrt2);
+    }
+    return cplxdb(0., 0.);
+}
+
 inline cplxdb get_C_matrix_element(int m, int mp, const CODE_CHOICE &choice)
 {
-    if (choice == CODE_CHOICE::ORIG)
-        return get_C_matrix_element_orig(m, mp);
-    if (choice == CODE_CHOICE::AIMS)
-        return get_C_matrix_element_aims(m, mp);
-    else
-        throw std::invalid_argument("Unknown choice of real spherical harmonics");
+    switch (choice)
+    {
+        case (CODE_CHOICE::ORIG):
+            return get_C_matrix_element_orig(m, mp);
+        case (CODE_CHOICE::AIMS):
+            return get_C_matrix_element_aims(m, mp);
+        case (CODE_CHOICE::ABACUS):
+            return get_C_matrix_element_abacus(m, mp);
+        default:
+            throw std::invalid_argument("Unknown choice of real spherical harmonics");
+    }
 }
 
 matrix<cplxdb> get_C_matrix(unsigned l, const CODE_CHOICE &choice);
+
+inline int get_lm_index(int l, int m, const CODE_CHOICE &choice)
+{
+    switch (choice)
+    {
+        case (CODE_CHOICE::ABACUS):
+            return 2*std::abs(m) - int(m>0);
+        default:
+            return l + m;
+    }
+}

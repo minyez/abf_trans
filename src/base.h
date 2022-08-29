@@ -2,8 +2,8 @@
 #include <complex>
 #include <cmath>
 
-enum CODE_CHOICE { ORIG, AIMS };
-constexpr const char * CODE_CHOICE_STR[] { "original", "FHI-aims" };
+enum CODE_CHOICE { ORIG, AIMS, ABACUS };
+constexpr const char * CODE_CHOICE_STR[] { "original", "FHI-aims", "ABACUS" };
 enum KRMODE { R, K };
 constexpr const char * KRMODE_STR[] { "R", "K" };
 

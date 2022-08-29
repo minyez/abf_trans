@@ -54,6 +54,27 @@ matrix<double> get_kgrids(std::array<int, 3> nks, const CODE_CHOICE &code)
                 }
             }
             break;
+        case CODE_CHOICE::ABACUS:
+            for (int ikz = 0; ikz < nks[2]; ikz++)
+            {
+                double kz = double(ikz) / nks[2];
+                for (int iky = 0; iky < nks[1]; iky++)
+                {
+                    double ky = double(iky) / nks[1];
+                    for (int ikx = 0; ikx < nks[0]; ikx++)
+                    {
+                        double kx = double(ikx) / nks[0];
+                        kgrids[ikpt].resize(3);
+                        kgrids[ikpt][0] = kx;
+                        kgrids[ikpt][1] = ky;
+                        kgrids[ikpt][2] = kz;
+                        ikpt++;
+                    }
+                }
+            }
+            break;
+        default:
+            throw std::invalid_argument("Unknown kmesh convention");
     }
 
     return matrix<double>(kgrids);

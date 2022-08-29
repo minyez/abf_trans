@@ -80,7 +80,7 @@ public:
     }
 
     int size() const { return nc*nr; }
-    void zero_out() { for (int i = 0; i < size(); i++) c[i] = 0; }
+    void zero_out() { for (int i = 0; i < size(); i++) c[i] = 0.; }
 
     vec<T> get_row(int ir) const
     {

@@ -59,7 +59,7 @@ int main (int argc, char *argv[])
     cout << endl << "Reading atomic basis information from " << argv[2] << endl;
     read_abf_ids(argv[2], inequiv_types, map_type_abfs);
     ABF basis(types, map_type_abfs);
-
+    cout << "Size of atomic basis: " << basis.get_number_of_total_abfs() << endl;
     /* prepare required quantities*/
     vector<vec<double>> ks;
     vector<int> isymops;
@@ -171,7 +171,7 @@ int main (int argc, char *argv[])
                         // ik_trans_from = ivk_in_grids;
                         // ik_trans_to = ik_in_grids;
                         // auto mmat = compute_M_matrix(spgds.lattice, spgds.positions, spgds.types, k,
-                        //                         spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs, code_choice);
+                        //                              spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs, code_choice);
                         // const auto mat_transformed = mmat * mat_vk * transpose(mmat, true);
                         // double maxabs_diff = maxabs(mat_transformed - mat_k);
 
