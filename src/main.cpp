@@ -178,20 +178,20 @@ int main (int argc, char *argv[])
                         // double maxabs_diff = maxabs(mat_transformed - mat_k);
 
                         // check the aims implementation particularly
-                        // ik_trans_from = ik_in_grids;
-                        // ik_trans_to = ivk_in_grids;
-                        // auto mmat = compute_M_matrix_aims(spgds.lattice, spgds.positions, spgds.types, k,
-                        //                                   spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs);
-                        // const auto mat_transformed = mmat * mat_k * transpose(mmat, true);
-                        // double maxabs_diff = maxabs(mat_transformed - mat_vk);
-
-                        // check the abacus implementation particularly
                         ik_trans_from = ik_in_grids;
                         ik_trans_to = ivk_in_grids;
-                        auto mmat = compute_M_matrix_abacus(spgds.lattice, spgds.positions, spgds.types, k,
-                                                            spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs);
+                        auto mmat = compute_M_matrix_aims(spgds.lattice, spgds.positions, spgds.types, k,
+                                                          spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs);
                         const auto mat_transformed = mmat * mat_k * transpose(mmat, true);
                         double maxabs_diff = maxabs(mat_transformed - mat_vk);
+
+                        // check the abacus implementation particularly
+                        // ik_trans_from = ik_in_grids;
+                        // ik_trans_to = ivk_in_grids;
+                        // auto mmat = compute_M_matrix_abacus(spgds.lattice, spgds.positions, spgds.types, k,
+                        //                                     spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs);
+                        // const auto mat_transformed = mmat * mat_k * transpose(mmat, true);
+                        // double maxabs_diff = maxabs(mat_transformed - mat_vk);
 
                         // print out the result
                         printf("    Sym. Op. %2d, |M(trans) - M(origi)|_max = %8.5f\n", isymop+1, maxabs_diff);

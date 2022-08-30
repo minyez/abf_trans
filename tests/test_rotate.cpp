@@ -66,7 +66,7 @@ void test_identity()
     assert(fequal(euler[0], 0.0) && fequal(euler[1], 0.0) && fequal(euler[2], 0.0));
     assert(is_proper);
 
-    cout << get_RSH_Delta_matrix_from_Euler(1, euler, true, CODE_CHOICE::ORIG);
+    // cout << get_RSH_Delta_matrix_from_Euler(1, euler, true, CODE_CHOICE::ORIG);
 }
 
 void test_inversion()

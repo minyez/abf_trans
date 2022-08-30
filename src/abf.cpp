@@ -59,7 +59,7 @@ ABF::ABF(const std::vector<int> &atom_types_in, const std::map<int, std::vector<
     }
 }
 
-void ABF::get_abf_arlm(int abf_index, int &iat, int &irf, int &l, int &m) const
+void ABF::get_abf_arlm(int abf_index, int &iat, int &irf, int &l, int &m, const CODE_CHOICE &code) const
 {
     if (abf_index >= n_tot_abfs)
         throw std::invalid_argument("requested index >= nbasis");
@@ -73,15 +73,23 @@ void ABF::get_abf_arlm(int abf_index, int &iat, int &irf, int &l, int &m) const
         residual -= abf.size();
         if (residual < 0)
         {
+            residual += abf.size();
             irf = i;
             l = abf.l;
-            m = residual + abf.size() - l;
+            switch (code)
+            {
+                case (CODE_CHOICE::ABACUS):
+                    m = ((residual+1) / 2) * (residual%2? 1 : -1);
+                    break;
+                default:
+                    m = residual - l;
+            }
             break;
         }
     }
 }
 
-int ABF::get_abf_index(int iat, int irf, int m) const
+int ABF::get_abf_index(int iat, int irf, int m, const CODE_CHOICE &code) const
 {
     if (!(iat < atom_types.size()))
         throw std::invalid_argument("atom index out of bound");
@@ -92,7 +100,14 @@ int ABF::get_abf_index(int iat, int irf, int m) const
     int l = abfs[irf].l;
     for (int i = 0; i < irf; i++)
         iabf += abfs[i].size();
-    iabf += l + m;
+    switch (code)
+    {
+        case (CODE_CHOICE::ABACUS):
+            iabf += 2*std::abs(m) - int(m > 0);
+            break;
+        default:
+            iabf += l + m;
+    }
     return iabf;
 }
 
@@ -104,5 +119,7 @@ void get_bloch_phase_convention(const CODE_CHOICE &cc, int &a, int &b)
             a = 1; b = 0; break;
         case (CODE_CHOICE::AIMS):
             a = -1; b = 0; break;
+        case (CODE_CHOICE::ABACUS):
+            a = 1; b = 0; break;
     }
 }

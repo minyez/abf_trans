@@ -39,8 +39,8 @@ public:
     ~ABF() {};
     std::vector<int> get_number_of_abfs() const { return ::get_number_of_abfs(map_type_abfs, atom_types); }
     int get_number_of_total_abfs() const { return n_tot_abfs; }
-    void get_abf_arlm(int abf_index, int &iat, int &irf, int &l, int &m) const;
-    int get_abf_index(int iat, int irf, int m) const;
+    void get_abf_arlm(int abf_index, int &iat, int &irf, int &l, int &m, const CODE_CHOICE &code) const;
+    int get_abf_index(int iat, int irf, int m, const CODE_CHOICE &code) const;
 };
 
 extern std::map<int, std::vector<abf_id>> map_type_abfs;

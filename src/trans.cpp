@@ -62,10 +62,10 @@ matrix<cplxdb> compute_M_matrix(const matrix<double> &lattice,
                         {
                             for (int m = -l; m <= l; m++)
                             {
-                                int iabf1 = basis.get_abf_index(iMu, irf, m);
+                                int iabf1 = basis.get_abf_index(iMu, irf, m, choice);
                                 for (int mp = -l; mp <= l; mp++)
                                 {
-                                    int iabf2 = basis.get_abf_index(iMup, irf, mp);
+                                    int iabf2 = basis.get_abf_index(iMup, irf, mp, choice);
                                     Mmat(iabf1, iabf2) = Delta(m+l, mp+l);
                                     // printf("%5d %5d %5d %5d %5d %5d %5d %5d %10.5f %10.5f\n", iMu, iMup, irf, l, m, mp, iabf1, iabf2, Wmat(iabf1, iabf2).real(), Wmat(iabf1, iabf2).imag()); // debug
                                 }
@@ -126,10 +126,10 @@ matrix<cplxdb> compute_M_matrix_aims(const matrix<double> &lattice,
                         {
                             for (int m = -l; m <= l; m++)
                             {
-                                int iabf1 = basis.get_abf_index(iMu, irf, m);
+                                int iabf1 = basis.get_abf_index(iMu, irf, m, CODE_CHOICE::AIMS);
                                 for (int mp = -l; mp <= l; mp++)
                                 {
-                                    int iabf2 = basis.get_abf_index(iMup, irf, mp);
+                                    int iabf2 = basis.get_abf_index(iMup, irf, mp, CODE_CHOICE::AIMS);
                                     Mmat(iabf1, iabf2) = Delta(m+l, mp+l);
                                     // printf("%5d %5d %5d %5d %5d %5d %5d %5d %10.5f %10.5f\n", iMu, iMup, irf, l, m, mp, iabf1, iabf2, Wmat(iabf1, iabf2).real(), Wmat(iabf1, iabf2).imag()); // debug
                                 }
@@ -159,7 +159,8 @@ matrix<cplxdb> compute_M_matrix_abacus(const matrix<double> &lattice,
 
     auto rotmat_xyz = get_sym_matrix_xyz(rotmat_spg, lattice);
     bool is_proper;
-    auto euler = get_Euler_from_sym_matrix_xyz(inverse(rotmat_xyz), is_proper);
+    // auto euler = get_Euler_from_sym_matrix_xyz(inverse(rotmat_xyz), is_proper);
+    auto euler = get_Euler_from_sym_matrix_xyz(rotmat_xyz, is_proper);
 
     for (int iMu = 0; iMu < atom_types.size(); iMu++)
     {
@@ -180,8 +181,9 @@ matrix<cplxdb> compute_M_matrix_abacus(const matrix<double> &lattice,
                 {
                     // auto euler = get_Euler_from_sym_matrix_spg(rotmat_spg, lattice, is_proper);
                     auto Delta = get_RSH_Delta_matrix_from_Euler(l, euler, is_proper, CODE_CHOICE::ABACUS);
-                    double ang = -2.0*PI*(dot(Vk, s_Mu) - dot(k, s_Mup));
+                    double ang = 2.0*PI*(dot(Vk, s_Mu) - dot(k, s_Mup));
                     const cplxdb phase(std::cos(ang), std::sin(ang));
+                    printf(" Phase part of M for atom pair %2d - %2d : %10.5f %10.5f\n", iMu, iMup, phase.real(), phase.imag());
                     Delta *= phase;
                     for (int irf = 0; irf < abfs_iMu.size(); irf++)
                     {
@@ -190,10 +192,10 @@ matrix<cplxdb> compute_M_matrix_abacus(const matrix<double> &lattice,
                         {
                             for (int m = -l; m <= l; m++)
                             {
-                                int iabf1 = basis.get_abf_index(iMu, irf, m);
+                                int iabf1 = basis.get_abf_index(iMu, irf, m, CODE_CHOICE::ABACUS);
                                 for (int mp = -l; mp <= l; mp++)
                                 {
-                                    int iabf2 = basis.get_abf_index(iMup, irf, mp);
+                                    int iabf2 = basis.get_abf_index(iMup, irf, mp, CODE_CHOICE::ABACUS);
                                     Mmat(iabf1, iabf2) = Delta(m+l, mp+l);
                                     // printf("%5d %5d %5d %5d %5d %5d %5d %5d %10.5f %10.5f\n", iMu, iMup, irf, l, m, mp, iabf1, iabf2, Wmat(iabf1, iabf2).real(), Wmat(iabf1, iabf2).imag()); // debug
                                 }

@@ -206,8 +206,10 @@ matrix<cplxdb> get_RSH_Delta_matrix_from_Euler(unsigned l, const std::array<doub
     for (int m = -il; m <= il; m++)
         for (int mp = -il; mp <= il; mp++)
         {
-            const int i_m = get_lm_index(il, m, rsh_choice);
-            const int i_mp = get_lm_index(il, mp, rsh_choice);
+            // const int i_m = get_lm_index(il, m, rsh_choice);
+            // const int i_mp = get_lm_index(il, mp, rsh_choice);
+            const int i_m = m + il;
+            const int i_mp = mp + il;
             if (m == 0 && mp == 0)
                 Delta(i_m, i_mp) = Dmat(m+il, mp+il);
             else if (m == 0)
