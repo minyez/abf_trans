@@ -1,9 +1,0 @@
-aims K 2 2 2
-0.0    0.0    0.0     coulomb_matr_kpt_1.mtx
-0.0    0.0    0.5     coulomb_matr_kpt_2.mtx
-0.0    0.5    0.0     coulomb_matr_kpt_3.mtx
-0.0    0.5    0.5     coulomb_matr_kpt_4.mtx
-0.5    0.0    0.0     coulomb_matr_kpt_5.mtx
-0.5    0.0    0.5     coulomb_matr_kpt_6.mtx
-0.5    0.5    0.0     coulomb_matr_kpt_7.mtx
-0.5    0.5    0.5     coulomb_matr_kpt_8.mtx
