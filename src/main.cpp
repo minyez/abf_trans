@@ -16,6 +16,7 @@ using std::logic_error;
 
 int main (int argc, char *argv[])
 {
+    const bool debug = false;
     /* =============== */
     /* handling inputs */
     /* =============== */
@@ -178,12 +179,12 @@ int main (int argc, char *argv[])
                         assert(is_same_k(vk, inverse(transpose(to_double(spgds.rotations[isymop]))) * k));
 
                         // do the transform, general
-                        // ik_trans_from = ivk_in_grids;
-                        // ik_trans_to = ik_in_grids;
-                        // auto mmat = compute_M_matrix(spgds.lattice, spgds.positions, spgds.types, k,
-                        //                              spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs, code_choice);
-                        // const auto mat_transformed = mmat * mat_vk * transpose(mmat, true);
-                        // double maxabs_diff = maxabs(mat_transformed - mat_k);
+                        ik_trans_from = ik_in_grids;
+                        ik_trans_to = ivk_in_grids;
+                        mmat = compute_M_matrix(spgds.lattice, spgds.positions, spgds.types, k,
+                                                spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs, code_choice);
+                        mat_transformed = mmat * mat_k * transpose(mmat, true);
+                        maxabs_diff = maxabs(mat_transformed - mat_vk);
 
                         // check the aims implementation particularly
                         // ik_trans_from = ik_in_grids;
@@ -194,21 +195,24 @@ int main (int argc, char *argv[])
                         // maxabs_diff = maxabs(mat_transformed - mat_vk);
 
                         // check the abacus implementation particularly
-                        ik_trans_from = ik_in_grids;
-                        ik_trans_to = ivk_in_grids;
-                        mmat = compute_M_matrix_abacus(spgds.lattice, spgds.positions, spgds.types, k,
-                                                            spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs);
-                        mat_transformed = mmat * mat_k * transpose(mmat, true);
-                        maxabs_diff = maxabs(mat_transformed - mat_vk);
+                        // ik_trans_from = ik_in_grids;
+                        // ik_trans_to = ivk_in_grids;
+                        // mmat = compute_M_matrix_abacus(spgds.lattice, spgds.positions, spgds.types, k,
+                        //                                     spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs);
+                        // mat_transformed = mmat * mat_k * transpose(mmat, true);
+                        // maxabs_diff = maxabs(mat_transformed - mat_vk);
 
                         // print out the result
                         printf("    Sym. Op. %2d, |M(trans) - M(origi)|_max = %8.5f\n", isymop+1, maxabs_diff);
-                        transformed_mat_outmtxfn = "abf_trans_out_ik_" + std::to_string(ik_trans_to+1) + 
-                            "_from_" + std::to_string(ik_trans_from+1) + "_symop_" + std::to_string(isymop+1) + ".mtx";
-                        mmat_outmtxfn = "M_ik_" + std::to_string(ik_trans_to+1) + 
-                            "_from_" + std::to_string(ik_trans_from+1) + "_symop_" + std::to_string(isymop+1) + ".mtx";
-                        write_mtx_cplxdb(mat_transformed, transformed_mat_outmtxfn);
-                        write_mtx_cplxdb(mmat, mmat_outmtxfn);
+                        if (debug)
+                        {
+                            transformed_mat_outmtxfn = "abf_trans_out_ik_" + std::to_string(ik_trans_to+1) + 
+                                "_from_" + std::to_string(ik_trans_from+1) + "_symop_" + std::to_string(isymop+1) + ".mtx";
+                            mmat_outmtxfn = "M_ik_" + std::to_string(ik_trans_to+1) + 
+                                "_from_" + std::to_string(ik_trans_from+1) + "_symop_" + std::to_string(isymop+1) + ".mtx";
+                            write_mtx_cplxdb(mat_transformed, transformed_mat_outmtxfn);
+                            write_mtx_cplxdb(mmat, mmat_outmtxfn);
+                        }
                     }
 
                     // debug: LiF case, map IBZ k2 to BZ k7

@@ -22,8 +22,8 @@ matrix<cplxdb> compute_M_matrix(const matrix<double> &lattice,
     matrix<cplxdb> Mmat(nabf, nabf);
     const auto rotmat_spg_db = to_double(rotmat_spg);
     // ~k = V k
-    auto tilde_k = inverse(transpose(rotmat_spg_db)) * k;
-    move_k_back(tilde_k, choice);
+    auto Vk = inverse(transpose(rotmat_spg_db)) * k;
+    /* move_k_back(Vk, choice); */
 
     auto rotmat_xyz = get_sym_matrix_xyz(rotmat_spg, lattice);
     bool is_proper;
@@ -32,7 +32,8 @@ matrix<cplxdb> compute_M_matrix(const matrix<double> &lattice,
     for (int iMu = 0; iMu < atom_types.size(); iMu++)
     {
         const auto s_Mu = positions.get_row(iMu);
-        const auto s_tildeMu = rotmat_spg_db * s_Mu + transi_spg;
+        // const auto s_invSMu = rotmat_spg_db * s_Mu + transi_spg;
+        const auto s_invSMu = inverse(rotmat_spg_db) * (s_Mu - transi_spg);
         const auto abfs_iMu = map_type_abfs[atom_types[iMu]];
         vector<int> ls_compute;
         for (const auto &abf: abfs_iMu)
@@ -41,18 +42,19 @@ matrix<cplxdb> compute_M_matrix(const matrix<double> &lattice,
         for (int iMup = 0; iMup < atom_types.size(); iMup++)
         {
             const auto s_Mup = positions.get_row(iMup);
-            if (is_same_atom_in_center(s_Mup, s_tildeMu))
+            if (is_same_atom_in_center(s_Mup, s_invSMu))
             {
-                const auto OSMu = s_tildeMu - s_Mup;
+                // const auto OSMu = s_invSMu - s_Mup;
                 // loop over l to avoid duplicate calculations of radial functions with the same l
                 for (const auto &l: std::set<int>{ls_compute.cbegin(), ls_compute.cend()})
                 {
                     // auto euler = get_Euler_from_sym_matrix_spg(rotmat_spg, lattice, is_proper);
                     auto Delta = get_RSH_Delta_matrix_from_Euler(l, euler, is_proper, choice);
-                    double ang = dot(tilde_k, OSMu);
-                    if (b != 0)
-                        ang += b * (dot(tilde_k, s_Mup) - dot(k, s_Mu));
-                    ang *= a * 2.0 * PI;
+                    // double ang = dot(Vk, OSMu);
+                    // if (b != 0)
+                    //     ang += b * (dot(Vk, s_Mup) - dot(k, s_Mu));
+                    // ang *= a * 2.0 * PI;
+                    double ang = 2.0*PI*(dot(Vk, s_Mu) - dot(k, s_Mup));
                     // perform conjugate is just a formal treatment and should not affect the result, as Delta is real by definition
                     // std::cout << Delta; // debug
                     const cplxdb phase(std::cos(ang), std::sin(ang));
