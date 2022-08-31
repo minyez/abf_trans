@@ -298,8 +298,8 @@ template <> inline void matrix<complex<double>>::conj()
         c[i] = std::conj(c[i]);
 }
 
-template <typename T>
-void copy(const matrix<T> &src, matrix<T> &dest)
+template <typename T1, typename T2>
+void copy(const matrix<T1> &src, matrix<T2> &dest)
 {
     assert(src.size() == dest.size());
     for (int i = 0; i < src.size(); i++)

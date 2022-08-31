@@ -3,10 +3,11 @@
 #include <cstdlib>
 #include <ctime>
 #include <string>
-#include "spglib_utils.h"
 #include "cell.h"
 #include "io.h"
 #include "kmesh.h"
+#include "logger.h"
+#include "spglib_utils.h"
 #include "trans.h"
 
 using std::cout;
@@ -18,6 +19,8 @@ int main (int argc, char *argv[])
     /* =============== */
     /* handling inputs */
     /* =============== */
+    logger.open("log.txt");
+
     cout << "Command: " << argc << " arguments" << endl << "  ";
     for (int i = 0; i < argc; i++)
         cout << argv[i] << " ";
@@ -49,7 +52,7 @@ int main (int argc, char *argv[])
     {
         bool is_proper;
         auto euler = get_Euler_from_sym_matrix_spg(spgds.rotations[iop], spgds.lattice, is_proper);
-        printf("euler angle: %8.5f %8.5f %8.5f %d\n", euler[0], euler[1], euler[2], is_proper);
+        logger << "euler angle: " << euler[0] << " " << euler[1] << " " << euler[2] << " " << is_proper << endl;
     }
     /* cout << "Standard positions in original lattice:" << endl; */
     /* cout << (spgdataset.std_positions - spgdataset.origin_shift )* inverse(spgdataset.transformation_matrix); */
@@ -140,7 +143,7 @@ int main (int argc, char *argv[])
                 for (int ik = 0; ik < ks.size(); ik++)
                 {
                     const auto &k = ks[ik]; // k
-                    if (!kgrids.have_irk(vk) or !kgrids.have_irk(k)) continue; // debug, only mapping IBZ kpts to itself
+                    // if (!kgrids.have_irk(vk) or !kgrids.have_irk(k)) continue; // debug, only mapping IBZ kpts to itself
                     const auto &ik_in_grids = kgrids.index(k);
 
                     int ik_in_krpoints;
@@ -154,21 +157,26 @@ int main (int argc, char *argv[])
                     printf("Found k-point matrix mapping: k %4d(%6.3f, %6.3f %6.3f) -> Vk %4d(%6.3f, %6.3f %6.3f)\n",
                            ik_in_grids+1, k[0], k[1], k[2],
                            ivk_in_grids+1, vk[0], vk[1], vk[2]);
+                    logger << "===== k " << ik_in_grids+1 << "(" << k << ") -> Vk " << ivk_in_grids+1 << "(" << vk << ") =====" << endl;
                     const auto &mat_k = matrices[ik_in_krpoints];
                     const auto &mat_vk = matrices[ivk];
 
                     const auto isymops = get_symops_connecting_k1_k2(k, vk, spgds.rotations);
-                    cout << "All operations connecting two k: ";
+                    logger << "All operations connecting two k: ";
                     for (const auto &iop: isymops)
-                        cout << iop+1 << " ";
-                    cout << endl;
+                        logger << iop+1 << " ";
+                    logger << endl;
 
 
                     for (auto isymop: isymops)
                     {
+                        logger << "Sym. Op. " << isymop+1 << endl;
                         int ik_trans_from, ik_trans_to;
+                        matrix<cplxdb> mmat, mat_transformed;
+                        double maxabs_diff;
                         // consistency check
                         assert(is_same_k(vk, inverse(transpose(to_double(spgds.rotations[isymop]))) * k));
+
                         // do the transform, general
                         // ik_trans_from = ivk_in_grids;
                         // ik_trans_to = ik_in_grids;
@@ -178,20 +186,20 @@ int main (int argc, char *argv[])
                         // double maxabs_diff = maxabs(mat_transformed - mat_k);
 
                         // check the aims implementation particularly
-                        ik_trans_from = ik_in_grids;
-                        ik_trans_to = ivk_in_grids;
-                        auto mmat = compute_M_matrix_aims(spgds.lattice, spgds.positions, spgds.types, k,
-                                                          spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs);
-                        const auto mat_transformed = mmat * mat_k * transpose(mmat, true);
-                        double maxabs_diff = maxabs(mat_transformed - mat_vk);
-
-                        // check the abacus implementation particularly
                         // ik_trans_from = ik_in_grids;
                         // ik_trans_to = ivk_in_grids;
-                        // auto mmat = compute_M_matrix_abacus(spgds.lattice, spgds.positions, spgds.types, k,
-                        //                                     spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs);
-                        // const auto mat_transformed = mmat * mat_k * transpose(mmat, true);
-                        // double maxabs_diff = maxabs(mat_transformed - mat_vk);
+                        // mmat = compute_M_matrix_aims(spgds.lattice, spgds.positions, spgds.types, k,
+                        //                                   spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs);
+                        // mat_transformed = mmat * mat_k * transpose(mmat, true);
+                        // maxabs_diff = maxabs(mat_transformed - mat_vk);
+
+                        // check the abacus implementation particularly
+                        ik_trans_from = ik_in_grids;
+                        ik_trans_to = ivk_in_grids;
+                        mmat = compute_M_matrix_abacus(spgds.lattice, spgds.positions, spgds.types, k,
+                                                            spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs);
+                        mat_transformed = mmat * mat_k * transpose(mmat, true);
+                        maxabs_diff = maxabs(mat_transformed - mat_vk);
 
                         // print out the result
                         printf("    Sym. Op. %2d, |M(trans) - M(origi)|_max = %8.5f\n", isymop+1, maxabs_diff);
@@ -229,6 +237,7 @@ int main (int argc, char *argv[])
         }
     }
 
+    logger.close();
 
     return 0;
 }

@@ -1,7 +1,7 @@
+#include <iostream>
+#include "testutils.h"
 #include "../src/trans.h"
 #include "../src/spglib_utils.h"
-#include "testutils.h"
-#include <iostream>
 
 using namespace std;
 

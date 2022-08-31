@@ -1,10 +1,10 @@
-#include "io.h"
+#include <algorithm>
+#include <fstream>
 #include <iomanip>
 #include <ios>
-#include <fstream>
-#include <stdexcept>
-#include <algorithm>
 #include <iostream>
+#include <stdexcept>
+#include "io.h"
 
 CODE_CHOICE code_choice = CODE_CHOICE::ORIG;
 KRMODE krmode = KRMODE::K;

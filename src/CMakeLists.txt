@@ -21,6 +21,7 @@ list(APPEND _sources
   # constants.cpp
   io.cpp
   kmesh.cpp
+  logger.cpp
   rotate.cpp
   spglib_utils.cpp
   sph.cpp

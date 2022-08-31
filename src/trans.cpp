@@ -1,8 +1,10 @@
-#include "trans.h"
-#include "constants.h"
-#include "kmesh.h"
-#include <set>
 #include <iostream>
+#include <set>
+#include "constants.h"
+#include "io.h"
+#include "kmesh.h"
+#include "logger.h"
+#include "trans.h"
 
 matrix<cplxdb> compute_M_matrix(const matrix<double> &lattice, 
                                 const matrix<double> &positions, 
@@ -159,13 +161,13 @@ matrix<cplxdb> compute_M_matrix_abacus(const matrix<double> &lattice,
 
     auto rotmat_xyz = get_sym_matrix_xyz(rotmat_spg, lattice);
     bool is_proper;
-    // auto euler = get_Euler_from_sym_matrix_xyz(inverse(rotmat_xyz), is_proper);
-    auto euler = get_Euler_from_sym_matrix_xyz(rotmat_xyz, is_proper);
+    auto euler = get_Euler_from_sym_matrix_xyz(inverse(rotmat_xyz), is_proper);
+    // auto euler = get_Euler_from_sym_matrix_xyz(rotmat_xyz, is_proper);
 
     for (int iMu = 0; iMu < atom_types.size(); iMu++)
     {
         const auto s_Mu = positions.get_row(iMu);
-        auto s_tildeMu = inverse(rotmat_spg_db) * (s_Mu - transi_spg);
+        auto s_SMu = inverse(rotmat_spg_db) * (s_Mu - transi_spg);
         const auto abfs_iMu = map_type_abfs[atom_types[iMu]];
         vector<int> ls_compute;
         for (const auto &abf: abfs_iMu)
@@ -174,7 +176,7 @@ matrix<cplxdb> compute_M_matrix_abacus(const matrix<double> &lattice,
         for (int iMup = 0; iMup < atom_types.size(); iMup++)
         {
             const auto s_Mup = positions.get_row(iMup);
-            if (is_same_atom_in_center(s_Mup, s_tildeMu))
+            if (is_same_atom_in_center(s_Mup, s_SMu))
             {
                 // loop over l to avoid duplicate calculations of radial functions with the same l
                 for (const auto &l: std::set<int>{ls_compute.cbegin(), ls_compute.cend()})
@@ -182,8 +184,9 @@ matrix<cplxdb> compute_M_matrix_abacus(const matrix<double> &lattice,
                     // auto euler = get_Euler_from_sym_matrix_spg(rotmat_spg, lattice, is_proper);
                     auto Delta = get_RSH_Delta_matrix_from_Euler(l, euler, is_proper, CODE_CHOICE::ABACUS);
                     double ang = 2.0*PI*(dot(Vk, s_Mu) - dot(k, s_Mup));
+                    // double ang = -2.0*PI*dot(Vk, s_SMu - s_Mu);
                     const cplxdb phase(std::cos(ang), std::sin(ang));
-                    printf(" Phase part of M for atom pair %2d - %2d : %10.5f %10.5f\n", iMu, iMup, phase.real(), phase.imag());
+                    // printf(" Phase part of M for atom pair %2d - %2d : %10.5f %10.5f\n", iMu, iMup, phase.real(), phase.imag());
                     Delta *= phase;
                     for (int irf = 0; irf < abfs_iMu.size(); irf++)
                     {
