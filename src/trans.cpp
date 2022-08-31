@@ -44,12 +44,15 @@ matrix<cplxdb> compute_M_matrix(const matrix<double> &lattice,
             const auto s_Mup = positions.get_row(iMup);
             if (is_same_atom_in_center(s_Mup, s_invSMu))
             {
+                logger << "Atom pair block: " << iMu << " " << iMup << std::endl;
                 // const auto OSMu = s_invSMu - s_Mup;
                 // loop over l to avoid duplicate calculations of radial functions with the same l
                 for (const auto &l: std::set<int>{ls_compute.cbegin(), ls_compute.cend()})
                 {
                     // auto euler = get_Euler_from_sym_matrix_spg(rotmat_spg, lattice, is_proper);
                     auto Delta = get_RSH_Delta_matrix_from_Euler(l, euler, is_proper, choice);
+                    logger << "RSH Delta for l = " << l << std::endl;
+                    logger << Delta;
                     // double ang = dot(Vk, OSMu);
                     // if (b != 0)
                     //     ang += b * (dot(Vk, s_Mup) - dot(k, s_Mu));
@@ -58,6 +61,7 @@ matrix<cplxdb> compute_M_matrix(const matrix<double> &lattice,
                     // perform conjugate is just a formal treatment and should not affect the result, as Delta is real by definition
                     // std::cout << Delta; // debug
                     const cplxdb phase(std::cos(ang), std::sin(ang));
+                    logger << "Phase = " << phase << std::endl;
                     Delta *= phase;
                     for (int irf = 0; irf < abfs_iMu.size(); irf++)
                     {

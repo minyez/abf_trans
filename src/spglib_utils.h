@@ -47,6 +47,7 @@ public:
     vector<int> inverse_operation;
 
     matrix<int> map_atoms;
+    matrix<int> map_atoms_inv;
 
     SpgDS_c(const matrix<double> &latt_in, const matrix<double> &posi_frac_in,
             const vector<int> &types_in, const double symprec_in = 1.0e-5);

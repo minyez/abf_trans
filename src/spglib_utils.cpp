@@ -105,15 +105,28 @@ SpgDS_c::SpgDS_c(const matrix<double> &latt_in, const matrix<double> &posi_frac_
 
     // set atoms mapping by symmetry operations
     map_atoms.resize(n_atoms, n_operations);
+    map_atoms_inv.resize(n_atoms, n_operations);
     for (int ia = 0; ia < n_atoms; ia++)
         for (int isymop = 0; isymop < n_operations; isymop++)
         {
             auto a_rot = to_double(this->rotations[isymop]) * this->positions.get_row(ia) + this->translations[isymop];
-            for (int i = 0; i < 3; i++)
-                shift_to_unit(a_rot[i], 0.0, true);
+            auto a_invrot = inverse(to_double(this->rotations[isymop])) * (this->positions.get_row(ia) - this->translations[isymop]);
             for (int iap = 0; iap < n_atoms; iap++)
-                if (a_rot ==this->positions.get_row(iap))
+            {
+                auto diff = a_rot - this->positions.get_row(iap);
+                auto diff_inv = a_invrot - this->positions.get_row(iap);
+                for (int i = 0; i < 3; i++)
+                {
+                    shift_to_unit(diff[i], 0.0, true);
+                    if (1 - diff[i] < symprec) diff[i] = 1 - diff[i];
+                    shift_to_unit(diff_inv[i], 0.0, true);
+                    if (1 - diff_inv[i] < symprec) diff_inv[i] = 1 - diff_inv[i];
+                }
+                if (vec_equal(diff, {3}, symprec))
                     map_atoms(ia, isymop) = iap;
+                if (vec_equal(diff_inv, {3}, symprec))
+                    map_atoms_inv(ia, isymop) = iap;
+            }
         }
 
     spg_free_dataset(dataset);

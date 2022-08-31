@@ -171,7 +171,7 @@ int main (int argc, char *argv[])
 
                     for (auto isymop: isymops)
                     {
-                        logger << "Sym. Op. " << isymop+1 << endl;
+                        logger << "----- Sym. Op. " << isymop+1 << endl;
                         int ik_trans_from, ik_trans_to;
                         matrix<cplxdb> mmat, mat_transformed;
                         double maxabs_diff;
