@@ -71,64 +71,14 @@ int main (int argc, char *argv[])
     char comment[80];
     string mtxfile, transformed_mat_outmtxfn, mmat_outmtxfn;
 
-    if (argc == 9)
-    {
-        vec<double> KRcoord(3);
-
-        // one-line case
-        code_choice = parse_code_choice(argv[3]);
-        krmode = parse_krmode(argv[4]);
-        printf("RSH choice: %s\n", CODE_CHOICE_STR[code_choice]);
-        printf("      Mode: %s\n", KRMODE_STR[krmode]);
-
-        for (int i = 0; i < 3; i++)
-            KRcoord[i] = decode_fraction(argv[5+i]);
-        mtxfile = argv[8];
-        cout << "Reading matrix data from file: " << mtxfile << endl;
-        const auto mat = read_mtx_cplxdb(mtxfile);
-        printf("matrix size = (%d, %d), basis size = %d\n", mat.nr, mat.nc, basis.get_number_of_total_abfs());
-        if (mat.nr != basis.get_number_of_total_abfs())
-        {
-            throw std::invalid_argument("The matrix size is not equal to the basis size, check input");
-        }
-
-        if (krmode == KRMODE::K)
-        {
-            printf("Computing all equivalent k-points to (%f, %f, %f)\n", KRcoord[0], KRcoord[1], KRcoord[2]);
-            get_all_equiv_k(KRcoord, spgds.rotations, ks, isymops, code_choice);
-            printf("Found %zu equivalent kpoints (including itself)\n", ks.size());
-            // for (int ik = 0; ik < ks.size(); ik++)
-            //     printf("%2d: %f %f %f\n", ik, ks[ik][0], ks[ik][1], ks[ik][2]);
-            for (int ik = 0; ik < ks.size(); ik++)
-            {
-                printf("Transforming matrix at %7.4f %7.4f %7.4f -> %7.4f %7.4f %7.4f (%3d)\n",
-                       KRcoord[0], KRcoord[1], KRcoord[2], ks[ik][0], ks[ik][1], ks[ik][2], ik);
-                const auto euler = get_Euler_from_sym_matrix_spg(spgds.rotations[isymops[ik]], spgds.lattice, is_proper);
-                if (is_proper)
-                    printf("  Euler angle of Op %2d: %10.6f %10.6f %10.6f\n", isymops[ik]+1, euler[0], euler[1], euler[2]);
-                else
-                    printf("  Euler angle of Op %2d: %10.6f %10.6f %10.6f (plus inversion)\n", isymops[ik]+1, euler[0], euler[1], euler[2]);
-                const auto k_mat = compute_representation_on_equiv_k(KRcoord, mat, spgds.lattice, spgds.positions, spgds.types,
-                                                                     spgds.rotations[isymops[ik]], spgds.translations[isymops[ik]], map_type_abfs,
-                                                                     code_choice);
-                transformed_mat_outmtxfn = "abf_trans_out_equivk_" + std::to_string(ik) + "_symop_" + std::to_string(isymops[ik]+1) + ".mtx";
-                sprintf(comment, "equiv k: %f %f %f", ks[ik][0], ks[ik][1], ks[ik][2]);
-                write_mtx_cplxdb(k_mat, transformed_mat_outmtxfn, comment);
-            }
-            ks.clear();
-            isymops.clear();
-        }
-    }
-
     if (argc == 4)
     {
         vector<vec<double>> krpoints;
         std::array<int, 3> ngs;
-        vector<string> mtxfns;
+        vector<string> matfns;
         vector<matrix<cplxdb>> matrices;
-        double output_thres = 1e-4; // negative to output anyway
         cout << "Reading code choice, K/R mode and matrice information from file: " << argv[3] << endl;
-        read_matrix_inputs(argv[3], code_choice, krmode, ngs, krpoints, mtxfns, matrices);
+        read_matrix_inputs(argv[3], code_choice, krmode, ngs, krpoints, matfns, matrices);
         if (krmode == KRMODE::K)
         {
             KGrids kgrids(ngs, code_choice);
@@ -140,7 +90,7 @@ int main (int argc, char *argv[])
                 if (ivk_in_grids < 0) continue; // not found in the kgrids
                 // if (ivk_in_grids != 0) continue; // debug, only the Gamma point
                 // if (!kgrids.have_irk(vk)) continue; // debug, only IBZ kpts
-                get_all_equiv_k(vk, spgds.rotations, ks, isymops, code_choice); // all ks that ~k = Vk
+                get_all_equiv_k(vk, spgds.rotations, ks, isymops, code_choice); // decompose Vk = V k
                 for (int ik = 0; ik < ks.size(); ik++)
                 {
                     const auto &k = ks[ik]; // k
@@ -178,29 +128,13 @@ int main (int argc, char *argv[])
                         // consistency check
                         assert(is_same_k(vk, inverse(transpose(to_double(spgds.rotations[isymop]))) * k));
 
-                        // do the transform, general
+                        // do the transform
                         ik_trans_from = ik_in_grids;
                         ik_trans_to = ivk_in_grids;
                         mmat = compute_M_matrix(spgds.lattice, spgds.positions, spgds.types, k,
                                                 spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs, code_choice);
                         mat_transformed = mmat * mat_k * transpose(mmat, true);
                         maxabs_diff = maxabs(mat_transformed - mat_vk);
-
-                        // check the aims implementation particularly
-                        // ik_trans_from = ik_in_grids;
-                        // ik_trans_to = ivk_in_grids;
-                        // mmat = compute_M_matrix_aims(spgds.lattice, spgds.positions, spgds.types, k,
-                        //                                   spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs);
-                        // mat_transformed = mmat * mat_k * transpose(mmat, true);
-                        // maxabs_diff = maxabs(mat_transformed - mat_vk);
-
-                        // check the abacus implementation particularly
-                        // ik_trans_from = ik_in_grids;
-                        // ik_trans_to = ivk_in_grids;
-                        // mmat = compute_M_matrix_abacus(spgds.lattice, spgds.positions, spgds.types, k,
-                        //                                     spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs);
-                        // mat_transformed = mmat * mat_k * transpose(mmat, true);
-                        // maxabs_diff = maxabs(mat_transformed - mat_vk);
 
                         // print out the result
                         printf("    Sym. Op. %2d, |M(trans) - M(origi)|_max = %8.5f\n", isymop+1, maxabs_diff);
@@ -214,26 +148,6 @@ int main (int argc, char *argv[])
                             write_mtx_cplxdb(mmat, mmat_outmtxfn);
                         }
                     }
-
-                    // debug: LiF case, map IBZ k2 to BZ k7
-                    // if (ik_in_grids != 1 || ik_equiv_in_grids != 6) continue;
-
-                    // if (ik == ik_equiv_in_krpoints) // debug: mapping to itself
-                        // const auto euler = get_Euler_from_sym_matrix_spg(spgds.rotations[isymop], spgds.lattice, is_proper);
-                        /* wmat = transpose(wmat); // debug, test operation 23 */
-                        /* wmat = transpose(wmat, true); // debug, test operation 23 */
-                        // printf("Found k-point matrix mapping %4d(%6.3f, %6.3f %6.3f) -> %4d(%6.3f, %6.3f %6.3f) by symop. %2d, |Mk - Mkeq|_max = %f, |W Mk W^H - Mkeq|_max  = %f\n",
-                        //        ik+1, kprime[0], kprime[1], kprime[2],
-                        //        ik_equiv_in_krpoints+1, k_equiv[0], k_equiv[1], k_equiv[2],
-                        //        isymop+1, maxabs(mat_kprime - mat_k_equiv), maxabs_diff);
-                        // if (maxabs_diff > output_thres)
-                            // debug
-                            // print the symmetry operation
-                            // cout << "     Symop " << isymop+1 << ": " << endl << spgdataset.get_operation_str_matform(isymop) << endl;
-                            // const int i_invop = spgdataset.inverse_operation[isymop];
-                            // cout << "Inverse op " << i_invop+1 << ": " << endl << spgdataset.get_operation_str_matform(i_invop) << endl;
-                                /* wmat = transpose(wmat); // debug, test operation 23 */
-                                /* wmat = transpose(wmat, true); // debug, test operation 23 */
                 }
                 isymops.clear();
                 ks.clear();
