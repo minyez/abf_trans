@@ -145,13 +145,7 @@ void KGrids::generate_irk_map(const SpgDS_c &dataset)
             {
                 // IBZ-k + K = V BZ-k
                 auto vk = inverse(transpose(to_double(dataset.rotations[is]))) * kpt;
-                switch (code)
-                {
-                    case CODE_CHOICE::ORIG:
-                        move_to_center(vk, -0.5, false); break;
-                    case CODE_CHOICE::AIMS:
-                        move_to_center(vk, 0.0, true); break;
-                }
+                move_k_back(vk, code);
                 for (int irk = 0; irk < irkpts_vec.size(); irk++)
                 {
                     if (is_same_k(irkpts_vec[irk], vk))
@@ -256,7 +250,7 @@ matrix<double> move_k_back(matrix<double> &kpts, const CODE_CHOICE &code)
                     K(ia, ic) = shift_to_unit(kpts(ia, ic), -0.5, false);
                 }
             break;
-        case CODE_CHOICE::AIMS:
+        default:
             for (int ia = 0; ia < K.nr; ia++)
                 for (int ic = 0; ic < K.nc; ic++)
                 {
@@ -276,7 +270,7 @@ vec<double> move_k_back(vec<double> &kpts, const CODE_CHOICE &code)
                 for (int ic = 0; ic < K.n; ic++)
                     K[ic] = shift_to_unit(kpts[ic], -0.5, false);
             break;
-        case CODE_CHOICE::AIMS:
+        default:
                 for (int ic = 0; ic < K.n; ic++)
                     K[ic] = shift_to_unit(kpts[ic], 0.0, true);
             break;
