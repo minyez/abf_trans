@@ -125,8 +125,6 @@ int main (int argc, char *argv[])
                         int ik_trans_from, ik_trans_to;
                         matrix<cplxdb> mmat, mat_transformed;
                         double maxabs_diff;
-                        // consistency check
-                        assert(is_same_k(vk, inverse(transpose(to_double(spgds.rotations[isymop]))) * k));
 
                         // do the transform
                         ik_trans_from = ik_in_grids;

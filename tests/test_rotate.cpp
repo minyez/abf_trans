@@ -50,28 +50,6 @@ void test_corotate_k_R()
     cout << "R'(" << R_rot << ") . k'(" << k_rot << ") = " << prod_rot << endl;
 }
 
-void test_rotate_k()
-{
-    matrix<double> latt(3, 3);
-    latt = 0;
-    // a non-standard lattice;
-    latt(0, 1) = latt(0, 2) = latt(1, 0) = latt(1, 2) = 1.0;
-    latt(2, 0) = latt(2, 1) = 1.0;
-
-    matrix<int> rotmat_spg(3, 3);
-    rotmat_spg(0, 1) = rotmat_spg(1, 2) = rotmat_spg(2, 0) = 1;
-    vec<double> k(3);
-    k[0] = 0.5, k[1] = 0.2, k[2] = -0.1;
-    const auto recip_latt = transpose(inverse(latt));
-    const auto k_xyz = transpose(recip_latt) * k;
-    const auto Vk_xyz = transpose(recip_latt) * rotate_k(rotmat_spg, k, latt);
-    const auto rotmat_xyz = transpose(latt) * to_double(rotmat_spg) * inverse(transpose(latt));
-    const auto Vk_xyz_direct= rotmat_xyz * k_xyz;
-    cout << Vk_xyz << endl;
-    cout << Vk_xyz_direct << endl;
-    assert(Vk_xyz == Vk_xyz_direct);
-}
-
 void test_identity()
 {
     cout << "Testing identity operation ..." << endl;
@@ -258,7 +236,6 @@ void test_Delta_matrix_aims()
 int main (int argc, char *argv[])
 {
     test_corotate_k_R();
-    test_rotate_k();
     test_identity();
     test_inversion();
     test_generate_symmat_nonzero_sinbeta();

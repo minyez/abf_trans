@@ -3,8 +3,6 @@
 #include "base.h"
 #include "matrix.h"
 
-vec<double> rotate_k(const matrix<int> &rotmat_spg, const vec<double> &k, const matrix<double> &lattice);
-
 matrix<double> get_sym_matrix_xyz(const matrix<int> &rotmat_spg,
                                   const matrix<double> &lattice);
 

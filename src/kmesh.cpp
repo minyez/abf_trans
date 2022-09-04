@@ -5,6 +5,15 @@
 #include "cell.h"
 #include "mathtools.h"
 
+vec<double> rotate_k(const matrix<int> &rotmat_spg, const vec<double> &k, const matrix<double> &lattice)
+{
+    assert(k.size() == 3);
+    vec<double> k_rot(3);
+    const auto AAT = lattice * transpose(lattice);
+    k_rot = AAT * to_double(rotmat_spg) * inverse(AAT) * k;
+    return k_rot;
+}
+
 matrix<double> get_kgrids(std::array<int, 3> nks, const CODE_CHOICE &code)
 {
     const int nkpts = nks[0] * nks[1] * nks[2];

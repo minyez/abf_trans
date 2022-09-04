@@ -5,6 +5,8 @@
 #include "matrix.h"
 #include "spglib_utils.h"
 
+vec<double> rotate_k(const matrix<int> &rotmat_spg, const vec<double> &k, const matrix<double> &lattice);
+
 // the kgrids are always Gamma-centered
 matrix<double> get_kgrids(std::array<int, 3> nks, const CODE_CHOICE &code = CODE_CHOICE::ORIG);
 
