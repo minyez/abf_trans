@@ -1,8 +1,17 @@
-#include "rotate.h"
+#include <iostream>
 #include "constants.h"
 #include "mathtools.h"
-#include <iostream>
+#include "rotate.h"
 #include "sph.h"
+
+vec<double> rotate_k(const matrix<int> &rotmat_spg, const vec<double> &k, const matrix<double> &lattice)
+{
+    assert(k.size() == 3);
+    vec<double> k_rot(3);
+    const auto AAT = lattice * transpose(lattice);
+    k_rot = AAT * to_double(rotmat_spg) * inverse(AAT) * k;
+    return k_rot;
+}
 
 matrix<double> get_sym_matrix_xyz(const matrix<int> &rotmat_spg,
                                   const matrix<double> &lattice)

@@ -1,9 +1,9 @@
 #pragma once
+#include <array>
+#include <map>
 #include "mathtools.h"
 #include "matrix.h"
 #include "spglib_utils.h"
-#include <array>
-#include <map>
 
 // the kgrids are always Gamma-centered
 matrix<double> get_kgrids(std::array<int, 3> nks, const CODE_CHOICE &code = CODE_CHOICE::ORIG);
