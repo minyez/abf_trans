@@ -232,12 +232,53 @@ void test_Delta_matrix_aims()
     }
 }
 
+void test_repr_in_Slm_from_rotmat_spg()
+{
+    // abacus real spherical harmonics l=1, each m: -1 = y, 0 = z, 1 = x
+    // C1_4 along z axis (anticlockwise) in l=1
+    //     x => y, y => -x, z => z
+    //                  |        1 |
+    //     Repr(C1_4) = |     1    |
+    //                  | -1       |
+    matrix<double> delta_ref_l1_abacus(3, 3);
+    delta_ref_l1_abacus(0, 2) = delta_ref_l1_abacus(1, 1) = 1;
+    delta_ref_l1_abacus(2, 0) = -1;
+
+    // C1_4
+    matrix<double> rotmat_xyz(3, 3);
+    rotmat_xyz(0, 1) = -1;
+    rotmat_xyz(1, 0) = 1;
+    rotmat_xyz(2, 2) = 1;
+    vec<double> a(3), a_rot(3);
+    a[0] = 2.0, a[1] = 1.0, a[2] = -3.0;
+    a_rot[0] = -a[1], a_rot[1] = a[0], a_rot[2] = a[2];
+    // internal check
+    assert( rotmat_xyz * a == a_rot);
+    cout << rotmat_xyz;
+    cout << "Representation reference" << endl;
+    cout << delta_ref_l1_abacus;
+
+    bool is_proper;
+    array<double, 3> euler = get_Euler_from_sym_matrix_xyz(rotmat_xyz, is_proper);
+    cout << "Euler of rotmat: " << euler[0] << " " << euler[1] << " " << euler[2] << endl;
+    assert(is_proper);
+    auto delta = get_real(get_RSH_Delta_matrix_from_Euler(1, euler, true, CODE_CHOICE::ABACUS));
+    cout << "Representation from rotmat_xyz" << endl << delta;
+
+    euler = get_Euler_from_sym_matrix_xyz(inverse(rotmat_xyz), is_proper);
+    cout << "Euler of inverse rotmat: " << euler[0] << " " << euler[1] << " " << euler[2] << endl;
+    delta = get_real(get_RSH_Delta_matrix_from_Euler(1, euler, true, CODE_CHOICE::ABACUS));
+    cout << "Representation from inverse of rotmat_xyz" << endl << delta;
+    assert(delta == delta_ref_l1_abacus);
+}
+
 
 int main (int argc, char *argv[])
 {
     test_corotate_k_R();
     test_identity();
     test_inversion();
+    test_repr_in_Slm_from_rotmat_spg();
     test_generate_symmat_nonzero_sinbeta();
     test_Wigner_smalld();
     test_Wigner_D();

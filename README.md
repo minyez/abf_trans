@@ -17,7 +17,7 @@ At the current stage, only k-space symmetry transformation is implemented.
 
 1. Ensure a valid `SPGLIB_HOME` environment variable as install path of Spglib.
 2. Ensure a valid `LAPACK_HOME` environment variable and correct librarires in `LAPACK_LIBRARIES` in CMakeLists.txt.
-   For example, if you use MKL,
+   For example, if using MKL,
     ```
     # in bashrc or envrc
     export LAPACK_HOME="$MKLROOT/lib/intel64"
@@ -32,7 +32,7 @@ At the current stage, only k-space symmetry transformation is implemented.
     cmake .. && make -j4
     ```
 
-This will leads to executable `abf_trans.exe` under `build` directory and test executables in `build/tests`.
+This will lead to executable `abf_trans.exe` under `build` directory and test executables in `build/tests`.
 You may run `make test` to do basic unit tests.
 
 ## Usage
@@ -51,7 +51,7 @@ After start, the program will
     1. find its equivalent point using the symmetry operations
     2. perform the unitary transformation of the matrix, and compare the transformed matrix to the one at the equivalent point.
 
-Three input files are required as inputs to use this project
+Three input files are required as arguments to use this project
 
 - `cell.txt` for parsing the information of the cell.
     ```
