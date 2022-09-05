@@ -68,5 +68,6 @@ abf_trans_out_*.mtx
 *.txt
 *.mtx
 *.png
+!examples/Makefile
 !examples/*/abfid.txt
 !examples/*/matrix_inputs*.txt

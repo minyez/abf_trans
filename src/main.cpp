@@ -17,6 +17,8 @@ using std::logic_error;
 int main (int argc, char *argv[])
 {
     const bool debug = false;
+    size_t tested_trans = 0;
+    size_t pass_trans = 0;
     /* =============== */
     /* handling inputs */
     /* =============== */
@@ -132,7 +134,9 @@ int main (int argc, char *argv[])
                         mmat = compute_M_matrix(spgds.lattice, spgds.positions, spgds.types, k,
                                                 spgds.rotations[isymop], spgds.translations[isymop], map_type_abfs, code_choice);
                         mat_transformed = mmat * mat_k * transpose(mmat, true);
+                        tested_trans++;
                         maxabs_diff = maxabs(mat_transformed - mat_vk);
+                        if (maxabs_diff < 1e-4) pass_trans++;
 
                         // print out the result
                         printf("    Sym. Op. %2d, |M(trans) - M(origi)|_max = %8.5f\n", isymop+1, maxabs_diff);
@@ -152,6 +156,10 @@ int main (int argc, char *argv[])
             }
         }
     }
+
+    logger << "Tested transformations: " << tested_trans << endl;
+    logger << "Passed transformations: " << pass_trans << endl;
+    if (tested_trans == pass_trans) logger << "All transformation passed" << endl;
 
     logger.close();
 

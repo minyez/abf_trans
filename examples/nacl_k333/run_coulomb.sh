@@ -116,4 +116,7 @@ rm -f abf_trans_out*
 
 $exe cell.txt basis_id.txt matrix_inputs.txt
 
-# $exe cell.txt basis_id.txt matrix_inputs_all.txt
+tested=$(tail -4 log.txt | awk '/Tested transformations/ {print $3}')
+passed=$(tail -4 log.txt | awk '/Passed transformations/ {print $3}')
+(( tested != passed )) && exit 1
+exit 0
