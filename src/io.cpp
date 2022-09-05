@@ -338,6 +338,8 @@ matrix<cplxdb> read_csc_cplxdb(const string &cscfile)
     for (int i = 0; i < n_basis; i++)
     {
         rf.read((char *) &col_ptr[i], sizeof(long));
+        if (col_ptr[i] < 0)
+            std::cout << "Encounter negative col_ptr, the result can be wierd, please check matrix input file" << std::endl;
         col_ptr[i] -= 1;
     }
     col_ptr[n_basis] = nnz_g;

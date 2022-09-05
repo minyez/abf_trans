@@ -31,7 +31,7 @@ EOF
 #   # ionic 3 s auto
 
 # Note the following is the auxiliary basis, not the original basis
-# ABFs on Na = 76, Cl = 197
+# ABFs on Na = 77, Cl = 196
 cat > basis_id.txt << EOF
 11 0 2
 11 1 1

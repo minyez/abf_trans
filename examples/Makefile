@@ -2,7 +2,7 @@ targets = bccHe_k444 \
 	bccHe_k333_abacus \
 	hbn_k331 hbn_k662 \
 	lif_k333 lif_k444_abacus \
-	nacl_k333 nacl_k444 \
+	nacl_k333 nacl_k333_minimal nacl_k444 \
 	scHe_k333_abacus scHe_k444
 
 
@@ -25,11 +25,14 @@ hbn_k662:
 nacl_k333:
 	cd $@; ./run_coulomb.sh
 
+nacl_k333_minimal:
+	cd $@; ./run_coulomb.sh
+
 nacl_k444:
 	cd $@; ./run_coulomb.sh
 
 scHe_k333_abacus:
-	cd $@; ./run_coulomb.sh
+	cd $@; ./run_hamiltonian.sh
 
 scHe_k444:
 	cd $@; ./run_coulomb.sh

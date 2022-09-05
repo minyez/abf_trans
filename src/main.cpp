@@ -91,6 +91,7 @@ int main (int argc, char *argv[])
                 const auto ivk_in_grids = kgrids.index(vk);
                 if (ivk_in_grids < 0) continue; // not found in the kgrids
                 // if (ivk_in_grids != 0) continue; // debug, only the Gamma point
+                // if (ivk_in_grids != 2) continue; // debug, a particular point
                 // if (!kgrids.have_irk(vk)) continue; // debug, only IBZ kpts
                 get_all_equiv_k(vk, spgds.rotations, ks, isymops, code_choice); // decompose Vk = V k
                 for (int ik = 0; ik < ks.size(); ik++)
