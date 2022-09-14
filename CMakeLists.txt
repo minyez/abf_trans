@@ -10,7 +10,7 @@ string(REGEX MATCH ".*_version = \"[a-zA-Z0-9.-_]+" _version ${_version_stamp})
 string(REGEX REPLACE ".*_version = \"" "" _version ${_version})
 
 project(abf_trans VERSION ${_version} LANGUAGES NONE)
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/modules")
 
 # # Intel C++
 # set(CMAKE_CXX_COMPILER "icpc" CACHE STRING "" FORCE)
